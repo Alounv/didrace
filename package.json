@@ -1,0 +1,35 @@
+{
+  "name": "didrace",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:ui": "VITE_PUBLIC_SERVER='http://localhost:4848' vite",
+    "dev:zero-cache": "zero-cache-dev -p src/schema.ts",
+    "dev:db-up": "docker compose --env-file .env -f ./docker/docker-compose.yml up",
+    "dev:db-down": "docker compose --env-file .env -f ./docker/docker-compose.yml down",
+    "dev:clean": "source .env && docker volume rm -f docker_zstart_solid_pgdata && rm -rf \"${ZERO_REPLICA_FILE}\"*",
+    "build": "tsc -b && vite build",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@rocicorp/zero": "^0.12.2025012501",
+    "jose": "^5.9.6",
+    "js-cookie": "^3.0.5",
+    "solid-js": "^1.9.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "@hono/node-server": "^1.13.2",
+    "@types/js-cookie": "^3.0.6",
+    "@types/node": "^22.7.9",
+    "dotenv": "^16.4.5",
+    "eslint": "^9.9.0",
+    "globals": "^15.9.0",
+    "hono": "^4.6.6",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^8.0.1",
+    "vite": "^5.4.1",
+    "vite-plugin-solid": "^2.10.2"
+  }
+}
