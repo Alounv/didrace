@@ -22,7 +22,7 @@ const player = table("player")
   })
   .primaryKey("id");
 
-const text = table("text")
+const quote = table("quote")
   .columns({
     id: string(),
 
@@ -34,7 +34,7 @@ const text = table("text")
 const race = table("race")
   .columns({
     id: string(),
-    textID: string(),
+    quoteID: string(),
     authorID: string(),
 
     status: enumeration<"ready" | "started" | "finished">(),
@@ -76,16 +76,28 @@ const raceRelationships = relationships(race, ({ one, many }) => ({
     destField: ["raceID"],
     destSchema: player_race,
   }),
-  text: one({
-    sourceField: ["textID"],
+  quote: one({
+    sourceField: ["quoteID"],
     destField: ["id"],
-    destSchema: text,
+    destSchema: quote,
   }),
   author: one({
     sourceField: ["authorID"],
     destField: ["id"],
     destSchema: player,
   }),
+  players: many(
+    {
+      sourceField: ["id"],
+      destField: ["raceID"],
+      destSchema: player_race,
+    },
+    {
+      sourceField: ["playerID"],
+      destField: ["id"],
+      destSchema: player,
+    },
+  ),
 }));
 
 const playerRaceRelationships = relationships(player_race, ({ one, many }) => ({
@@ -122,7 +134,7 @@ const playerRelationships = relationships(player, ({ many }) => ({
 // --- Schema ---
 
 export const schema = createSchema(1, {
-  tables: [player, text, race, player_race, typed_word],
+  tables: [player, quote, race, player_race, typed_word],
   relationships: [
     raceRelationships,
     playerRaceRelationships,
@@ -132,7 +144,7 @@ export const schema = createSchema(1, {
 
 export type Schema = typeof schema;
 export type Player = Row<typeof schema.tables.player>;
-export type Text = Row<typeof schema.tables.text>;
+export type Quote = Row<typeof schema.tables.quote>;
 export type Race = Row<typeof schema.tables.race>;
 export type PlayerRace = Row<typeof schema.tables.player_race>;
 export type TypedWord = Row<typeof schema.tables.typed_word>;
@@ -184,7 +196,7 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
         delete: [allowIfHimself],
       },
     },
-    text: {
+    quote: {
       row: {
         insert: NOBODY_CAN,
         update: { preMutation: NOBODY_CAN },

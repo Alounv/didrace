@@ -1,15 +1,16 @@
 import Cookies from "js-cookie";
 import { useQuery } from "@rocicorp/zero/solid";
 import { Zero } from "@rocicorp/zero";
-import { Schema } from "./schema";
+import { Schema } from "../schema";
 // import { randomMessage } from "./test-data";
 // import { randInt } from "./rand";
 // import { formatDate } from "./date";
 import { createEffect, createSignal, For, Show } from "solid-js";
+import { A } from "@solidjs/router";
 
-function App({ z }: { z: Zero<Schema> }) {
+function Home({ z }: { z: Zero<Schema> }) {
   const [players] = useQuery(() => z.query.player);
-  const [texts] = useQuery(() => z.query.text);
+  const [texts] = useQuery(() => z.query.quote);
   const [races] = useQuery(() => z.query.race);
 
   const [action, setAction] = createSignal<"add" | "remove" | undefined>(
@@ -107,10 +108,9 @@ function App({ z }: { z: Zero<Schema> }) {
       <div>
         <For each={races()}>
           {(race) => (
-            <div>
-              <div>{race.id}</div>
-              <div>{race.status}</div>
-            </div>
+            <A href={`/races/${race.id}`}>
+              <span>{race.id}</span> - <span>{race.status}</span>
+            </A>
           )}
         </For>
       </div>
@@ -118,4 +118,4 @@ function App({ z }: { z: Zero<Schema> }) {
   );
 }
 
-export default App;
+export default Home;

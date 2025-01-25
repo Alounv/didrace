@@ -1,5 +1,5 @@
 import { randBetween, randID, randInt } from "./rand";
-import type { Text, Player, Race, PlayerRace } from "./schema";
+import type { Quote, Player, Race, PlayerRace } from "./schema";
 
 const PLAYER_NAMES = [
   "SpeedTyper",
@@ -14,7 +14,7 @@ const PLAYER_NAMES = [
   "RapidTyper",
 ];
 
-const SAMPLE_TEXTS = [
+const SAMPLE_QUOTES = [
   "The quick brown fox jumps over the lazy dog.",
   "A wizard's job is to vex chumps quickly in fog.",
   "Pack my box with five dozen liquor jugs.",
@@ -22,11 +22,11 @@ const SAMPLE_TEXTS = [
   "The five boxing wizards jump quickly.",
 ];
 
-export function generateTexts(count: number): Text[] {
+export function generateQuotes(count: number): Quote[] {
   return Array.from({ length: count }, (_, i) => ({
     id: randID(),
-    title: `Text ${i + 1}`,
-    body: SAMPLE_TEXTS[i % SAMPLE_TEXTS.length],
+    title: `Quote ${i + 1}`,
+    body: SAMPLE_QUOTES[i % SAMPLE_QUOTES.length],
   }));
 }
 
@@ -39,12 +39,12 @@ export function generatePlayers(count: number): Player[] {
 
 export function generateRaces(
   count: number,
-  texts: Text[],
+  quotes: Quote[],
   players: Player[],
 ): Race[] {
   return Array.from({ length: count }, () => ({
     id: randID(),
-    textID: texts[randInt(texts.length - 1)].id,
+    quoteID: quotes[randInt(quotes.length - 1)].id,
     authorID: players[randInt(players.length - 1)].id,
     status: "ready" as const,
     timestamp: Date.now(),
@@ -81,26 +81,26 @@ export function generatePlayerRaces(
 
 export function generateTestData(
   options: {
-    textCount?: number;
+    quoteCount?: number;
     playerCount?: number;
     raceCount?: number;
     participationRate?: number;
   } = {},
 ) {
   const {
-    textCount = 5,
+    quoteCount = 5,
     playerCount = 10,
     raceCount = 8,
     participationRate = 0.7,
   } = options;
 
-  const texts = generateTexts(textCount);
+  const quotes = generateQuotes(quoteCount);
   const players = generatePlayers(playerCount);
-  const races = generateRaces(raceCount, texts, players);
+  const races = generateRaces(raceCount, quotes, players);
   const playerRaces = generatePlayerRaces(races, players, participationRate);
 
   return {
-    texts,
+    quotes,
     players,
     races,
     playerRaces,
