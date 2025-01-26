@@ -1,4 +1,4 @@
-  DROP TABLE IF EXISTS "player", "quote", "race", "player_race", "typed_word", "text";
+  DROP TABLE IF EXISTS "player", "quote", "race", "player_race", "typed_word";
 
   CREATE TABLE "player" (
     "id" VARCHAR PRIMARY KEY,
@@ -44,10 +44,10 @@
     ('p2', 'WordNinja'),
     ('p3', 'KeyboardWarrior');
 
-  INSERT INTO "quote" (id, title, body) VALUES
-    ('t1', 'Quote 1', 'The quick brown fox jumps over the lazy dog.'),
-    ('t2', 'Quote 2', 'Pack my box with five dozen liquor jugs.'),
-    ('t3', 'Quote 3', 'How vexingly quick daft zebras jump!');
+    INSERT INTO "quote" (id, title, body) VALUES
+      ('t1', 'Quote 1', 'It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair.'),
+      ('t2', 'Quote 2', 'In a hole in the ground there lived a hobbit. Not a nasty, dirty, wet hole, filled with the ends of worms and an oozy smell, nor yet a dry, bare, sandy hole with nothing in it to sit down on or to eat: it was a hobbit-hole, and that means comfort.'),
+      ('t3', 'Quote 3', 'All this happened, more or less. The war parts, anyway, are pretty much true. One guy I knew really was shot in Dresden for taking a teapot that wasn''t his. Another guy I knew really did threaten to have his personal enemies killed by hired gunmen after the war.');
 
   -- Add a sample race
   INSERT INTO "race" (id, "quoteID", "authorID", status, timestamp) VALUES
