@@ -1,10 +1,14 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
-import App from "./App.tsx";
+import { Router, Route } from "@solidjs/router";
 import { schema } from "./schema.ts";
 import Cookies from "js-cookie";
 import { decodeJwt } from "jose";
 import { createZero } from "@rocicorp/zero/solid";
+import { lazy } from "solid-js";
+
+const Home = lazy(() => import("./routes/Home.tsx"));
+const Race = lazy(() => import("./routes/Race.tsx"));
 
 const encodedJWT = Cookies.get("jwt");
 const decodedJWT = encodedJWT && decodeJwt(encodedJWT);
@@ -22,4 +26,12 @@ const z = createZero({
 
 const root = document.getElementById("root");
 
-render(() => <App z={z} />, root!);
+render(
+  () => (
+    <Router>
+      <Route path="/" component={() => <Home z={z} />} />
+      <Route path="/races/:id" component={() => <Race z={z} />} />
+    </Router>
+  ),
+  root!,
+);
