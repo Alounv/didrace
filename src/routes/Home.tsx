@@ -8,10 +8,10 @@ import { Schema } from "../schema";
 import { createEffect, createSignal, For, Show } from "solid-js";
 import { A } from "@solidjs/router";
 
-function Home({ z }: { z: Zero<Schema> }) {
-  const [players] = useQuery(() => z.query.player);
-  const [texts] = useQuery(() => z.query.quote);
-  const [races] = useQuery(() => z.query.race);
+function Home(props: { z: Zero<Schema> }) {
+  const [players] = useQuery(() => props.z.query.player);
+  const [texts] = useQuery(() => props.z.query.quote);
+  const [races] = useQuery(() => props.z.query.race);
 
   const [action, setAction] = createSignal<"add" | "remove" | undefined>(
     undefined,
@@ -82,7 +82,7 @@ function Home({ z }: { z: Zero<Schema> }) {
   // };
 
   const toggleLogin = async () => {
-    if (z.userID === "anon") {
+    if (props.z.userID === "anon") {
       await fetch("/api/login");
     } else {
       Cookies.remove("jwt");
@@ -92,12 +92,12 @@ function Home({ z }: { z: Zero<Schema> }) {
 
   const initialSyncComplete = () => players().length && texts().length;
 
-  const player = () => players().find((p) => p.id === z.userID)?.name ?? "anon";
+  const player = () =>
+    players().find((p) => p.id === props.z.userID)?.name ?? "anon";
 
   return (
     <Show when={initialSyncComplete()}>
       <div class="controls">
-        <div></div>
         <div style={{ "justify-content": "end" }}>
           {player() === "anon" ? "" : `Logged in as ${player()}`}
           <button onMouseDown={() => toggleLogin()}>
