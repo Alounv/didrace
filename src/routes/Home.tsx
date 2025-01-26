@@ -1,85 +1,18 @@
+import { Show, For } from "solid-js";
 import Cookies from "js-cookie";
 import { useQuery } from "@rocicorp/zero/solid";
 import { Zero } from "@rocicorp/zero";
 import { Schema } from "../schema";
-// import { randomMessage } from "./test-data";
-// import { randInt } from "./rand";
-// import { formatDate } from "./date";
-import { createEffect, createSignal, For, Show } from "solid-js";
 import { A } from "@solidjs/router";
+import { randInt } from "../rand";
+import { id } from "../id";
 
 function Home(props: { z: Zero<Schema> }) {
   const [players] = useQuery(() => props.z.query.player);
-  const [texts] = useQuery(() => props.z.query.quote);
-  const [races] = useQuery(() => props.z.query.race);
-
-  const [action, setAction] = createSignal<"add" | "remove" | undefined>(
-    undefined,
+  const [quotes] = useQuery(() => props.z.query.quote);
+  const [races] = useQuery(() =>
+    props.z.query.race.where("status", "IN", ["ready", "started"]),
   );
-
-  // Refresh the page every minute
-  createEffect(() => {
-    if (action() !== undefined) {
-      const interval = setInterval(() => {
-        if (!handleAction()) {
-          clearInterval(interval);
-          setAction(undefined);
-        }
-      }, 1000 / 60);
-    }
-  });
-
-  const handleAction = () => {
-    return true;
-    //   if (action() === undefined) {
-    //     return false;
-    //   }
-    //   if (action() === "add") {
-    //     z.mutate.message.insert(randomMessage(users(), mediums()));
-    //     return true;
-    //   } else {
-    //     const messages = allMessages();
-    //     if (messages.length === 0) {
-    //       return false;
-    //     }
-    //     const index = randInt(messages.length);
-    //     z.mutate.message.delete({ id: messages[index].id });
-    //     return true;
-    //   }
-  };
-
-  // const addMessages = () => setAction("add");
-
-  // const removeMessages = (e: MouseEvent) => {
-  //   if (z.userID === "anon" && !e.shiftKey) {
-  //     alert(
-  //       "You must be logged in to delete. Hold the shift key to try anyway.",
-  //     );
-  //     return;
-  //   }
-  //   setAction("remove");
-  // };
-
-  // const stopAction = () => setAction(undefined);
-
-  // const editMessage = (
-  //   e: MouseEvent,
-  //   id: string,
-  //   senderID: string,
-  //   prev: string,
-  // ) => {
-  //   if (senderID !== z.userID && !e.shiftKey) {
-  //     alert(
-  //       "You aren't logged in as the sender of this message. Editing won't be permitted. Hold the shift key to try anyway.",
-  //     );
-  //     return;
-  //   }
-  //   const body = prompt("Edit message", prev);
-  //   z.mutate.message.update({
-  //     id,
-  //     body: body ?? prev,
-  //   });
-  // };
 
   const toggleLogin = async () => {
     if (props.z.userID === "anon") {
@@ -90,10 +23,12 @@ function Home(props: { z: Zero<Schema> }) {
     location.reload();
   };
 
-  const initialSyncComplete = () => players().length && texts().length;
+  const initialSyncComplete = () => players().length && quotes().length;
 
   const player = () =>
     players().find((p) => p.id === props.z.userID)?.name ?? "anon";
+
+  const getRandomQuoteId = () => quotes()[randInt(quotes().length)].id;
 
   return (
     <Show when={initialSyncComplete()}>
@@ -105,15 +40,44 @@ function Home(props: { z: Zero<Schema> }) {
           </button>
         </div>
       </div>
-      <div>
+
+      <ol>
         <For each={races()}>
           {(race) => (
-            <A href={`/races/${race.id}`}>
-              <span>{race.id}</span> - <span>{race.status}</span>
-            </A>
+            <li>
+              <A href={`/races/${race.id}`}>
+                <span>{race.id}</span> - <span>{race.status}</span>
+              </A>
+              {race.authorID === props.z.userID && (
+                <button
+                  onClick={() => {
+                    props.z.mutate.race.update({
+                      id: race.id,
+                      status: "cancelled",
+                    });
+                  }}
+                >
+                  Delete
+                </button>
+              )}
+            </li>
           )}
         </For>
-      </div>
+      </ol>
+
+      <button
+        onClick={() => {
+          props.z.mutate.race.insert({
+            id: id(),
+            status: "ready",
+            authorID: props.z.userID,
+            quoteID: getRandomQuoteId(),
+            timestamp: Date.now(),
+          });
+        }}
+      >
+        Create race
+      </button>
     </Show>
   );
 }

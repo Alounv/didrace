@@ -1,4 +1,5 @@
-import { randBetween, randID, randInt } from "./rand";
+import { id } from "./id";
+import { randBetween, randInt } from "./rand";
 import type { Quote, Player, Race, PlayerRace } from "./schema";
 
 const PLAYER_NAMES = [
@@ -24,7 +25,7 @@ const SAMPLE_QUOTES = [
 
 export function generateQuotes(count: number): Quote[] {
   return Array.from({ length: count }, (_, i) => ({
-    id: randID(),
+    id: id(),
     title: `Quote ${i + 1}`,
     body: SAMPLE_QUOTES[i % SAMPLE_QUOTES.length],
   }));
@@ -32,7 +33,7 @@ export function generateQuotes(count: number): Quote[] {
 
 export function generatePlayers(count: number): Player[] {
   return Array.from({ length: count }, (_, i) => ({
-    id: randID(),
+    id: id(),
     name: PLAYER_NAMES[i % PLAYER_NAMES.length],
   }));
 }
@@ -43,7 +44,7 @@ export function generateRaces(
   players: Player[],
 ): Race[] {
   return Array.from({ length: count }, () => ({
-    id: randID(),
+    id: id(),
     quoteID: quotes[randInt(quotes.length - 1)].id,
     authorID: players[randInt(players.length - 1)].id,
     status: "ready" as const,
