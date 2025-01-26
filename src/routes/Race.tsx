@@ -2,9 +2,11 @@ import { Zero } from "@rocicorp/zero";
 import { useQuery } from "@rocicorp/zero/solid";
 import { A, useParams } from "@solidjs/router";
 import { createEffect, createSignal, For, Show } from "solid-js";
-import { Schema } from "../schema";
+import { Race, Schema } from "../schema";
 
-function Race(props: { z: Zero<Schema> }) {
+const TIME_TO_START = 1000 * 3;
+
+function RacePage(props: { z: Zero<Schema> }) {
   const params = useParams();
   const [race] = useQuery(() =>
     props.z.query.race
@@ -20,6 +22,21 @@ function Race(props: { z: Zero<Schema> }) {
     return race()?.quote?.body ?? "";
   }
 
+  const [countdown, setCountdown] = createSignal(TIME_TO_START / 1000);
+
+  // const inputRef: HTMLInputElement | null = null;
+
+  createEffect(() => {
+    if (race()?.status === "starting") {
+      if (countdown() > 0) {
+        setTimeout(() => setCountdown(countdown() - 1), 1000);
+      } else {
+        // focus
+        // inputRef?.current?.focus();
+      }
+    }
+  });
+
   return (
     <Show when={params.id}>
       <A href="/">Home</A>
@@ -30,19 +47,30 @@ function Race(props: { z: Zero<Schema> }) {
           <>
             <div>Race: {race().id}</div>
             <div>Created by: {race().author?.name}</div>
-            <div>Status: {race().status}</div>
-            {race().status === "ready" && (
-              <button
-                onClick={() =>
-                  props.z.mutate.race.update({
-                    id: race().id,
-                    status: "started",
-                  })
-                }
-              >
-                Start
-              </button>
-            )}
+            <div>
+              Status: {race().status}{" "}
+              {race().status === "starting" && countdown()}
+            </div>
+            {race().status === "ready" &&
+              race().author?.id === props.z.userID && (
+                <button
+                  onClick={() => {
+                    props.z.mutate.race.update({
+                      id: race().id,
+                      status: "starting",
+                    });
+
+                    setTimeout(() => {
+                      props.z.mutate.race.update({
+                        id: race().id,
+                        status: "started",
+                      });
+                    }, TIME_TO_START);
+                  }}
+                >
+                  Start
+                </button>
+              )}
             <div>Length: {quote().length}</div>
             <hr />
             Current Players:
@@ -70,7 +98,7 @@ function Race(props: { z: Zero<Schema> }) {
               quote={quote()}
               raceID={race().id}
               z={props.z}
-              isRunning={race().status === "started"}
+              status={race().status}
             />
           </>
         )}
@@ -83,7 +111,7 @@ function RaceArea(props: {
   z: Zero<Schema>;
   raceID: string;
   quote: string;
-  isRunning: boolean;
+  status: Race["status"];
 }) {
   const [playerRace] = useQuery(() =>
     props.z.query.player_race
@@ -121,7 +149,7 @@ function RaceArea(props: {
         raceID={props.raceID}
         initialProgress={getInitialProgress()}
         isComplete={() => !!playerRace()?.end}
-        isRunning={props.isRunning}
+        status={props.status}
       />
     </Show>
   );
@@ -133,10 +161,18 @@ function RaceInput(props: {
   raceID: string;
   initialProgress: number;
   isComplete: () => boolean;
-  isRunning: boolean;
+  status: Race["status"];
 }) {
+  let inputRef: HTMLInputElement;
   const [input, setInput] = createSignal<string>("");
   const [charIndex, setCharIndex] = createSignal(props.initialProgress);
+
+  createEffect(() => {
+    if (props.status === "started") {
+      //@ts-expect-error -- Variable 'inputRef' is used before being assigned.
+      inputRef.focus();
+    }
+  });
 
   function wordIndex() {
     const soFar = props.quote.slice(0, charIndex());
@@ -186,9 +222,11 @@ function RaceInput(props: {
       </h3>
 
       <input
+        //@ts-expect-error -- Variable 'inputRef' is used before being assigned.
+        ref={inputRef}
         type="text"
         value={input()}
-        disabled={props.isComplete() || !props.isRunning}
+        disabled={props.isComplete() || props.status !== "started"}
         onInput={(e) => {
           const value = e.currentTarget.value;
           const last = value[value.length - 1];
@@ -234,4 +272,4 @@ function RaceInput(props: {
   );
 }
 
-export default Race;
+export default RacePage;

@@ -37,7 +37,9 @@ const race = table("race")
     quoteID: string(),
     authorID: string(),
 
-    status: enumeration<"ready" | "started" | "finished" | "cancelled">(),
+    status: enumeration<
+      "ready" | "starting" | "started" | "finished" | "cancelled"
+    >(),
     timestamp: number(),
   })
   .primaryKey("id");
