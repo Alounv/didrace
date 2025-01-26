@@ -37,7 +37,7 @@ const race = table("race")
     quoteID: string(),
     authorID: string(),
 
-    status: enumeration<"ready" | "started" | "finished">(),
+    status: enumeration<"ready" | "started" | "finished" | "cancelled">(),
     timestamp: number(),
   })
   .primaryKey("id");
@@ -207,7 +207,7 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
       row: {
         insert: [allowIfLoggedIn],
         update: { preMutation: [allowIfRacePlayer] },
-        delete: NOBODY_CAN,
+        delete: [allowIfRacePlayer],
       },
     },
     race: {

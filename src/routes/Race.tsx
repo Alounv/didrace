@@ -1,7 +1,7 @@
 import { Zero } from "@rocicorp/zero";
 import { useQuery } from "@rocicorp/zero/solid";
 import { A, useParams } from "@solidjs/router";
-import { createSignal, For, Show } from "solid-js";
+import { createEffect, createSignal, For, Show } from "solid-js";
 import { Schema } from "../schema";
 
 function Race(props: { z: Zero<Schema> }) {
@@ -31,6 +31,18 @@ function Race(props: { z: Zero<Schema> }) {
             <div>Race: {race().id}</div>
             <div>Created by: {race().author?.name}</div>
             <div>Status: {race().status}</div>
+            {race().status === "ready" && (
+              <button
+                onClick={() =>
+                  props.z.mutate.race.update({
+                    id: race().id,
+                    status: "started",
+                  })
+                }
+              >
+                Start
+              </button>
+            )}
             <div>Length: {quote().length}</div>
             <hr />
             Current Players:
@@ -54,7 +66,12 @@ function Race(props: { z: Zero<Schema> }) {
                 )}
               </For>
             </ul>
-            <RaceArea quote={quote()} raceID={race().id} z={props.z} />
+            <RaceArea
+              quote={quote()}
+              raceID={race().id}
+              z={props.z}
+              isRunning={race().status === "started"}
+            />
           </>
         )}
       </Show>
@@ -62,13 +79,28 @@ function Race(props: { z: Zero<Schema> }) {
   );
 }
 
-function RaceArea(props: { z: Zero<Schema>; raceID: string; quote: string }) {
+function RaceArea(props: {
+  z: Zero<Schema>;
+  raceID: string;
+  quote: string;
+  isRunning: boolean;
+}) {
   const [playerRace] = useQuery(() =>
     props.z.query.player_race
       .where("raceID", "=", props.raceID)
       .where("playerID", "=", props.z.userID)
       .one(),
   );
+
+  createEffect(() => {
+    props.z.mutate.player_race.upsert({
+      playerID: props.z.userID,
+      raceID: props.raceID,
+      progress: 0,
+      start: Date.now(),
+      end: null,
+    });
+  });
 
   function getInitialProgress() {
     const initialProgress = playerRace()?.progress ?? 0;
@@ -89,6 +121,7 @@ function RaceArea(props: { z: Zero<Schema>; raceID: string; quote: string }) {
         raceID={props.raceID}
         initialProgress={getInitialProgress()}
         isComplete={() => !!playerRace()?.end}
+        isRunning={props.isRunning}
       />
     </Show>
   );
@@ -100,6 +133,7 @@ function RaceInput(props: {
   raceID: string;
   initialProgress: number;
   isComplete: () => boolean;
+  isRunning: boolean;
 }) {
   const [input, setInput] = createSignal<string>("");
   const [charIndex, setCharIndex] = createSignal(props.initialProgress);
@@ -131,7 +165,7 @@ function RaceInput(props: {
 
     const saved = props.quote.slice(0, charI);
     const correct = typed.slice(0, correctIndex);
-    const incorrect = typed.slice(correctIndex).replaceAll(" ", "_");
+    const incorrect = typed.slice(correctIndex).replace(/ /g, "_");
     const rest = props.quote.slice(index);
 
     return {
@@ -154,7 +188,7 @@ function RaceInput(props: {
       <input
         type="text"
         value={input()}
-        disabled={props.isComplete()}
+        disabled={props.isComplete() || !props.isRunning}
         onInput={(e) => {
           const value = e.currentTarget.value;
           const last = value[value.length - 1];
@@ -172,7 +206,7 @@ function RaceInput(props: {
               raceID: props.raceID,
               playerID: props.z.userID,
               progress: Math.min(progress, props.quote.length),
-              end: isComplete ? new Date().getTime() : null,
+              end: isComplete ? Date.now() : null,
             });
 
             return;
