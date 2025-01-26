@@ -15,7 +15,7 @@
     "id" VARCHAR PRIMARY KEY,
     "quoteID" VARCHAR REFERENCES "quote"(id),
     "authorID" VARCHAR REFERENCES "player"(id),
-    "status" VARCHAR CHECK (status IN ('ready', 'started', 'finished', 'cancelled')) NOT NULL,
+    "status" VARCHAR CHECK (status IN ('ready', 'starting', 'started', 'finished', 'cancelled')) NOT NULL,
     "timestamp" BIGINT NOT NULL
   );
 
