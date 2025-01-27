@@ -19,6 +19,7 @@ const player = table("player")
   .columns({
     id: string(),
 
+    color: string(),
     name: string(),
   })
   .primaryKey("id");

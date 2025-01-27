@@ -2,7 +2,8 @@
 
   CREATE TABLE "player" (
     "id" VARCHAR PRIMARY KEY,
-    "name" VARCHAR NOT NULL
+    "name" VARCHAR NOT NULL,
+    "color" VARCHAR NOT NULL
   );
 
   CREATE TABLE "quote" (
@@ -39,10 +40,13 @@
   );
 
   -- Sample data
-  INSERT INTO "player" (id, name) VALUES
-    ('p1', 'SpeedTyper'),
-    ('p2', 'WordNinja'),
-    ('p3', 'KeyboardWarrior');
+  INSERT INTO "player" (id, name, color) VALUES
+    ('ar', 'Arnaud', '#12C3E2'),
+    ('al', 'Aloun', '#5712E2'),
+    ('ke', 'Kérim', '#99E212'),
+    ('fl', 'Florence', '#E21249'),
+    ('ni', 'Nicolas', '#E28B12'),
+    ('ti', 'Tiphaine', '#E2CA12');
 
     INSERT INTO "quote" (id, body) VALUES
       ('t1', 'La vie est un mystère qu''il faut vivre, et non un problème à résoudre.'),
