@@ -21,12 +21,26 @@ function RacePage(props: { z: Zero<Schema> }) {
     return race()?.quote?.body ?? "";
   }
 
+  function hasStartedTyping(): boolean {
+    const progress =
+      race()?.player_races?.find((pr) => pr.playerID === props.z.userID)
+        ?.progress ?? 0;
+    return progress > 0;
+  }
+
   return (
     <Show when={race()}>
       {(race) => (
         <>
-          <div class="flex gap-8 my-auto items-center">
-            <CountDown raceID={race().id} status={race().status} z={props.z} />
+          <div class="flex gap-8 my-auto items-center w-full">
+            <div class="w-1/2 flex justify-end">
+              <CountDown
+                raceID={race().id}
+                status={race().status}
+                hasStartedTyping={hasStartedTyping()}
+                z={props.z}
+              />
+            </div>
 
             <RaceArea
               quote={quote()}
@@ -57,7 +71,11 @@ function RaceArea(props: {
   );
 
   createEffect(() => {
-    props.z.mutate.player_race.upsert({
+    if (playerRace()) {
+      return;
+    }
+
+    props.z.mutate.player_race.insert({
       playerID: props.z.userID,
       raceID: props.raceID,
       progress: 0,
@@ -74,7 +92,10 @@ function RaceArea(props: {
     }
     const soFar = props.quote.slice(0, initialProgress);
     const lastSpaceIndex = soFar.lastIndexOf(" ");
-    return lastSpaceIndex === -1 ? 0 : lastSpaceIndex + 1;
+
+    return lastSpaceIndex === -1
+      ? 0
+      : Math.min(lastSpaceIndex + 1, initialProgress);
   }
 
   return (
@@ -148,32 +169,62 @@ function RaceInput(props: {
     };
   }
 
+  const [offset, setOffset] = createSignal(0);
+  let typedRef: HTMLSpanElement | undefined;
+
+  createEffect(() => {
+    if (typedRef) {
+      setOffset(typedRef.offsetWidth ?? 0);
+    }
+  });
+
   return (
-    <div class="flex flex-col">
-      <label for="input-id">
-        <span style={{ color: "gray" }}>{display().saved}</span>
-        <span style={{ color: "green" }}>{display().correct}</span>
-        <span style={{ color: "red" }}>{display().incorrect}</span>
-        <span>{display().rest}</span>
-      </label>
+    <label
+      for="input-id"
+      class="font-quote text-2xl tracking-widest relative transition-all"
+    >
+      {props.status === "started" && !props.isComplete() && (
+        <div class="border-sky-400 border-solid border-l-3 h-6 my-1 relative">
+          <div class="bg-sky-400 absolute -top-7 text-white rounded-lg px-2 py-/2 text-sm -translate-x-1/2">
+            You
+          </div>
+        </div>
+      )}
+
+      <div
+        class="absolute top-0 w-max transition-all left-0"
+        style={{ translate: `-${offset()}px` }}
+      >
+        <span ref={typedRef}>
+          <span class="text-white">{display().saved}</span>
+          <span class="text-white transition-all">{display().correct}</span>
+        </span>
+        <span class="bg-red-600 rounded-xs">{display().incorrect}</span>
+        <span class="text-stone-400">{display().rest}</span>
+      </div>
 
       <input
         id="input-id"
         // @ts-expect-error Variable 'inputRef' is used before being assigned
         ref={inputRef}
         // type="hidden"
+        class="fixed -top-full -left-full"
         value={input()}
         disabled={props.isComplete() || props.status !== "started"}
         onInput={(e) => {
           const value = e.currentTarget.value;
           const last = value[value.length - 1];
+          const couldFinish = charIndex() + value.length > props.quote.length;
 
-          if (last === " " && target() === value.slice(0, -1)) {
+          if (
+            (last === " " || couldFinish) &&
+            target() === value.slice(0, -1)
+          ) {
             // move to next word
             setCharIndex((i) => i + value.length);
             setInput("");
 
-            const progress = charIndex() + value.length;
+            const progress = charIndex();
             const isComplete = progress >= props.quote.length; // could be 1 char more because of the last space
 
             // save progress
@@ -183,14 +234,15 @@ function RaceInput(props: {
               progress: Math.min(progress, props.quote.length),
               end: isComplete ? Date.now() : null,
             });
-
-            return;
+          } else {
+            setInput(value);
           }
 
-          setInput(value);
+          const typedWidth = typedRef?.offsetWidth ?? 0;
+          setOffset(typedWidth);
         }}
       />
-    </div>
+    </label>
   );
 }
 
@@ -263,6 +315,13 @@ function DebugSection(props: {
                   status: "ready",
                 });
 
+                props.z.mutate.player_race.update({
+                  raceID: props.raceID,
+                  playerID: props.z.userID,
+                  progress: 0,
+                  end: null,
+                });
+
                 window.location.reload();
               }}
             >
@@ -278,6 +337,7 @@ function DebugSection(props: {
 function CountDown(props: {
   raceID: string;
   status: Race["status"];
+  hasStartedTyping: boolean;
   z: Zero<Schema>;
 }) {
   const [countdown, setCountdown] = createSignal(4);
@@ -289,9 +349,12 @@ function CountDown(props: {
   });
 
   return (
-    <div class="flex flex-col gap-4 items-stretch">
-      {props.status === "ready" && (
+    <div
+      class={`flex flex-col gap-4 items-stretch mr-24 ${props.hasStartedTyping ? "opacity-0" : ""} transition-opacity`}
+    >
+      {props.status === "ready" ? (
         <Button
+          class="mt-7"
           onClick={() => {
             props.z.mutate.race.update({
               id: props.raceID,
@@ -308,16 +371,23 @@ function CountDown(props: {
         >
           Start
         </Button>
+      ) : (
+        <div class="flex items-center gap-2">
+          {["ready", "starting", "started"].includes(props.status) && (
+            <Count status={props.status} countdown={countdown()} />
+          )}
+        </div>
       )}
-
-      <div class="flex items-center gap-2">
-        {["ready", "starting", "started"].includes(props.status) && (
-          <Count status={props.status} countdown={countdown()} />
-        )}
-      </div>
     </div>
   );
 }
+
+const colorMap = {
+  0: ["r", "r", "r"],
+  1: ["r", "r", "r"],
+  2: ["r", "r", null],
+  3: ["r", null, null],
+} as const;
 
 function Count(props: { status: Race["status"]; countdown: number }) {
   const colors = () => {
@@ -325,18 +395,8 @@ function Count(props: { status: Race["status"]; countdown: number }) {
       return ["g", "g", "g"] as const;
     }
 
-    if (props.status === "starting") {
-      switch (props.countdown) {
-        case 0:
-        case 1:
-          return ["r", "r", "r"] as const;
-        case 2:
-          return ["r", "r", null] as const;
-        case 3:
-          return ["r", null, null] as const;
-        default:
-          return [null, null, null] as const;
-      }
+    if (props.status === "starting" && [0, 1, 2, 3].includes(props.countdown)) {
+      return colorMap[props.countdown as 0 | 1 | 2 | 3];
     }
 
     return [null, null, null] as const;

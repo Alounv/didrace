@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@fontsource/lato";
 
 body {
     background-color: #323437;
@@ -9,4 +10,6 @@ body {
     --color-background: #323437;
     --color-text: #cfcfcf;
     --color-background-light: #3b3b3b;
+
+    --font-quote: "Lato";
 }

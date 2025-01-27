@@ -2,7 +2,7 @@ import Cookies from "js-cookie";
 import { useQuery } from "@rocicorp/zero/solid";
 import { Zero } from "@rocicorp/zero";
 import { Schema } from "./schema";
-import { Logo } from "./design-system";
+import { Button, Logo } from "./design-system";
 import { A } from "@solidjs/router";
 
 function Header(props: { z: Zero<Schema> }) {
@@ -25,11 +25,11 @@ function Header(props: { z: Zero<Schema> }) {
         <Logo />
       </A>
 
-      <div class="ml-auto">
+      <div class="ml-auto flex gap-4 items-center">
         {player() ? `Logged in as ${player()?.name}` : ""}
-        <button onMouseDown={() => toggleLogin()}>
+        <Button onClick={() => toggleLogin()}>
           {player() ? "Logout" : "Login"}
-        </button>
+        </Button>
       </div>
     </div>
   );

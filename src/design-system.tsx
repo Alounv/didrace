@@ -1,10 +1,14 @@
 import { A } from "@solidjs/router";
 import { JSX } from "solid-js";
 
-export function Button(props: { children: JSX.Element; onClick: () => void }) {
+export function Button(props: {
+  children: JSX.Element;
+  onClick: () => void;
+  class?: string;
+}) {
   return (
     <button
-      class="text-white bg-stone-900 hover:bg-stone-800 rounded text-sm px-3 py-1.5 focus:outline-none"
+      class={`text-white bg-stone-900 hover:bg-stone-800 rounded text-sm px-3 py-1.5 focus:outline-none ${props.class}`}
       style={{ "justify-content": "center" }}
       onClick={() => props.onClick()}
     >
