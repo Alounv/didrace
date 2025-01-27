@@ -21,8 +21,8 @@ export function DebugSection(props: {
   return (
     <Show when={race()}>
       {(race) => (
-        <div class="bg-background-light p-3 text-stone-500 mt-auto min-w-xl">
-          <div class="text-xl">Debug Section</div>
+        <details class="bg-background-light p-3 text-stone-500 mt-auto min-w-xl">
+          <summary class="text-xl">Debug Section</summary>
           <br />
           <div>Race: {race().id}</div>
           <div>Created by: {race().author?.name}</div>
@@ -86,7 +86,7 @@ export function DebugSection(props: {
               Reset Race
             </Button>
           </div>
-        </div>
+        </details>
       )}
     </Show>
   );
