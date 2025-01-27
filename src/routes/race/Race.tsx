@@ -28,7 +28,12 @@ function RacePage(props: { z: Zero<Schema> }) {
         <>
           <Switch>
             <Match when={race().status === "finished"}>
-              <End z={props.z} raceID={race().id} quote={quote()} />
+              <End
+                z={props.z}
+                raceID={race().id}
+                quote={quote()}
+                nextRaceID={race().nextRaceID}
+              />
             </Match>
 
             <Match when={race().status !== "finished"}>
@@ -42,12 +47,16 @@ function RacePage(props: { z: Zero<Schema> }) {
                     />
                   </div>
 
-                  <RaceArea
-                    quote={quote()}
-                    raceID={race().id}
-                    z={props.z}
-                    status={race().status}
-                  />
+                  <Show when={race().quote}>
+                    {(quote) => (
+                      <RaceArea
+                        quote={quote()}
+                        raceID={race().id}
+                        z={props.z}
+                        status={race().status}
+                      />
+                    )}
+                  </Show>
                 </div>
               </>
             </Match>
