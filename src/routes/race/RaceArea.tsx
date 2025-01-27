@@ -14,6 +14,7 @@ export function RaceArea(props: {
   );
 
   function allFinished() {
+    if (!playerRaces().length) return false;
     return playerRaces()?.every((r) => r.end !== null);
   }
 
@@ -39,7 +40,7 @@ export function RaceArea(props: {
       playerID: props.z.userID,
       raceID: props.raceID,
       progress: 0,
-      start: Date.now(),
+      start: null,
       end: null,
     });
   });
@@ -65,7 +66,8 @@ export function RaceArea(props: {
         quote={props.quote}
         raceID={props.raceID}
         initialProgress={getInitialProgress()}
-        isComplete={() => !!playerRace()?.end}
+        hasFinished={!!playerRace()?.end}
+        hasStarted={!!playerRace()?.start}
         status={props.status}
       />
     </Show>
@@ -77,7 +79,8 @@ function RaceInput(props: {
   quote: string;
   raceID: string;
   initialProgress: number;
-  isComplete: () => boolean;
+  hasFinished: boolean;
+  hasStarted: boolean;
   status: Race["status"];
 }) {
   let inputRef: HTMLInputElement;
@@ -141,9 +144,9 @@ function RaceInput(props: {
   return (
     <label
       for="input-id"
-      class="font-quote text-2xl tracking-widest relative transition-all flex-1 h-full flex items-center"
+      class="relative transition-all flex-1 h-full flex items-center"
     >
-      {props.status === "started" && !props.isComplete() && (
+      {props.status === "started" && !props.hasFinished && (
         <div class="bg-sky-400 w-[2px] h-7 relative rounded -translate-x-0.5">
           <div class="bg-sky-400 absolute -top-7 text-white rounded-lg px-2 py-0.5 text-sm -translate-x-1/2">
             You
@@ -155,7 +158,7 @@ function RaceInput(props: {
         class="absolute top-0 w-max transition-all left-0 h-full flex items-center"
         style={{ translate: `-${offset()}px` }}
       >
-        <div>
+        <div class="font-quote text-2xl tracking-widest">
           <span ref={typedRef}>
             <span class="text-white">{display().saved}</span>
             <span class="text-white transition-all">{display().correct}</span>
@@ -172,11 +175,19 @@ function RaceInput(props: {
         // type="hidden"
         class="fixed -top-full -left-full"
         value={input()}
-        disabled={props.isComplete() || props.status !== "started"}
+        disabled={props.hasFinished || props.status !== "started"}
         onInput={(e) => {
           const value = e.currentTarget.value;
           const last = value[value.length - 1];
           const couldFinish = charIndex() + value.length >= props.quote.length;
+
+          if (!props.hasStarted) {
+            props.z.mutate.player_race.update({
+              raceID: props.raceID,
+              playerID: props.z.userID,
+              start: Date.now(),
+            });
+          }
 
           if ((last === " " || couldFinish) && target() === value.trim()) {
             // move to next word
