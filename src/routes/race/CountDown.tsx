@@ -23,7 +23,6 @@ export function CountDown(props: {
     >
       {props.status === "ready" ? (
         <Button
-          class="mt-7"
           onClick={() => {
             props.z.mutate.race.update({
               id: props.raceID,
