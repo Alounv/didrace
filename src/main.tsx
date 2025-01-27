@@ -30,9 +30,9 @@ const root = document.getElementById("root");
 
 function Layout(props: { children?: JSX.Element }) {
   return (
-    <div class="p-10">
+    <div class="p-10 h-screen flex flex-col gap-8">
       <Header z={z} />
-      <div>{props.children}</div>
+      <div class="flex-1 flex flex-col items-start">{props.children}</div>
     </div>
   );
 }

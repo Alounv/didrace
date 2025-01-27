@@ -1,10 +1,9 @@
 import { Zero } from "@rocicorp/zero";
 import { useQuery } from "@rocicorp/zero/solid";
-import { A, useParams } from "@solidjs/router";
+import { useParams } from "@solidjs/router";
 import { createEffect, createSignal, For, Show } from "solid-js";
 import { Race, Schema } from "../schema";
-
-const TIME_TO_START = 1000 * 3;
+import { Button } from "../design-system";
 
 function RacePage(props: { z: Zero<Schema> }) {
   const params = useParams();
@@ -22,86 +21,24 @@ function RacePage(props: { z: Zero<Schema> }) {
     return race()?.quote?.body ?? "";
   }
 
-  const [countdown, setCountdown] = createSignal(TIME_TO_START / 1000);
-
-  // const inputRef: HTMLInputElement | null = null;
-
-  createEffect(() => {
-    if (race()?.status === "starting") {
-      if (countdown() > 0) {
-        setTimeout(() => setCountdown(countdown() - 1), 1000);
-      } else {
-        // focus
-        // inputRef?.current?.focus();
-      }
-    }
-  });
-
   return (
-    <Show when={params.id}>
-      <A href="/">Home</A>
-      <hr />
+    <Show when={race()}>
+      {(race) => (
+        <>
+          <div class="flex gap-8 my-auto items-center">
+            <CountDown raceID={race().id} status={race().status} z={props.z} />
 
-      <Show when={race()}>
-        {(race) => (
-          <>
-            <div>Race: {race().id}</div>
-            <div>Created by: {race().author?.name}</div>
-            <div>
-              Status: {race().status}{" "}
-              {race().status === "starting" && countdown()}
-            </div>
-            {race().status === "ready" && (
-              <button
-                onClick={() => {
-                  props.z.mutate.race.update({
-                    id: race().id,
-                    status: "starting",
-                  });
-
-                  setTimeout(() => {
-                    props.z.mutate.race.update({
-                      id: race().id,
-                      status: "started",
-                    });
-                  }, TIME_TO_START);
-                }}
-              >
-                Start
-              </button>
-            )}
-            <div>Length: {quote().length}</div>
-            <hr />
-            Current Players:
-            <ul>
-              <For each={race().players ?? []}>
-                {(p) => (
-                  <li>
-                    <span>{p.id}</span> - <span>{p.name}</span>
-                  </li>
-                )}
-              </For>
-            </ul>
-            <hr />
-            Current Progress (in chars):
-            <ul>
-              <For each={race().player_races ?? []}>
-                {(pr) => (
-                  <li>
-                    <span>{pr.playerID}</span> - <span>{pr.progress}</span>
-                  </li>
-                )}
-              </For>
-            </ul>
             <RaceArea
               quote={quote()}
               raceID={race().id}
               z={props.z}
               status={race().status}
             />
-          </>
-        )}
-      </Show>
+          </div>
+
+          <DebugSection raceID={race().id} z={props.z} quote={quote()} />
+        </>
+      )}
     </Show>
   );
 }
@@ -212,18 +149,19 @@ function RaceInput(props: {
   }
 
   return (
-    <>
-      <h3>
+    <div class="flex flex-col">
+      <label for="input-id">
         <span style={{ color: "gray" }}>{display().saved}</span>
         <span style={{ color: "green" }}>{display().correct}</span>
         <span style={{ color: "red" }}>{display().incorrect}</span>
         <span>{display().rest}</span>
-      </h3>
+      </label>
 
       <input
-        //@ts-expect-error -- Variable 'inputRef' is used before being assigned.
+        id="input-id"
+        // @ts-expect-error Variable 'inputRef' is used before being assigned
         ref={inputRef}
-        type="text"
+        // type="hidden"
         value={input()}
         disabled={props.isComplete() || props.status !== "started"}
         onInput={(e) => {
@@ -252,23 +190,179 @@ function RaceInput(props: {
           setInput(value);
         }}
       />
+    </div>
+  );
+}
 
-      <button
-        onClick={() => {
-          setInput("");
-          setCharIndex(0);
-          props.z.mutate.player_race.update({
-            raceID: props.raceID,
-            playerID: props.z.userID,
-            progress: 0,
-            end: null,
-          });
-        }}
-      >
-        Reset
-      </button>
+function DebugSection(props: {
+  z: Zero<Schema>;
+  raceID: string;
+  quote: string;
+}) {
+  const [race] = useQuery(() =>
+    props.z.query.race
+      .where("id", "=", props.raceID)
+      .one()
+      .related("author")
+      .related("quote")
+      .related("player_races")
+      .related("players"),
+  );
+  return (
+    <Show when={race()}>
+      {(race) => (
+        <div class="bg-background-light p-3 text-stone-500 mt-auto min-w-xl">
+          <div class="text-xl">Debug Section</div>
+          <br />
+          <div>Race: {race().id}</div>
+          <div>Created by: {race().author?.name}</div>
+          <div>Length: {props.quote.length}</div>
+          <div>Status: {race().status}</div>
+          <br />
+          Current Players:
+          <ul>
+            <For each={race().players ?? []}>
+              {(p) => (
+                <li>
+                  <span>{p.id}</span> - <span>{p.name}</span>
+                </li>
+              )}
+            </For>
+          </ul>
+          <br />
+          Current Progress (in chars):
+          <ul>
+            <For each={race().player_races ?? []}>
+              {(pr) => (
+                <li>
+                  <span>{pr.playerID}</span> - <span>{pr.progress}</span>
+                </li>
+              )}
+            </For>
+          </ul>
+          <br />
+          <div class="flex gap-2">
+            <Button
+              onClick={() => {
+                props.z.mutate.player_race.update({
+                  raceID: props.raceID,
+                  playerID: props.z.userID,
+                  progress: 0,
+                  end: null,
+                });
+
+                window.location.reload();
+              }}
+            >
+              Reset Progress
+            </Button>
+            <Button
+              onClick={() => {
+                props.z.mutate.race.update({
+                  id: props.raceID,
+                  status: "ready",
+                });
+
+                window.location.reload();
+              }}
+            >
+              Reset Race
+            </Button>
+          </div>
+        </div>
+      )}
+    </Show>
+  );
+}
+
+function CountDown(props: {
+  raceID: string;
+  status: Race["status"];
+  z: Zero<Schema>;
+}) {
+  const [countdown, setCountdown] = createSignal(4);
+
+  createEffect(() => {
+    if (props.status === "starting" && countdown() > 0) {
+      setTimeout(() => setCountdown(countdown() - 1), 1000);
+    }
+  });
+
+  return (
+    <div class="flex flex-col gap-4 items-stretch">
+      {props.status === "ready" && (
+        <Button
+          onClick={() => {
+            props.z.mutate.race.update({
+              id: props.raceID,
+              status: "starting",
+            });
+
+            setTimeout(() => {
+              props.z.mutate.race.update({
+                id: props.raceID,
+                status: "started",
+              });
+            }, 1000 * 4);
+          }}
+        >
+          Start
+        </Button>
+      )}
+
+      <div class="flex items-center gap-2">
+        {["ready", "starting", "started"].includes(props.status) && (
+          <Count status={props.status} countdown={countdown()} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Count(props: { status: Race["status"]; countdown: number }) {
+  const colors = () => {
+    if (props.status === "started") {
+      return ["g", "g", "g"] as const;
+    }
+
+    if (props.status === "starting") {
+      switch (props.countdown) {
+        case 0:
+        case 1:
+          return ["r", "r", "r"] as const;
+        case 2:
+          return ["r", "r", null] as const;
+        case 3:
+          return ["r", null, null] as const;
+        default:
+          return [null, null, null] as const;
+      }
+    }
+
+    return [null, null, null] as const;
+  };
+
+  return (
+    <>
+      <Dot color={colors()[0]} />
+      <Dot color={colors()[1]} />
+      <Dot color={colors()[2]} />
     </>
   );
+}
+
+function Dot(props: { color: "r" | "g" | null }) {
+  function colorClass() {
+    switch (props.color) {
+      case "r":
+        return " bg-red-600";
+      case "g":
+        return " bg-green-600";
+      default:
+        return "bg-text";
+    }
+  }
+  return <div class={`rounded-full h-7 w-7 ${colorClass()}`} />;
 }
 
 export default RacePage;
