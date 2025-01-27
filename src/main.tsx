@@ -9,8 +9,8 @@ import { createZero } from "@rocicorp/zero/solid";
 import { JSX, lazy } from "solid-js";
 import Header from "./Header.tsx";
 
-const Home = lazy(() => import("./routes/Home.tsx"));
-const Race = lazy(() => import("./routes/Race.tsx"));
+const Home = lazy(() => import("./routes/home/Home.tsx"));
+const Race = lazy(() => import("./routes/race/Race.tsx"));
 
 const encodedJWT = Cookies.get("jwt");
 const decodedJWT = encodedJWT && decodeJwt(encodedJWT);
