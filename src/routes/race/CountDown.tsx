@@ -2,13 +2,24 @@ import { Zero } from "@rocicorp/zero";
 import { createEffect, createSignal } from "solid-js";
 import { Race, Schema } from "../../schema";
 import { Button } from "../../design-system";
+import { useQuery } from "@rocicorp/zero/solid";
 
 export function CountDown(props: {
   raceID: string;
   status: Race["status"];
-  hasStartedTyping: boolean;
   z: Zero<Schema>;
 }) {
+  const [playerRace] = useQuery(() =>
+    props.z.query.player_race
+      .where("raceID", "=", props.raceID)
+      .where("playerID", "=", props.z.userID)
+      .one(),
+  );
+
+  function hasStartedTyping() {
+    return playerRace()?.progress ?? 0 > 0;
+  }
+
   const [countdown, setCountdown] = createSignal(4);
 
   createEffect(() => {
@@ -19,7 +30,7 @@ export function CountDown(props: {
 
   return (
     <div
-      class={`flex flex-col gap-4 items-stretch mr-24 ${props.hasStartedTyping ? "opacity-0" : ""} transition-opacity`}
+      class={`flex flex-col gap-4 items-stretch mr-24 ${hasStartedTyping() ? "opacity-0" : ""} transition-opacity`}
     >
       {props.status === "ready" ? (
         <Button
