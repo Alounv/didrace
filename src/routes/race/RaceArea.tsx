@@ -9,12 +9,26 @@ export function RaceArea(props: {
   quote: string;
   status: Race["status"];
 }) {
-  const [playerRace] = useQuery(() =>
-    props.z.query.player_race
-      .where("raceID", "=", props.raceID)
-      .where("playerID", "=", props.z.userID)
-      .one(),
+  const [playerRaces] = useQuery(() =>
+    props.z.query.player_race.where("raceID", "=", props.raceID),
   );
+
+  function allFinished() {
+    return playerRaces()?.every((r) => r.end !== null);
+  }
+
+  createEffect(() => {
+    if (allFinished()) {
+      props.z.mutate.race.update({
+        id: props.raceID,
+        status: "finished",
+      });
+    }
+  });
+
+  function playerRace() {
+    return playerRaces()?.find((r) => r.playerID === props.z.userID);
+  }
 
   createEffect(() => {
     if (playerRace()) {
