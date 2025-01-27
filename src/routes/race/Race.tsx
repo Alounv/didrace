@@ -34,7 +34,7 @@ function RacePage(props: { z: Zero<Schema> }) {
     <Show when={race()}>
       {(race) => (
         <>
-          <div class="flex gap-8 my-auto items-center w-full">
+          <div class="flex gap-8 my-auto items-center w-full h-12">
             <div class="w-1/2 flex justify-end">
               <CountDown
                 raceID={race().id}

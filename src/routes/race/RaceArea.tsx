@@ -127,26 +127,28 @@ function RaceInput(props: {
   return (
     <label
       for="input-id"
-      class="font-quote text-2xl tracking-widest relative transition-all"
+      class="font-quote text-2xl tracking-widest relative transition-all flex-1 h-full flex items-center"
     >
       {props.status === "started" && !props.isComplete() && (
-        <div class="border-sky-400 border-solid border-l-3 h-6 my-1 relative">
-          <div class="bg-sky-400 absolute -top-7 text-white rounded-lg px-2 py-/2 text-sm -translate-x-1/2">
+        <div class="bg-sky-400 w-[2px] h-7 relative rounded -translate-x-0.5">
+          <div class="bg-sky-400 absolute -top-7 text-white rounded-lg px-2 py-0.5 text-sm -translate-x-1/2">
             You
           </div>
         </div>
       )}
 
       <div
-        class="absolute top-0 w-max transition-all left-0"
+        class="absolute top-0 w-max transition-all left-0 h-full flex items-center"
         style={{ translate: `-${offset()}px` }}
       >
-        <span ref={typedRef}>
-          <span class="text-white">{display().saved}</span>
-          <span class="text-white transition-all">{display().correct}</span>
-        </span>
-        <span class="bg-red-600 rounded-xs">{display().incorrect}</span>
-        <span class="text-stone-400">{display().rest}</span>
+        <div>
+          <span ref={typedRef}>
+            <span class="text-white">{display().saved}</span>
+            <span class="text-white transition-all">{display().correct}</span>
+          </span>
+          <span class="bg-red-600 rounded-xs">{display().incorrect}</span>
+          <span class="text-stone-400">{display().rest}</span>
+        </div>
       </div>
 
       <input
@@ -160,12 +162,9 @@ function RaceInput(props: {
         onInput={(e) => {
           const value = e.currentTarget.value;
           const last = value[value.length - 1];
-          const couldFinish = charIndex() + value.length > props.quote.length;
+          const couldFinish = charIndex() + value.length >= props.quote.length;
 
-          if (
-            (last === " " || couldFinish) &&
-            target() === value.slice(0, -1)
-          ) {
+          if ((last === " " || couldFinish) && target() === value.trim()) {
             // move to next word
             setCharIndex((i) => i + value.length);
             setInput("");
