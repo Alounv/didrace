@@ -51,26 +51,25 @@ function RacePage(props: { z: Zero<Schema> }) {
               Status: {race().status}{" "}
               {race().status === "starting" && countdown()}
             </div>
-            {race().status === "ready" &&
-              race().author?.id === props.z.userID && (
-                <button
-                  onClick={() => {
+            {race().status === "ready" && (
+              <button
+                onClick={() => {
+                  props.z.mutate.race.update({
+                    id: race().id,
+                    status: "starting",
+                  });
+
+                  setTimeout(() => {
                     props.z.mutate.race.update({
                       id: race().id,
-                      status: "starting",
+                      status: "started",
                     });
-
-                    setTimeout(() => {
-                      props.z.mutate.race.update({
-                        id: race().id,
-                        status: "started",
-                      });
-                    }, TIME_TO_START);
-                  }}
-                >
-                  Start
-                </button>
-              )}
+                  }, TIME_TO_START);
+                }}
+              >
+                Start
+              </button>
+            )}
             <div>Length: {quote().length}</div>
             <hr />
             Current Players:
