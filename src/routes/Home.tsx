@@ -1,46 +1,17 @@
 import { Show, For } from "solid-js";
-import Cookies from "js-cookie";
 import { useQuery } from "@rocicorp/zero/solid";
 import { Zero } from "@rocicorp/zero";
 import { Schema } from "../schema";
 import { A } from "@solidjs/router";
-import { randInt } from "../rand";
 import { id } from "../id";
 
 function Home(props: { z: Zero<Schema> }) {
-  const [players] = useQuery(() => props.z.query.player);
-  const [quotes] = useQuery(() => props.z.query.quote);
   const [races] = useQuery(() =>
     props.z.query.race.where("status", "IN", ["ready", "started"]),
   );
 
-  const toggleLogin = async () => {
-    if (props.z.userID === "anon") {
-      await fetch("/api/login");
-    } else {
-      Cookies.remove("jwt");
-    }
-    location.reload();
-  };
-
-  const initialSyncComplete = () => players().length && quotes().length;
-
-  const player = () =>
-    players().find((p) => p.id === props.z.userID)?.name ?? "anon";
-
-  const getRandomQuoteId = () => quotes()[randInt(quotes().length)].id;
-
   return (
-    <Show when={initialSyncComplete()}>
-      <div class="controls">
-        <div style={{ "justify-content": "end" }}>
-          {player() === "anon" ? "" : `Logged in as ${player()}`}
-          <button onMouseDown={() => toggleLogin()}>
-            {player() === "anon" ? "Login" : "Logout"}
-          </button>
-        </div>
-      </div>
-
+    <Show when={races().length}>
       <ol>
         <For each={races()}>
           {(race) => (

@@ -10,6 +10,7 @@ import {
   relationships,
   number,
   enumeration,
+  ANYONE_CAN,
 } from "@rocicorp/zero";
 
 // --- Tables ---
@@ -183,13 +184,6 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
     return cmp("playerID", "=", authData.sub ?? "foo");
   };
 
-  const allowIfAuthor = (
-    authData: AuthData,
-    { cmp }: ExpressionBuilder<Schema, "race">,
-  ) => {
-    return cmp("authorID", "=", authData.sub ?? "foo");
-  };
-
   return {
     player: {
       row: {
@@ -215,7 +209,7 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
     race: {
       row: {
         insert: [allowIfLoggedIn],
-        update: { preMutation: [allowIfAuthor] },
+        update: { preMutation: ANYONE_CAN },
         delete: NOBODY_CAN,
       },
     },
