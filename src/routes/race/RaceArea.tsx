@@ -1,35 +1,22 @@
 import { Zero } from "@rocicorp/zero";
 import { useQuery } from "@rocicorp/zero/solid";
 import { createEffect, createSignal, Show } from "solid-js";
-import { Race, Schema } from "../../schema";
+import { Quote, Race, Schema } from "../../schema";
+import { id } from "../../id";
+import { randInt } from "../../rand";
 
 export function RaceArea(props: {
   z: Zero<Schema>;
   raceID: string;
-  quote: string;
+  quote: Quote;
   status: Race["status"];
 }) {
-  const [playerRaces] = useQuery(() =>
-    props.z.query.player_race.where("raceID", "=", props.raceID),
+  const [playerRace] = useQuery(() =>
+    props.z.query.player_race
+      .where("raceID", "=", props.raceID)
+      .where("playerID", "=", props.z.userID)
+      .one(),
   );
-
-  function allFinished() {
-    if (!playerRaces().length) return false;
-    return playerRaces()?.every((r) => r.end !== null);
-  }
-
-  createEffect(() => {
-    if (allFinished()) {
-      props.z.mutate.race.update({
-        id: props.raceID,
-        status: "finished",
-      });
-    }
-  });
-
-  function playerRace() {
-    return playerRaces()?.find((r) => r.playerID === props.z.userID);
-  }
 
   createEffect(() => {
     if (playerRace()) {
@@ -46,17 +33,17 @@ export function RaceArea(props: {
   });
 
   function getInitialProgress() {
-    const initialProgress = playerRace()?.progress ?? 0;
+    const progress = playerRace()?.progress ?? 0;
+    const body = props.quote.body;
+    const quoteLength = body.length;
 
-    if (initialProgress === props.quote.length) {
-      return props.quote.length;
+    if (progress === quoteLength) {
+      return quoteLength;
     }
-    const soFar = props.quote.slice(0, initialProgress);
+    const soFar = body.slice(0, progress);
     const lastSpaceIndex = soFar.lastIndexOf(" ");
 
-    return lastSpaceIndex === -1
-      ? 0
-      : Math.min(lastSpaceIndex + 1, initialProgress);
+    return lastSpaceIndex === -1 ? 0 : Math.min(lastSpaceIndex + 1, progress);
   }
 
   return (
@@ -76,7 +63,7 @@ export function RaceArea(props: {
 
 function RaceInput(props: {
   z: Zero<Schema>;
-  quote: string;
+  quote: Quote;
   raceID: string;
   initialProgress: number;
   hasFinished: boolean;
@@ -87,6 +74,13 @@ function RaceInput(props: {
   const [input, setInput] = createSignal<string>("");
   const [charIndex, setCharIndex] = createSignal(props.initialProgress);
 
+  const [otherQuotes] = useQuery(() =>
+    props.z.query.quote.where("id", "!=", props.quote.id),
+  );
+  const [playerRaces] = useQuery(() =>
+    props.z.query.player_race.where("raceID", "=", props.raceID),
+  );
+
   createEffect(() => {
     if (props.status === "started") {
       //@ts-expect-error -- Variable 'inputRef' is used before being assigned.
@@ -95,12 +89,12 @@ function RaceInput(props: {
   });
 
   function wordIndex() {
-    const soFar = props.quote.slice(0, charIndex());
+    const soFar = props.quote.body.slice(0, charIndex());
     return soFar.split(" ").length - 1;
   }
 
   function target() {
-    return props.quote.split(" ")[wordIndex()];
+    return props.quote.body.split(" ")[wordIndex()];
   }
 
   function display() {
@@ -119,10 +113,10 @@ function RaceInput(props: {
     const charI = charIndex();
     const index = correctIndex + charI;
 
-    const saved = props.quote.slice(0, charI);
+    const saved = props.quote.body.slice(0, charI);
     const correct = typed.slice(0, correctIndex);
     const incorrect = typed.slice(correctIndex).replace(/ /g, "_");
-    const rest = props.quote.slice(index);
+    const rest = props.quote.body.slice(index);
 
     return {
       saved,
@@ -140,6 +134,76 @@ function RaceInput(props: {
       setOffset(typedRef.offsetWidth ?? 0);
     }
   });
+
+  function getRandomQuoteId() {
+    return otherQuotes()[randInt(otherQuotes().length)].id;
+  }
+
+  function onFinish() {
+    const notFinishedCount = playerRaces()?.filter(
+      (r) => r.end === null,
+    ).length;
+
+    if (notFinishedCount <= 1) {
+      const newRaceId = id();
+
+      // Create next race
+      props.z.mutate.race.insert({
+        id: newRaceId,
+        status: "ready",
+        authorID: props.z.userID,
+        quoteID: getRandomQuoteId(),
+
+        timestamp: Date.now(),
+      });
+
+      // Terminate current race
+      props.z.mutate.race.update({
+        id: props.raceID,
+        status: "finished",
+        nextRaceID: newRaceId,
+      });
+    }
+  }
+
+  function onChange(value: string) {
+    const last = value[value.length - 1];
+    const couldFinish = charIndex() + value.length >= props.quote.body.length;
+
+    if (!props.hasStarted) {
+      props.z.mutate.player_race.update({
+        raceID: props.raceID,
+        playerID: props.z.userID,
+        start: Date.now(),
+      });
+    }
+
+    if ((last === " " || couldFinish) && target() === value.trim()) {
+      // move to next word
+      setCharIndex((i) => i + value.length);
+      setInput("");
+
+      const progress = charIndex();
+      const isComplete = progress >= props.quote.body.length; // could be 1 char more because of the last space
+
+      // save progress
+      props.z.mutate.player_race.update({
+        raceID: props.raceID,
+        playerID: props.z.userID,
+        progress: Math.min(progress, props.quote.body.length),
+        end: isComplete ? Date.now() : null,
+      });
+
+      if (isComplete) {
+        onFinish();
+      }
+    } else {
+      setInput(value);
+    }
+
+    const typedWidth = typedRef?.offsetWidth ?? 0;
+    setOffset(typedWidth);
+  }
 
   return (
     <label
@@ -176,41 +240,7 @@ function RaceInput(props: {
         class="fixed -top-full -left-full"
         value={input()}
         disabled={props.hasFinished || props.status !== "started"}
-        onInput={(e) => {
-          const value = e.currentTarget.value;
-          const last = value[value.length - 1];
-          const couldFinish = charIndex() + value.length >= props.quote.length;
-
-          if (!props.hasStarted) {
-            props.z.mutate.player_race.update({
-              raceID: props.raceID,
-              playerID: props.z.userID,
-              start: Date.now(),
-            });
-          }
-
-          if ((last === " " || couldFinish) && target() === value.trim()) {
-            // move to next word
-            setCharIndex((i) => i + value.length);
-            setInput("");
-
-            const progress = charIndex();
-            const isComplete = progress >= props.quote.length; // could be 1 char more because of the last space
-
-            // save progress
-            props.z.mutate.player_race.update({
-              raceID: props.raceID,
-              playerID: props.z.userID,
-              progress: Math.min(progress, props.quote.length),
-              end: isComplete ? Date.now() : null,
-            });
-          } else {
-            setInput(value);
-          }
-
-          const typedWidth = typedRef?.offsetWidth ?? 0;
-          setOffset(typedWidth);
-        }}
+        onInput={(e) => onChange(e.currentTarget.value)}
       />
     </label>
   );

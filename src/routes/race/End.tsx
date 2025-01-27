@@ -2,8 +2,14 @@ import { Zero } from "@rocicorp/zero";
 import { Schema } from "../../schema";
 import { JSX } from "solid-js";
 import { useQuery } from "@rocicorp/zero/solid";
+import { Link } from "../../design-system";
 
-export function End(props: { z: Zero<Schema>; raceID: string; quote: string }) {
+export function End(props: {
+  z: Zero<Schema>;
+  raceID: string;
+  quote: string;
+  nextRaceID: string | null;
+}) {
   const [playerRace] = useQuery(() =>
     props.z.query.player_race
       .where("raceID", "=", props.raceID)
@@ -24,13 +30,19 @@ export function End(props: { z: Zero<Schema>; raceID: string; quote: string }) {
   }
 
   return (
-    <div class="flex gap-12 items-center m-auto">
-      <div class="flex flex-col gap-4 shrink-0 items-start">
-        <Tag class="bg-violet-600">{`${results().wpm} WPM`}</Tag>
-        <Tag class="bg-teal-600">{`${results().sec} sec`}</Tag>
+    <>
+      <div class="flex gap-12 items-center m-auto">
+        <div class="flex flex-col gap-4 shrink-0 items-start">
+          <Tag class="bg-violet-600">{`${results().wpm} WPM`}</Tag>
+          <Tag class="bg-teal-600">{`${results().sec} sec`}</Tag>
+        </div>
+        <div class="font-quote text-2xl tracking-widest">{props.quote}</div>
       </div>
-      <div class="font-quote text-2xl tracking-widest">{props.quote}</div>
-    </div>
+
+      {props.nextRaceID && (
+        <Link href={`/races/${props.nextRaceID}`}>Next</Link>
+      )}
+    </>
   );
 }
 

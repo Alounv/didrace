@@ -8,6 +8,7 @@ import { randInt } from "../../rand";
 export function CreateRace(props: { z: Zero<Schema> }) {
   const [quotes] = useQuery(() => props.z.query.quote);
   const getRandomQuoteId = () => quotes()[randInt(quotes().length)].id;
+
   return (
     <Button
       onClick={() => {

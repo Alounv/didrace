@@ -27,7 +27,6 @@ const quote = table("quote")
   .columns({
     id: string(),
 
-    title: string(),
     body: string(),
   })
   .primaryKey("id");
@@ -41,6 +40,7 @@ const race = table("race")
     status: enumeration<
       "ready" | "starting" | "started" | "finished" | "cancelled"
     >(),
+    nextRaceID: string().optional(),
     timestamp: number(),
   })
   .primaryKey("id");
