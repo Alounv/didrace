@@ -12,11 +12,11 @@ function Header(props: { z: Zero<Schema> }) {
 
   const toggleLogin = async () => {
     if (props.z.userID === "anon") {
-      await fetch("/api/login");
+      window.location.href = "/api/discord";
     } else {
       Cookies.remove("jwt");
+      location.reload();
     }
-    location.reload();
   };
 
   return (
@@ -26,7 +26,9 @@ function Header(props: { z: Zero<Schema> }) {
       </A>
 
       <div class="ml-auto flex gap-4 items-center">
-        {player() ? `Logged in as ${player()?.name}` : ""}
+        {player() && props.z.userID !== "anon"
+          ? `Logged in as ${player()?.name}`
+          : ""}
         <Button onClick={() => toggleLogin()}>
           {player() ? "Logout" : "Login"}
         </Button>

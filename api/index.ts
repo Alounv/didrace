@@ -1,24 +1,89 @@
-import { randomInt } from "crypto";
 import { Hono } from "hono";
+import { randInt } from "../src/rand";
 import { handle } from "hono/vercel";
 import { SignJWT } from "jose";
 import { setCookie } from "hono/cookie";
+import { Player } from "../src/schema";
 import dotenv from "dotenv";
+import dotenvExpand from "dotenv-expand";
+import { discordAuth } from "@hono/oauth-providers/discord";
+import { id } from "../src/id";
+import pg from "pg";
 
-dotenv.config();
+export const pool = new pg.Pool({
+  connectionString: process.env.ZERO_UPSTREAM_DB,
+});
+
+const baseEnv = dotenv.config({ path: ".env" });
+dotenvExpand.expand(baseEnv);
+
+const localEnv = dotenv.config({ path: ".env.local", override: true });
+dotenvExpand.expand(localEnv);
 
 export const app = new Hono().basePath("/api");
 
-// See seed.sql
-// In real life you would of course authenticate the user however you like.
-const userIDs = ["ar", "al", "ke", "fl", "ni", "ti"];
+export async function getPlayerByDiscordId(
+  discordID: string,
+): Promise<Player | null> {
+  const result = await pool.query(
+    'SELECT * FROM player WHERE "discordID" = $1',
+    [discordID],
+  );
+  return result.rows[0] || null;
+}
 
-app.get("/login", async (c) => {
+export async function createPlayer(
+  player: Omit<Player, "id">,
+): Promise<Player> {
+  const result = await pool.query(
+    'INSERT INTO player (id, "discordID", name, color) VALUES ($1, $2, $3, $4) RETURNING *',
+    [id(), player.discordID, player.name, player.color],
+  );
+  return result.rows[0];
+}
+
+const COLORS = [
+  "#12C3E2",
+  "#5712E2",
+  "#99E212",
+  "#E21249",
+  "#E28B12",
+  "#E2CA12",
+];
+
+app.use(
+  "/discord",
+  discordAuth({
+    client_id: process.env.DISCORD_CLIENT_ID,
+    client_secret: process.env.DISCORD_CLIENT_SECRET,
+    scope: ["identify", "email"],
+  }),
+);
+
+app.get("/discord", async (c) => {
+  // const token = c.get("token");
+  // const refreshToken = c.get("refresh-token");
+  // const grantedScopes = c.get("granted-scopes");
+  const user = c.get("user-discord");
+
+  console.log({ user });
+
+  let player = await getPlayerByDiscordId(must(user?.id));
+
+  if (!player) {
+    player = await createPlayer({
+      discordID: must(user?.id),
+      name: user?.global_name ?? "Anonymous",
+      color: COLORS[randInt(COLORS.length)],
+    });
+  }
+
+  console.log(player);
+
   const jwtPayload = {
-    sub: userIDs[randomInt(userIDs.length)],
+    sub: player.id,
     iat: Math.floor(Date.now() / 1000),
   };
-
   const jwt = await new SignJWT(jwtPayload)
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("30days")
@@ -28,10 +93,8 @@ app.get("/login", async (c) => {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
   });
 
-  return c.text("ok");
+  return c.redirect("/");
 });
-
-export default handle(app);
 
 function must<T>(val: T) {
   if (!val) {
@@ -39,3 +102,5 @@ function must<T>(val: T) {
   }
   return val;
 }
+
+export default handle(app);
