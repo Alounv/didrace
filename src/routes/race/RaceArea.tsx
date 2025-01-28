@@ -1,6 +1,6 @@
 import { Zero } from "@rocicorp/zero";
 import { useQuery } from "@rocicorp/zero/solid";
-import { createEffect, createSignal, Show } from "solid-js";
+import { createEffect, createSignal, JSX, Show, For } from "solid-js";
 import { Quote, Race, Schema } from "../../schema";
 import { id } from "../../id";
 import { randInt } from "../../rand";
@@ -78,8 +78,14 @@ function RaceInput(props: {
     props.z.query.quote.where("id", "!=", props.quote.id),
   );
   const [playerRaces] = useQuery(() =>
-    props.z.query.player_race.where("raceID", "=", props.raceID),
+    props.z.query.player_race
+      .where("raceID", "=", props.raceID)
+      .related("player"),
   );
+
+  function playerRace() {
+    return playerRaces().find((r) => r.playerID === props.z.userID);
+  }
 
   createEffect(() => {
     if (props.status === "started") {
@@ -205,17 +211,31 @@ function RaceInput(props: {
     setOffset(typedWidth);
   }
 
+  function isActive() {
+    return props.status === "started";
+  }
+
   return (
     <label
       for="input-id"
       class="relative transition-all flex-1 h-full flex items-center"
     >
-      {props.status === "started" && !props.hasFinished && (
-        <div class="bg-sky-400 w-[2px] h-7 relative rounded -translate-x-0.5">
-          <div class="bg-sky-400 absolute -top-7 text-white rounded-lg px-2 py-0.5 text-sm -translate-x-1/2">
-            You
-          </div>
-        </div>
+      <For each={playerRaces().filter((r) => r.playerID !== props.z.userID)}>
+        {(race) => (
+          <Cursor
+            color={race.player?.color}
+            placement="bottom"
+            isActive={isActive()}
+          >
+            {race.player?.name}
+          </Cursor>
+        )}
+      </For>
+
+      {!props.hasFinished && (
+        <Cursor color={playerRace()?.player?.color} isActive={isActive()}>
+          You
+        </Cursor>
       )}
 
       <div
@@ -243,5 +263,26 @@ function RaceInput(props: {
         onInput={(e) => onChange(e.currentTarget.value)}
       />
     </label>
+  );
+}
+
+function Cursor(props: {
+  children: JSX.Element;
+  color: string | undefined;
+  placement?: "top" | "bottom";
+  isActive: boolean;
+}) {
+  return (
+    <div
+      class={`w-[2px] h-7 relative rounded -translate-x-0.5 ${props.isActive ? "" : "opacity-30"}`}
+      style={{ "background-color": props.color }}
+    >
+      <div
+        class={`bg-inherit absolute text-white rounded-lg px-2 py-0.5 text-sm -translate-x-1/2
+          ${props.placement === "bottom" ? "-bottom-7" : "-top-7"}`}
+      >
+        {props.children}
+      </div>
+    </div>
   );
 }
