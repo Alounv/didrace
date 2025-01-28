@@ -89,8 +89,7 @@ function RaceInput(props: {
 
   createEffect(() => {
     if (props.status === "started") {
-      //@ts-expect-error -- Variable 'inputRef' is used before being assigned.
-      inputRef.focus();
+      inputRef!.focus();
     }
   });
 
@@ -130,6 +129,10 @@ function RaceInput(props: {
       incorrect,
       rest,
     };
+  }
+
+  function done(progress: number): string {
+    return props.quote.body.slice(0, progress);
   }
 
   const [offset, setOffset] = createSignal(0);
@@ -174,29 +177,35 @@ function RaceInput(props: {
 
   function onChange(value: string) {
     const last = value[value.length - 1];
-    const couldFinish = charIndex() + value.length >= props.quote.body.length;
+    const progress = charIndex() + value.length;
+    const couldFinish = progress >= props.quote.body.length;
+    const isCorrectSoFar = target().startsWith(value.trim());
 
-    if (!props.hasStarted) {
-      props.z.mutate.player_race.update({
-        raceID: props.raceID,
-        playerID: props.z.userID,
-        start: Date.now(),
-      });
+    if (!isCorrectSoFar) {
+      setInput(value);
+      return;
     }
+
+    // save progress in realtime
+    props.z.mutate.player_race.update({
+      raceID: props.raceID,
+      playerID: props.z.userID,
+      ...(!playerRace()?.start && { start: Date.now() }),
+      progress: Math.min(progress, props.quote.body.length),
+    });
 
     if ((last === " " || couldFinish) && target() === value.trim()) {
       // move to next word
       setCharIndex((i) => i + value.length);
       setInput("");
 
-      const progress = charIndex();
-      const isComplete = progress >= props.quote.body.length; // could be 1 char more because of the last space
+      // could be 1 char more because of the last space
+      const isComplete = progress >= props.quote.body.length;
 
       // save progress
       props.z.mutate.player_race.update({
         raceID: props.raceID,
         playerID: props.z.userID,
-        progress: Math.min(progress, props.quote.body.length),
         end: isComplete ? Date.now() : null,
       });
 
@@ -220,18 +229,6 @@ function RaceInput(props: {
       for="input-id"
       class="relative transition-all flex-1 h-full flex items-center"
     >
-      <For each={playerRaces().filter((r) => r.playerID !== props.z.userID)}>
-        {(race) => (
-          <Cursor
-            color={race.player?.color}
-            placement="bottom"
-            isActive={isActive()}
-          >
-            {race.player?.name}
-          </Cursor>
-        )}
-      </For>
-
       {!props.hasFinished && (
         <Cursor color={playerRace()?.player?.color} isActive={isActive()}>
           You
@@ -250,13 +247,28 @@ function RaceInput(props: {
           <span class="bg-red-600 rounded-xs">{display().incorrect}</span>
           <span class="text-stone-400">{display().rest}</span>
         </div>
+
+        <For each={playerRaces().filter((r) => r.playerID !== props.z.userID)}>
+          {(race) => (
+            <div class="absolute top-0 flex h-full items-center ">
+              <div class="font-quote text-2xl tracking-widest invisible">
+                {done(race.progress)}
+              </div>
+              <Cursor
+                color={race.player?.color}
+                placement="bottom"
+                isActive={isActive()}
+              >
+                {race.player?.name}
+              </Cursor>
+            </div>
+          )}
+        </For>
       </div>
 
       <input
         id="input-id"
-        // @ts-expect-error Variable 'inputRef' is used before being assigned
-        ref={inputRef}
-        // type="hidden"
+        ref={inputRef!}
         class="fixed -top-full -left-full"
         value={input()}
         disabled={props.hasFinished || props.status !== "started"}
