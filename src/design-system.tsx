@@ -8,7 +8,7 @@ export function Button(props: {
 }) {
   return (
     <button
-      class={`text-white bg-stone-900 hover:bg-stone-800 rounded text-sm px-3 py-1.5 focus:outline-none ${props.class}`}
+      class={`text-white bg-stone-900 hover:bg-stone-800 rounded text-sm px-3 py-1.5 focus:outline-none focus:bg-stone-800 ${props.class}`}
       style={{ "justify-content": "center" }}
       onClick={() => props.onClick()}
     >
@@ -25,7 +25,7 @@ export function Link(props: {
   return (
     <A
       class={
-        "text-white bg-stone-700 hover:bg-stone-700 rounded text-sm px-3 py-1.5 focus:outline-none" +
+        "text-white bg-stone-700 hover:bg-stone-600 rounded text-sm px-3 py-1.5 focus:outline-none focus:bg-stone-600 " +
         props.class
       }
       style={{ "justify-content": "center" }}
