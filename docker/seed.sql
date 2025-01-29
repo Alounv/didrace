@@ -4,6 +4,7 @@
     "id" VARCHAR PRIMARY KEY,
     "discordID" VARCHAR,
     "name" VARCHAR NOT NULL,
+    "avatar" VARCHAR,
     "color" VARCHAR NOT NULL
   );
 

@@ -36,8 +36,8 @@ export async function createPlayer(
   player: Omit<Player, "id">,
 ): Promise<Player> {
   const result = await pool.query(
-    'INSERT INTO player (id, "discordID", name, color) VALUES ($1, $2, $3, $4) RETURNING *',
-    [id(), player.discordID, player.name, player.color],
+    'INSERT INTO player (id, "discordID", name, color, avatar) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    [id(), player.discordID, player.name, player.color, player.avatar],
   );
   return result.rows[0];
 }
@@ -74,6 +74,9 @@ app.get("/discord", async (c) => {
     player = await createPlayer({
       discordID: must(user?.id),
       name: user?.global_name ?? "Anonymous",
+      avatar: user?.avatar
+        ? `https://cdn.discordapp.com/avatars/${user?.id}/${user?.avatar}.png`
+        : null,
       color: COLORS[randInt(COLORS.length)],
     });
   }
