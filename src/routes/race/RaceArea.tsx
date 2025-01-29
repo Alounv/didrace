@@ -87,12 +87,6 @@ function RaceInput(props: {
     return playerRaces().find((r) => r.playerID === props.z.userID);
   }
 
-  createEffect(() => {
-    if (props.status === "started") {
-      inputRef!.focus();
-    }
-  });
-
   function wordIndex() {
     const soFar = props.quote.body.slice(0, charIndex());
     return soFar.split(" ").length - 1;
@@ -175,7 +169,19 @@ function RaceInput(props: {
     }
   }
 
+  function start() {
+    props.z.mutate.race.update({
+      id: props.raceID,
+      status: "started",
+    });
+  }
+
   function onChange(value: string) {
+    // If input is allowed and race is not started, start race
+    if (props.status !== "started") {
+      start();
+    }
+
     const last = value[value.length - 1];
     const progress = charIndex() + value.length;
     const couldFinish = progress >= props.quote.body.length;
@@ -221,8 +227,18 @@ function RaceInput(props: {
   }
 
   function isActive() {
-    return props.status === "started";
+    return (props.status === "started" || canStart()) && !props.hasFinished;
   }
+
+  function canStart() {
+    return playerRaces().length === 1;
+  }
+
+  createEffect(() => {
+    if (isActive()) {
+      inputRef!.focus();
+    }
+  });
 
   return (
     <label
@@ -268,10 +284,11 @@ function RaceInput(props: {
 
       <input
         id="input-id"
+        autofocus
         ref={inputRef!}
         class="fixed -top-full -left-full"
         value={input()}
-        disabled={props.hasFinished || props.status !== "started"}
+        disabled={!isActive()}
         onInput={(e) => onChange(e.currentTarget.value)}
       />
     </label>
