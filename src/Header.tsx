@@ -11,14 +11,19 @@ function Header(props: { z: Zero<Schema> }) {
     props.z.query.player.where("id", "=", props.z.userID).one(),
   );
 
-  const toggleLogin = async () => {
-    if (props.z.userID === "anon") {
-      window.location.href = "/api/discord";
-    } else {
-      Cookies.remove("jwt");
-      location.reload();
-    }
-  };
+  function discordLogin() {
+    window.location.href = "/api/discord";
+  }
+
+  async function guestLogin() {
+    await fetch("/api/guest");
+    location.reload();
+  }
+
+  function logout() {
+    Cookies.remove("jwt");
+    location.href = "/";
+  }
 
   return (
     <div class="bg-background-light rounded-xl p-8 flex items-center h-22">
@@ -27,9 +32,15 @@ function Header(props: { z: Zero<Schema> }) {
       </A>
 
       <div class="ml-auto flex gap-4 items-center">
-        <Button onClick={() => toggleLogin()}>
-          {player() ? "Logout" : "Login"}
-        </Button>
+        {props.z.userID === "anon" ? (
+          <div class="flex gap-2 items-center">
+            Login
+            <Button onClick={discordLogin}>Discord</Button>
+            <Button onClick={guestLogin}>Guest</Button>
+          </div>
+        ) : (
+          <Button onClick={logout}>Logout</Button>
+        )}
 
         {props.z.userID !== "anon" && (
           <Show when={player()}>
