@@ -2,6 +2,7 @@
 
   CREATE TABLE "player" (
     "id" VARCHAR PRIMARY KEY,
+    "discordID" VARCHAR,
     "name" VARCHAR NOT NULL,
     "color" VARCHAR NOT NULL
   );

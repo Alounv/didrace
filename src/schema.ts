@@ -19,6 +19,8 @@ const player = table("player")
   .columns({
     id: string(),
 
+    discordID: string().optional(),
+
     color: string(),
     name: string(),
   })
