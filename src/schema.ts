@@ -20,6 +20,7 @@ const player = table("player")
     id: string(),
 
     discordID: string().optional(),
+    avatar: string().optional(),
 
     color: string(),
     name: string(),

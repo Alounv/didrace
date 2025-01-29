@@ -1,3 +1,4 @@
+import { Show } from "solid-js";
 import Cookies from "js-cookie";
 import { useQuery } from "@rocicorp/zero/solid";
 import { Zero } from "@rocicorp/zero";
@@ -26,12 +27,43 @@ function Header(props: { z: Zero<Schema> }) {
       </A>
 
       <div class="ml-auto flex gap-4 items-center">
-        {player() && props.z.userID !== "anon"
-          ? `Logged in as ${player()?.name}`
-          : ""}
         <Button onClick={() => toggleLogin()}>
           {player() ? "Logout" : "Login"}
         </Button>
+
+        {props.z.userID !== "anon" && (
+          <Show when={player()}>
+            {(player) => (
+              <>
+                <div
+                  class="text-white px-2 py-1 rounded"
+                  style={{ "background-color": player().color }}
+                >
+                  {player().name}
+                </div>
+                <div
+                  class="w-10 h-10 rounded-full border-solid border-3 flex items-center justify-center"
+                  style={{
+                    "border-color": player().color,
+                    "background-color": player().color,
+                  }}
+                >
+                  {player().avatar ? (
+                    <img
+                      src={player().avatar ?? ""}
+                      class="rounded-full"
+                      title={player()?.name}
+                    />
+                  ) : (
+                    <div class="text-white text-lg font-bold font-lato">
+                      {player().name.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </Show>
+        )}
       </div>
     </div>
   );
