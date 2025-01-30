@@ -5,18 +5,13 @@ import { setCookie } from "hono/cookie";
 import { discordAuth } from "@hono/oauth-providers/discord";
 import { Player } from "../src/schema";
 import dotenv from "dotenv";
-import dotenvExpand from "dotenv-expand";
 import { id } from "../src/id";
 import pg from "pg";
 import { randInt } from "../src/rand";
 
 // --- Env ---
 
-const baseEnv = dotenv.config({ path: ".env" });
-dotenvExpand.expand(baseEnv);
-
-const localEnv = dotenv.config({ path: ".env.local", override: true });
-dotenvExpand.expand(localEnv);
+dotenv.config({ path: ".env" });
 
 // --- Hono ---
 
