@@ -29,3 +29,7 @@ zero-schema.json
 
 # fly
 fly.toml
+
+# env
+.env
+.env.*
