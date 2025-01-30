@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 import tailwindcss from "@tailwindcss/vite";
 import { getRequestListener } from "@hono/node-server";
-import { app } from "./api/index.js";
+import { app } from "./hono/index.js";
 
 export default defineConfig({
   optimizeDeps: {
@@ -24,7 +24,7 @@ export default defineConfig({
       name: "api-server",
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
-          if (!req.url?.startsWith("/api")) {
+          if (!req.url?.startsWith("/hono")) {
             return next();
           }
           getRequestListener(async (request) => {

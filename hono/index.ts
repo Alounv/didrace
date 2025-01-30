@@ -15,7 +15,7 @@ dotenv.config({ path: ".env" });
 
 // --- Hono ---
 
-export const app = new Hono().basePath("/api");
+export const app = new Hono().basePath("/hono");
 
 app.use(
   "/discord",

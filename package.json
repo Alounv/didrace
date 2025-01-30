@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev:ui": "VITE_PUBLIC_SERVER='http://localhost:4848' vite",
+    "dev:ui": "vite",
     "dev:zero-cache": "zero-cache-dev -p src/schema.ts",
     "dev:db-up": "docker compose --env-file .env -f ./docker/docker-compose.yml up",
     "dev:db-down": "docker compose --env-file .env -f ./docker/docker-compose.yml down",

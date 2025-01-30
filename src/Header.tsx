@@ -12,11 +12,11 @@ function Header(props: { z: Zero<Schema> }) {
   );
 
   function discordLogin() {
-    window.location.href = "/api/discord";
+    window.location.href = "/hono/discord";
   }
 
   async function guestLogin() {
-    await fetch("/api/guest");
+    await fetch("/hono/guest");
     location.reload();
   }
 
