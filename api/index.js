@@ -1,13 +1,11 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import { SignJWT } from "jose";
-import { setCookie } from "hono/cookie";
+import * as dotenv from "dotenv";
+import { nanoid } from "nanoid";
 import { discordAuth } from "@hono/oauth-providers/discord";
-import { Player } from "../src/schema";
-import dotenv from "dotenv";
-import { id } from "../src/id";
+import { setCookie } from "hono/cookie";
 import pg from "pg";
-import { randInt } from "../src/rand";
 
 // --- Env ---
 
@@ -65,7 +63,7 @@ app.get("/guest", async (c) => {
 
 // --- Utils ---
 
-function must<T>(val: T) {
+function must(val) {
   if (!val) {
     throw new Error("Expected value to be defined");
   }
@@ -74,7 +72,7 @@ function must<T>(val: T) {
 
 // --- JWT ---
 
-async function setJWT({ c, sub }: { c: any; sub: string }) {
+async function setJWT({ c, sub }) {
   const jwtPayload = {
     sub,
     iat: Math.floor(Date.now() / 1000),
@@ -105,12 +103,10 @@ const COLORS = [
 ];
 
 function randColor() {
-  return COLORS[randInt(COLORS.length)];
+  return COLORS[Math.floor(Math.random() * COLORS.length)];
 }
 
-export async function getPlayerByDiscordId(
-  discordID: string,
-): Promise<Player | null> {
+async function getPlayerByDiscordId(discordID) {
   const result = await pool.query(
     'SELECT * FROM player WHERE "discordID" = $1',
     [discordID],
@@ -118,16 +114,11 @@ export async function getPlayerByDiscordId(
   return result.rows[0] || null;
 }
 
-export async function createPlayer(player: {
-  discordID: string | null;
-  name: string;
-  color: string | null;
-  avatar: string | null;
-}): Promise<Player> {
+async function createPlayer(player) {
   const result = await pool.query(
     'INSERT INTO player (id, "discordID", name, color, avatar) VALUES ($1, $2, $3, $4, $5) RETURNING *',
     [
-      id(),
+      nanoid(),
       player.discordID,
       player.name,
       player.color ?? randColor(),
@@ -139,4 +130,10 @@ export async function createPlayer(player: {
 
 // -- Exports ---
 
-export default handle(app);
+const handler = handle(app);
+
+export const GET = handler;
+export const POST = handler;
+export const PATCH = handler;
+export const PUT = handler;
+export const OPTIONS = handler;

@@ -35,6 +35,9 @@ export function generatePlayers(count: number): Player[] {
   return Array.from({ length: count }, (_, i) => ({
     id: id(),
     name: PLAYER_NAMES[i % PLAYER_NAMES.length],
+    color: "",
+    discordID: null,
+    avatar: null,
   }));
 }
 
@@ -49,6 +52,7 @@ export function generateRaces(
     authorID: players[randInt(players.length - 1)].id,
     status: "ready" as const,
     timestamp: Date.now(),
+    nextRaceID: null,
   }));
 }
 

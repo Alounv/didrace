@@ -10,7 +10,6 @@ import {
   relationships,
   number,
   enumeration,
-  ANYONE_CAN,
 } from "@rocicorp/zero";
 
 // --- Tables ---
@@ -161,7 +160,6 @@ type AuthData = { sub: string | null };
 
 // --- Permissions ---
 
-//@ts-expect-error -- TODO: fix this
 export const permissions = definePermissions<AuthData, Schema>(schema, () => {
   const allowIfLoggedIn = (
     authData: AuthData,
@@ -214,7 +212,7 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
     race: {
       row: {
         insert: [allowIfLoggedIn],
-        update: { preMutation: ANYONE_CAN },
+        update: { preMutation: [allowIfLoggedIn] },
         delete: NOBODY_CAN,
       },
     },
@@ -227,8 +225,6 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
     },
   };
 });
-
-// --- Exports ---
 
 export default {
   schema,
