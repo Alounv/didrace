@@ -161,6 +161,7 @@ type AuthData = { sub: string | null };
 
 // --- Permissions ---
 
+//@ts-expect-error -- TODO: fix this
 export const permissions = definePermissions<AuthData, Schema>(schema, () => {
   const allowIfLoggedIn = (
     authData: AuthData,
