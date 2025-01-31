@@ -77,6 +77,7 @@ async function setJWT({ c, sub }) {
     sub,
     iat: Math.floor(Date.now() / 1000),
   };
+
   const jwt = await new SignJWT(jwtPayload)
     .setProtectedHeader({ alg: "HS256" })
     .setExpirationTime("30days")
