@@ -4,5 +4,6 @@
       "source": "/api/(.*)",
       "destination": "/api"
     }
-  ]
+  ],
+  "routes": [{ "src": "/[^.]+", "dest": "/", "status": 200 }]
 }
