@@ -23,6 +23,7 @@ const player = table("player")
 
     color: string(),
     name: string(),
+    lastLogin: number().optional(),
   })
   .primaryKey("id");
 

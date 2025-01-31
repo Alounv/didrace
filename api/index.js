@@ -49,14 +49,12 @@ app.get("/discord", async (c) => {
 });
 
 app.get("/guest", async (c) => {
-  const guest = await createPlayer({
-    discordID: null,
-    name: "Guest",
-    avatar: null,
-    color: null,
-  });
+  const guestID = await getLastGuest();
 
-  setJWT({ c, sub: guest.id });
+  setJWT({ c, sub: guestID });
+
+  // Sleep for a second to make sure the JWT is set
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
   return c.redirect("/");
 });
@@ -107,23 +105,56 @@ function randColor() {
   return COLORS[Math.floor(Math.random() * COLORS.length)];
 }
 
+async function updatePlayerLastLogin(playerId) {
+  await pool.query('UPDATE player SET "lastLogin" = $1 WHERE id = $2', [
+    Date.now(),
+    playerId,
+  ]);
+}
+
 async function getPlayerByDiscordId(discordID) {
   const result = await pool.query(
     'SELECT * FROM player WHERE "discordID" = $1',
     [discordID],
   );
-  return result.rows[0] || null;
+
+  if (!result.rows[0]) {
+    return null;
+  }
+
+  const playerId = result.rows[0]?.id;
+
+  await updatePlayerLastLogin(playerId);
+
+  return playerId;
+}
+
+async function getLastGuest() {
+  const result = await pool.query(
+    'SELECT * FROM player WHERE "discordID" IS NULL ORDER BY "lastLogin" ASC LIMIT 1',
+  );
+
+  if (!result.rows[0]) {
+    return null;
+  }
+
+  const playerId = result.rows[0]?.id;
+
+  await updatePlayerLastLogin(playerId);
+
+  return playerId;
 }
 
 async function createPlayer(player) {
   const result = await pool.query(
-    'INSERT INTO player (id, "discordID", name, color, avatar) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+    'INSERT INTO player (id, "discordID", name, color, avatar, "lastLogin") VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
     [
       nanoid(),
       player.discordID,
       player.name,
       player.color ?? randColor(),
       player.avatar,
+      Date.now(),
     ],
   );
   return result.rows[0];

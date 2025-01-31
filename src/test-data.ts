@@ -38,6 +38,7 @@ export function generatePlayers(count: number): Player[] {
     color: "",
     discordID: null,
     avatar: null,
+    lastLogin: 0,
   }));
 }
 
