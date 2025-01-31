@@ -1,14 +1,7 @@
 import { Zero } from "@rocicorp/zero";
 import { useQuery } from "@rocicorp/zero/solid";
 import { useNavigate, useParams } from "@solidjs/router";
-import {
-  Show,
-  Match,
-  Switch,
-  createEffect,
-  onMount,
-  onCleanup,
-} from "solid-js";
+import { Show, Match, Switch, createEffect } from "solid-js";
 import { Schema } from "../../schema";
 import { CountDown } from "./CountDown";
 import { RaceArea } from "./RaceArea";

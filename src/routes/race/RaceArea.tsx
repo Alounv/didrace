@@ -1,7 +1,7 @@
 import { Zero } from "@rocicorp/zero";
 import { useQuery } from "@rocicorp/zero/solid";
-import { createEffect, createSignal, JSX, Show, For } from "solid-js";
-import { Quote, Race, Schema } from "../../schema";
+import { createEffect, createSignal, JSX, Show, For, Accessor } from "solid-js";
+import { Player, PlayerRace, Quote, Race, Schema } from "../../schema";
 import { id } from "../../id";
 import { randInt } from "../../rand";
 
@@ -11,12 +11,15 @@ export function RaceArea(props: {
   quote: Quote;
   status: Race["status"];
 }) {
-  const [playerRace] = useQuery(() =>
+  const [playerRaces] = useQuery(() =>
     props.z.query.player_race
       .where("raceID", "=", props.raceID)
-      .where("playerID", "=", props.z.userID)
-      .one(),
+      .related("player"),
   );
+
+  function playerRace() {
+    return playerRaces().find((r) => r.playerID === props.z.userID);
+  }
 
   createEffect(() => {
     if (playerRace()) {
@@ -48,15 +51,20 @@ export function RaceArea(props: {
 
   return (
     <Show when={playerRace()}>
-      <RaceInput
-        z={props.z}
-        quote={props.quote}
-        raceID={props.raceID}
-        initialProgress={getInitialProgress()}
-        hasFinished={!!playerRace()?.end}
-        hasStarted={!!playerRace()?.start}
-        status={props.status}
-      />
+      {(playerRace) => (
+        <RaceInput
+          z={props.z}
+          quote={props.quote}
+          raceID={props.raceID}
+          initialProgress={getInitialProgress()}
+          hasFinished={!!playerRace()?.end}
+          hasStarted={!!playerRace()?.start}
+          playerRaces={
+            playerRaces as Accessor<(PlayerRace & { player: Player })[]>
+          }
+          status={props.status}
+        />
+      )}
     </Show>
   );
 }
@@ -69,6 +77,7 @@ function RaceInput(props: {
   hasFinished: boolean;
   hasStarted: boolean;
   status: Race["status"];
+  playerRaces: Accessor<(PlayerRace & { player: Player })[]>;
 }) {
   let inputRef: HTMLInputElement;
   const [input, setInput] = createSignal<string>("");
@@ -77,14 +86,9 @@ function RaceInput(props: {
   const [otherQuotes] = useQuery(() =>
     props.z.query.quote.where("id", "!=", props.quote.id),
   );
-  const [playerRaces] = useQuery(() =>
-    props.z.query.player_race
-      .where("raceID", "=", props.raceID)
-      .related("player"),
-  );
 
   function playerRace() {
-    return playerRaces().find((r) => r.playerID === props.z.userID);
+    return props.playerRaces().find((r) => r.playerID === props.z.userID);
   }
 
   function wordIndex() {
@@ -143,9 +147,9 @@ function RaceInput(props: {
   }
 
   function onFinish() {
-    const notFinishedCount = playerRaces()?.filter(
-      (r) => r.end === null,
-    ).length;
+    const notFinishedCount = props
+      .playerRaces()
+      ?.filter((r) => r.end === null).length;
 
     if (notFinishedCount <= 1) {
       const newRaceId = id();
@@ -248,7 +252,11 @@ function RaceInput(props: {
           <span class="text-stone-400">{display().rest}</span>
         </div>
 
-        <For each={playerRaces().filter((r) => r.playerID !== props.z.userID)}>
+        <For
+          each={props
+            .playerRaces()
+            .filter((r) => r.playerID !== props.z.userID)}
+        >
           {(race) => (
             <div class="absolute top-0 flex h-full items-center ">
               <div class="font-quote text-2xl tracking-widest invisible">
