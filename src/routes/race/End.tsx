@@ -3,6 +3,8 @@ import { Schema } from "../../schema";
 import { JSX } from "solid-js";
 import { useQuery } from "@rocicorp/zero/solid";
 import { Link } from "../../design-system";
+import { addKeyboardEventListener } from "../../addKeyboardEventListener";
+import { useNavigate } from "@solidjs/router";
 
 export function End(props: {
   z: Zero<Schema>;
@@ -29,6 +31,15 @@ export function End(props: {
     };
   }
 
+  const navigate = useNavigate();
+
+  addKeyboardEventListener({
+    keys: ["Space"],
+    callback: () => {
+      navigate(`/races/${props.nextRaceID}`);
+    },
+  });
+
   return (
     <>
       <div class="flex gap-12 items-center m-auto">
@@ -40,7 +51,7 @@ export function End(props: {
       </div>
 
       {props.nextRaceID && (
-        <Link href={`/races/${props.nextRaceID}`}>Next</Link>
+        <Link href={`/races/${props.nextRaceID}`}>Next (or press space)</Link>
       )}
     </>
   );

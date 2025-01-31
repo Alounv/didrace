@@ -215,11 +215,7 @@ function RaceInput(props: {
   }
 
   function isActive() {
-    return (props.status === "started" || canStart()) && !props.hasFinished;
-  }
-
-  function canStart() {
-    return playerRaces().length === 1;
+    return props.status === "started" && !props.hasFinished;
   }
 
   createEffect(() => {
