@@ -27,18 +27,16 @@ export function RaceList(props: { z: Zero<Schema> }) {
                 ) : undefined}
               </Link>
 
-              {race.authorID === props.z.userID && (
-                <Button
-                  onClick={() => {
-                    props.z.mutate.race.update({
-                      id: race.id,
-                      status: "cancelled",
-                    });
-                  }}
-                >
-                  Delete
-                </Button>
-              )}
+              <Button
+                onClick={() => {
+                  props.z.mutate.race.update({
+                    id: race.id,
+                    status: "cancelled",
+                  });
+                }}
+              >
+                Delete
+              </Button>
             </li>
           )}
         </For>

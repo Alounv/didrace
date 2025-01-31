@@ -214,7 +214,7 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
       row: {
         insert: [allowIfLoggedIn],
         update: { preMutation: [allowIfLoggedIn] },
-        delete: NOBODY_CAN,
+        delete: [allowIfLoggedIn],
       },
     },
     typed_word: {

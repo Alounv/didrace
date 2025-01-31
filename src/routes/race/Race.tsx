@@ -1,7 +1,14 @@
 import { Zero } from "@rocicorp/zero";
 import { useQuery } from "@rocicorp/zero/solid";
-import { useParams } from "@solidjs/router";
-import { Show, Match, Switch } from "solid-js";
+import { useNavigate, useParams } from "@solidjs/router";
+import {
+  Show,
+  Match,
+  Switch,
+  createEffect,
+  onMount,
+  onCleanup,
+} from "solid-js";
 import { Schema } from "../../schema";
 import { CountDown } from "./CountDown";
 import { RaceArea } from "./RaceArea";
@@ -21,6 +28,14 @@ function RacePage(props: { z: Zero<Schema> }) {
   function quote() {
     return race()?.quote?.body ?? "";
   }
+
+  const navigate = useNavigate();
+
+  createEffect(() => {
+    if (props.z.userID === "anon") {
+      navigate("/");
+    }
+  });
 
   return (
     <Show when={race()}>
