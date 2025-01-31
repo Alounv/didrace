@@ -3,6 +3,7 @@ import { createEffect, createSignal } from "solid-js";
 import { Race, Schema } from "../../schema";
 import { Button } from "../../design-system";
 import { useQuery } from "@rocicorp/zero/solid";
+import { addKeyboardEventListener } from "../../addKeyboardEventListener";
 
 export function CountDown(props: {
   raceID: string;
@@ -28,28 +29,35 @@ export function CountDown(props: {
     }
   });
 
+  function start() {
+    props.z.mutate.race.update({
+      id: props.raceID,
+      status: "starting",
+    });
+
+    setTimeout(() => {
+      props.z.mutate.race.update({
+        id: props.raceID,
+        status: "started",
+      });
+    }, 1000 * 4);
+  }
+
+  addKeyboardEventListener({
+    keys: ["Space"],
+    callback: () => {
+      if (props.status === "ready") {
+        start();
+      }
+    },
+  });
+
   return (
     <div
       class={`flex flex-col gap-4 items-stretch mr-24 ${hasStartedTyping() ? "opacity-0" : ""} transition-opacity`}
     >
       {props.status === "ready" ? (
-        <Button
-          onClick={() => {
-            props.z.mutate.race.update({
-              id: props.raceID,
-              status: "starting",
-            });
-
-            setTimeout(() => {
-              props.z.mutate.race.update({
-                id: props.raceID,
-                status: "started",
-              });
-            }, 1000 * 4);
-          }}
-        >
-          Start
-        </Button>
+        <Button onClick={() => start()}>Start (press space)</Button>
       ) : (
         <div class="flex items-center gap-2">
           {["ready", "starting", "started"].includes(props.status) && (
