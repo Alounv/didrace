@@ -126,6 +126,7 @@ async function createPlayer(player) {
       player.avatar,
     ],
   );
+
   return result.rows[0];
 }
 
