@@ -16,8 +16,7 @@ function Header(props: { z: Zero<Schema> }) {
   }
 
   async function guestLogin() {
-    await fetch("/api/guest");
-    location.reload();
+    window.location.href = "/api/guest";
   }
 
   function logout() {
