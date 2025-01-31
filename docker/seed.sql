@@ -50,13 +50,12 @@
       ('ke', 'Guest', '#99E212', 0),
       ('fl', 'Guest', '#E21249', 0),
       ('ni', 'Guest', '#E28B12', 0),
-      ('ti', 'Guest', '#E2CA12', 0),
-      ;,
+      ('ti', 'Guest', '#E2CA12', 0);
 
   INSERT INTO "quote" (id, body) VALUES
       ('t1', 'La vie est un mystère qu''il faut vivre, et non un problème à résoudre.'),
       ('t2', 'Le bonheur n''est pas une destination à atteindre, mais une façon de voyager.'),
-      ('t3', 'On ne voit bien qu''avec le cœur. L''essentiel est invisible pour les yeux.'),
+      ('t3', 'On ne voit bien qu''avec le coeur. L''essentiel est invisible pour les yeux.'),
       ('t4', 'Le succès n''est pas final, l''échec n''est pas fatal. C''est le courage de continuer qui compte.'),
       ('t5', 'La plus grande gloire n''est pas de ne jamais tomber, mais de se relever à chaque chute.'),
       ('t6', 'La simplicité est la sophistication suprême.');

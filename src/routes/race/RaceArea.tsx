@@ -169,19 +169,7 @@ function RaceInput(props: {
     }
   }
 
-  function start() {
-    props.z.mutate.race.update({
-      id: props.raceID,
-      status: "started",
-    });
-  }
-
   function onChange(value: string) {
-    // If input is allowed and race is not started, start race
-    if (props.status !== "started") {
-      start();
-    }
-
     const last = value[value.length - 1];
     const progress = charIndex() + value.length;
     const couldFinish = progress >= props.quote.body.length;

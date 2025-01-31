@@ -19,10 +19,7 @@ export function RaceList(props: { z: Zero<Schema> }) {
         <For each={races()}>
           {(race) => (
             <li class="flex gap-2">
-              <Link
-                href={`/races/${race.id}`}
-                class="block flex flex-row gap-2"
-              >
+              <Link href={`/races/${race.id}`} class="flex flex-row gap-2">
                 <div>{formatDate(race.timestamp)}</div>
                 <div>{race.status}</div>
                 {race.players.length ? (

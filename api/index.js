@@ -45,6 +45,11 @@ app.get("/discord", async (c) => {
 
   setJWT({ c, sub: player.id });
 
+  await updatePlayerLastLogin(player.id);
+
+  // Sleep for a second to make sure the JWT is set
+  await sleep(500);
+
   return c.redirect("/");
 });
 
@@ -53,8 +58,10 @@ app.get("/guest", async (c) => {
 
   setJWT({ c, sub: guestID });
 
+  await updatePlayerLastLogin(guestID);
+
   // Sleep for a second to make sure the JWT is set
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  await sleep(500);
 
   return c.redirect("/");
 });
@@ -66,6 +73,10 @@ function must(val) {
     throw new Error("Expected value to be defined");
   }
   return val;
+}
+
+async function sleep(ms) {
+  await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // --- JWT ---
@@ -105,10 +116,10 @@ function randColor() {
   return COLORS[Math.floor(Math.random() * COLORS.length)];
 }
 
-async function updatePlayerLastLogin(playerId) {
+async function updatePlayerLastLogin(playerID) {
   await pool.query('UPDATE player SET "lastLogin" = $1 WHERE id = $2', [
     Date.now(),
-    playerId,
+    playerID,
   ]);
 }
 
@@ -118,15 +129,7 @@ async function getPlayerByDiscordId(discordID) {
     [discordID],
   );
 
-  if (!result.rows[0]) {
-    return null;
-  }
-
-  const playerId = result.rows[0]?.id;
-
-  await updatePlayerLastLogin(playerId);
-
-  return playerId;
+  return result.rows[0] ?? null;
 }
 
 async function getLastGuest() {
@@ -139,8 +142,6 @@ async function getLastGuest() {
   }
 
   const playerId = result.rows[0]?.id;
-
-  await updatePlayerLastLogin(playerId);
 
   return playerId;
 }
