@@ -4,6 +4,7 @@ import { createEffect, createSignal, JSX, Show, For, Accessor } from "solid-js";
 import { Player, PlayerRace, Quote, Race, Schema } from "../../schema";
 import { id } from "../../id";
 import { randInt } from "../../rand";
+import { Podium } from "./Podium";
 
 export function RaceArea(props: {
   z: Zero<Schema>;
@@ -50,22 +51,30 @@ export function RaceArea(props: {
   }
 
   return (
-    <Show when={playerRace()}>
-      {(playerRace) => (
-        <RaceInput
-          z={props.z}
-          quote={props.quote}
-          raceID={props.raceID}
-          initialProgress={getInitialProgress()}
-          hasFinished={!!playerRace()?.end}
-          hasStarted={!!playerRace()?.start}
-          playerRaces={
-            playerRaces as Accessor<(PlayerRace & { player: Player })[]>
-          }
-          status={props.status}
-        />
-      )}
-    </Show>
+    <>
+      <Show when={playerRace()}>
+        {(playerRace) => (
+          <RaceInput
+            z={props.z}
+            quote={props.quote}
+            raceID={props.raceID}
+            initialProgress={getInitialProgress()}
+            hasFinished={!!playerRace()?.end}
+            hasStarted={!!playerRace()?.start}
+            playerRaces={
+              playerRaces as Accessor<(PlayerRace & { player: Player })[]>
+            }
+            status={props.status}
+          />
+        )}
+      </Show>
+
+      <Podium
+        playerRaces={
+          playerRaces as Accessor<(PlayerRace & { player: Player })[]>
+        }
+      />
+    </>
   );
 }
 
@@ -173,49 +182,59 @@ function RaceInput(props: {
     }
   }
 
-  function onChange(value: string) {
-    const last = value[value.length - 1];
-    const progress = charIndex() + value.length;
-    const couldFinish = progress >= props.quote.body.length;
-    const isCorrectSoFar = target().startsWith(value.trim());
+  function onFinishWord({
+    value,
+    progress,
+  }: {
+    value: string;
+    progress: number;
+  }) {
+    // move to next word
+    setCharIndex((i) => i + value.length);
 
-    if (!isCorrectSoFar) {
-      setInput(value);
-      return;
+    // could be 1 char more because of the last space
+    const isComplete = progress >= props.quote.body.length;
+
+    // save progress
+    props.z.mutate.player_race.update({
+      raceID: props.raceID,
+      playerID: props.z.userID,
+      end: isComplete ? Date.now() : null,
+    });
+
+    if (isComplete) {
+      onFinish();
     }
+  }
 
-    // save progress in realtime
+  function saveProgress(progress: number) {
     props.z.mutate.player_race.update({
       raceID: props.raceID,
       playerID: props.z.userID,
       ...(!playerRace()?.start && { start: Date.now() }),
       progress: Math.min(progress, props.quote.body.length),
     });
+  }
 
-    if ((last === " " || couldFinish) && target() === value.trim()) {
-      // move to next word
-      setCharIndex((i) => i + value.length);
-      setInput("");
+  function onChange(value: string) {
+    const last = value[value.length - 1];
+    const progress = charIndex() + value.length;
+    const couldFinish = progress >= props.quote.body.length;
+    const isCorrectSoFar = target().startsWith(value.trim());
+    let shouldReset = false;
 
-      // could be 1 char more because of the last space
-      const isComplete = progress >= props.quote.body.length;
+    if (isCorrectSoFar) {
+      saveProgress(progress);
 
-      // save progress
-      props.z.mutate.player_race.update({
-        raceID: props.raceID,
-        playerID: props.z.userID,
-        end: isComplete ? Date.now() : null,
-      });
-
-      if (isComplete) {
-        onFinish();
+      if ((last === " " || couldFinish) && target() === value.trim()) {
+        onFinishWord({ value, progress });
+        shouldReset = true;
       }
-    } else {
-      setInput(value);
     }
 
-    const typedWidth = typedRef?.offsetWidth ?? 0;
-    setOffset(typedWidth);
+    setInput(shouldReset ? "" : value);
+
+    setOffset(typedRef?.offsetWidth ?? 0);
   }
 
   function isActive() {
@@ -247,8 +266,8 @@ function RaceInput(props: {
           <span ref={typedRef}>
             <span class="text-white">{display().saved}</span>
             <span class="text-white transition-all">{display().correct}</span>
+            <span class="bg-red-600 rounded-xs">{display().incorrect}</span>
           </span>
-          <span class="bg-red-600 rounded-xs">{display().incorrect}</span>
           <span class="text-stone-400">{display().rest}</span>
         </div>
 

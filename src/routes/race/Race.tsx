@@ -5,7 +5,6 @@ import { Show, Match, Switch, createEffect } from "solid-js";
 import { Schema } from "../../schema";
 import { CountDown } from "./CountDown";
 import { RaceArea } from "./RaceArea";
-import { DebugSection } from "./DebugSection";
 import { End } from "./End";
 
 function RacePage(props: { z: Zero<Schema> }) {
@@ -69,8 +68,6 @@ function RacePage(props: { z: Zero<Schema> }) {
               </>
             </Match>
           </Switch>
-
-          <DebugSection raceID={race().id} z={props.z} quote={quote()} />
         </>
       )}
     </Show>
