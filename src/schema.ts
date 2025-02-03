@@ -1,15 +1,15 @@
 import {
+  boolean,
   createSchema,
   definePermissions,
-  ExpressionBuilder,
-  Row,
-  NOBODY_CAN,
-  table,
-  string,
-  boolean,
-  relationships,
-  number,
   enumeration,
+  ExpressionBuilder,
+  NOBODY_CAN,
+  number,
+  relationships,
+  Row,
+  string,
+  table,
 } from "@rocicorp/zero";
 
 // --- Tables ---

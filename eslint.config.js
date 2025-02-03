@@ -16,4 +16,9 @@ export default tseslint.config(
       parser: tsParser,
     },
   },
+  {
+    rules: {
+      "no-console": "error",
+    },
+  },
 );

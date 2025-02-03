@@ -1,6 +1,6 @@
 import { id } from "./id";
 import { randBetween, randInt } from "./rand";
-import type { Quote, Player, Race, PlayerRace } from "./schema";
+import type { Player, PlayerRace, Quote, Race } from "./schema";
 
 const PLAYER_NAMES = [
   "SpeedTyper",

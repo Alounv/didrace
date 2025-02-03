@@ -1,4 +1,4 @@
-import { Show, For } from "solid-js";
+import { For, Show } from "solid-js";
 import { useQuery } from "@rocicorp/zero/solid";
 import { Zero } from "@rocicorp/zero";
 import { Schema } from "../../schema";

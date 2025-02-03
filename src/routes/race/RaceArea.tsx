@@ -1,6 +1,6 @@
 import { Zero } from "@rocicorp/zero";
 import { useQuery } from "@rocicorp/zero/solid";
-import { createEffect, createSignal, JSX, Show, For, Accessor } from "solid-js";
+import { Accessor, createEffect, createSignal, For, JSX, Show } from "solid-js";
 import { Player, PlayerRace, Quote, Race, Schema } from "../../schema";
 import { id } from "../../id";
 import { randInt } from "../../rand";
@@ -23,11 +23,8 @@ export function RaceArea(props: {
   }
 
   createEffect(() => {
-    if (playerRace()) {
-      return;
-    }
-
-    props.z.mutate.player_race.insert({
+    // reset player race on refresh
+    props.z.mutate.player_race.upsert({
       playerID: props.z.userID,
       raceID: props.raceID,
       progress: 0,
@@ -52,15 +49,13 @@ export function RaceArea(props: {
 
   return (
     <>
-      <Show when={playerRace()}>
-        {(playerRace) => (
+      <Show when={playerRaces()}>
+        {(playerRaces) => (
           <RaceInput
             z={props.z}
             quote={props.quote}
             raceID={props.raceID}
             initialProgress={getInitialProgress()}
-            hasFinished={!!playerRace()?.end}
-            hasStarted={!!playerRace()?.start}
             playerRaces={
               playerRaces as Accessor<(PlayerRace & { player: Player })[]>
             }
@@ -83,67 +78,21 @@ function RaceInput(props: {
   quote: Quote;
   raceID: string;
   initialProgress: number;
-  hasFinished: boolean;
-  hasStarted: boolean;
   status: Race["status"];
   playerRaces: Accessor<(PlayerRace & { player: Player })[]>;
 }) {
+  // --- States ---
+
   let inputRef: HTMLInputElement;
+  let typedRef: HTMLSpanElement | undefined;
   const [input, setInput] = createSignal<string>("");
   const [charIndex, setCharIndex] = createSignal(props.initialProgress);
-
+  const [offset, setOffset] = createSignal(0);
   const [otherQuotes] = useQuery(() =>
     props.z.query.quote.where("id", "!=", props.quote.id),
   );
 
-  function playerRace() {
-    return props.playerRaces().find((r) => r.playerID === props.z.userID);
-  }
-
-  function wordIndex() {
-    const soFar = props.quote.body.slice(0, charIndex());
-    return soFar.split(" ").length - 1;
-  }
-
-  function target() {
-    return props.quote.body.split(" ")[wordIndex()];
-  }
-
-  function display() {
-    const current = target();
-    const typed = input();
-    const chars = typed.split("");
-
-    let correctIndex = typed.length;
-    for (let i = 0; i < chars.length; i++) {
-      if (chars[i] !== current[i]) {
-        correctIndex = i;
-        break;
-      }
-    }
-
-    const charI = charIndex();
-    const index = correctIndex + charI;
-
-    const saved = props.quote.body.slice(0, charI);
-    const correct = typed.slice(0, correctIndex);
-    const incorrect = typed.slice(correctIndex).replace(/ /g, "_");
-    const rest = props.quote.body.slice(index);
-
-    return {
-      saved,
-      correct,
-      incorrect,
-      rest,
-    };
-  }
-
-  function done(progress: number): string {
-    return props.quote.body.slice(0, progress);
-  }
-
-  const [offset, setOffset] = createSignal(0);
-  let typedRef: HTMLSpanElement | undefined;
+  // --- Effects ---
 
   createEffect(() => {
     if (typedRef) {
@@ -151,98 +100,117 @@ function RaceInput(props: {
     }
   });
 
-  function getRandomQuoteId() {
-    return otherQuotes()[randInt(otherQuotes().length)].id;
+  // --- Derived ---
+
+  function playerRace() {
+    return props.playerRaces().find((r) => r.playerID === props.z.userID);
+  }
+  function text() {
+    return props.quote.body;
+  }
+  function wordIndex() {
+    const soFar = text().slice(0, charIndex());
+    return soFar.split(" ").length - 1;
+  }
+  function word() {
+    return text().split(" ")[wordIndex()];
+  }
+  function canPlayerPlay() {
+    return props.status === "started" && !playerRace()?.end;
   }
 
-  function onFinish() {
-    const notFinishedCount = props
-      .playerRaces()
-      ?.filter((r) => r.end === null).length;
+  // --- Helpers
 
-    if (notFinishedCount <= 1) {
-      const newRaceId = id();
-
-      // Create next race
-      props.z.mutate.race.insert({
-        id: newRaceId,
-        status: "ready",
-        authorID: props.z.userID,
-        quoteID: getRandomQuoteId(),
-
-        timestamp: Date.now(),
-      });
-
-      // Terminate current race
-      props.z.mutate.race.update({
-        id: props.raceID,
-        status: "finished",
-        nextRaceID: newRaceId,
-      });
-    }
-  }
-
-  function onFinishWord({
-    value,
-    progress,
-  }: {
-    value: string;
-    progress: number;
-  }) {
-    // move to next word
-    setCharIndex((i) => i + value.length);
-
-    // could be 1 char more because of the last space
-    const isComplete = progress >= props.quote.body.length;
-
-    // save progress
-    props.z.mutate.player_race.update({
-      raceID: props.raceID,
-      playerID: props.z.userID,
-      end: isComplete ? Date.now() : null,
-    });
-
-    if (isComplete) {
-      onFinish();
-    }
-  }
-
-  function saveProgress(progress: number) {
+  function savePlayerRace(partial: Partial<PlayerRace>) {
     props.z.mutate.player_race.update({
       raceID: props.raceID,
       playerID: props.z.userID,
       ...(!playerRace()?.start && { start: Date.now() }),
-      progress: Math.min(progress, props.quote.body.length),
+      ...partial,
+    });
+  }
+  function endRace() {
+    const newRaceId = id();
+    const quoteID = otherQuotes()[randInt(otherQuotes().length)].id;
+
+    // Create next race
+    props.z.mutate.race.insert({
+      id: newRaceId,
+      status: "ready",
+      authorID: props.z.userID,
+      quoteID,
+
+      timestamp: Date.now(),
+    });
+
+    // Terminate current race
+    props.z.mutate.race.update({
+      id: props.raceID,
+      status: "finished",
+      nextRaceID: newRaceId,
     });
   }
 
-  function onChange(value: string) {
-    const last = value[value.length - 1];
-    const progress = charIndex() + value.length;
-    const couldFinish = progress >= props.quote.body.length;
-    const isCorrectSoFar = target().startsWith(value.trim());
-    let shouldReset = false;
+  // --- Logic ---
 
-    if (isCorrectSoFar) {
-      saveProgress(progress);
+  function onChange(typed: string): boolean {
+    const progress = Math.min(charIndex() + typed.length, text().length);
+    const target = word();
 
-      if ((last === " " || couldFinish) && target() === value.trim()) {
-        onFinishWord({ value, progress });
-        shouldReset = true;
-      }
+    // There is a error --> (word not complete)
+    if (!target.startsWith(typed.trim())) {
+      return false;
     }
 
-    setInput(shouldReset ? "" : value);
+    // Player race complete --> save player progress and end player race
+    if (progress === text().length) {
+      savePlayerRace({
+        progress,
+        end: Date.now(),
+      });
 
-    setOffset(typedRef?.offsetWidth ?? 0);
+      const notFinishedCount = props
+        .playerRaces()
+        ?.filter((r) => r.end === null).length;
+
+      // Race complete
+      if (notFinishedCount <= 1) {
+        endRace();
+      }
+
+      return false;
+    }
+
+    // Word complete --> (save player progress and move to next word)
+    if (target.length + 1 === typed.length) {
+      savePlayerRace({ progress });
+      setCharIndex((i) => i + typed.length);
+      return true;
+    }
+
+    savePlayerRace({ progress });
+    return false;
   }
 
-  function isActive() {
-    return props.status === "started" && !props.hasFinished;
+  // --- Render ---
+
+  function display() {
+    return getDisplay({
+      charIndex: charIndex(),
+      current: word(),
+      text: text(),
+      typed: input(),
+    });
   }
+
+  function done(progress: number): string {
+    return text().slice(0, progress);
+  }
+
+  const [isCursorActive, setIsCursorActive] = createSignal(false);
 
   createEffect(() => {
-    if (isActive()) {
+    if (canPlayerPlay()) {
       inputRef!.focus();
     }
   });
@@ -252,8 +220,12 @@ function RaceInput(props: {
       for="input-id"
       class="relative transition-all flex-1 h-full flex items-center"
     >
-      {!props.hasFinished && (
-        <Cursor color={playerRace()?.player?.color} isActive={isActive()}>
+      {!playerRace()?.end && (
+        <Cursor
+          color={playerRace()?.player?.color}
+          isActive={isCursorActive()}
+          isPulsing={charIndex() === 0}
+        >
           You
         </Cursor>
       )}
@@ -281,11 +253,7 @@ function RaceInput(props: {
               <div class="font-quote text-2xl tracking-widest invisible">
                 {done(race.progress)}
               </div>
-              <Cursor
-                color={race.player?.color}
-                placement="bottom"
-                isActive={isActive()}
-              >
+              <Cursor color={race.player?.color} placement="bottom" isActive>
                 {race.player?.name}
               </Cursor>
             </div>
@@ -299,8 +267,15 @@ function RaceInput(props: {
         ref={inputRef!}
         class="fixed -top-full -left-full"
         value={input()}
-        disabled={!isActive()}
-        onInput={(e) => onChange(e.currentTarget.value)}
+        disabled={!canPlayerPlay()}
+        onBlur={() => setIsCursorActive(false)}
+        onFocus={() => setIsCursorActive(true)}
+        onInput={(e) => {
+          const value = e.currentTarget.value;
+          const isWordComplete = onChange(value);
+          setInput(isWordComplete ? "" : value);
+          setOffset(typedRef?.offsetWidth ?? 0);
+        }}
       />
     </label>
   );
@@ -311,10 +286,14 @@ function Cursor(props: {
   color: string | undefined;
   placement?: "top" | "bottom";
   isActive: boolean;
+  isPulsing?: boolean;
 }) {
   return (
     <div
-      class={`w-[2px] h-7 relative rounded -translate-x-0.5 ${props.isActive ? "" : "opacity-30"}`}
+      class={`w-[2px] h-7 relative rounded -translate-x-0.5
+        ${props.isActive ? "" : "opacity-30"}
+        ${props.isPulsing && props.isActive ? "animate-pulse" : ""}
+      `}
       style={{ "background-color": props.color }}
     >
       <div
@@ -325,4 +304,35 @@ function Cursor(props: {
       </div>
     </div>
   );
+}
+
+function getDisplay({
+  current,
+  typed,
+  charIndex,
+  text,
+}: {
+  current: string;
+  typed: string;
+  charIndex: number;
+  text: string;
+}) {
+  const chars = typed.split("");
+
+  let correctIndex = typed.length;
+  for (let i = 0; i < chars.length; i++) {
+    if (chars[i] !== current[i]) {
+      correctIndex = i;
+      break;
+    }
+  }
+
+  const index = correctIndex + charIndex;
+
+  return {
+    correct: typed.slice(0, correctIndex),
+    incorrect: typed.slice(correctIndex).replace(/ /g, "_"),
+    rest: text.slice(index),
+    saved: text.slice(0, charIndex),
+  };
 }

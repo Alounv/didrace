@@ -1,6 +1,6 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
-import { Router, Route, useNavigate } from "@solidjs/router";
+import { Route, Router, useNavigate } from "@solidjs/router";
 import { schema } from "./schema.ts";
 import "./index.css";
 import Cookies from "js-cookie";
