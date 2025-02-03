@@ -5,21 +5,17 @@ import { Player, PlayerRace, Quote, Race, Schema } from "../../schema";
 import { id } from "../../id";
 import { randInt } from "../../rand";
 import { Podium } from "./Podium";
+import { PlayerName } from "./Player";
 
 export function RaceArea(props: {
   z: Zero<Schema>;
   raceID: string;
   quote: Quote;
   status: Race["status"];
+  playerRaces: Accessor<(PlayerRace & { player: Player })[]>;
 }) {
-  const [playerRaces] = useQuery(() =>
-    props.z.query.player_race
-      .where("raceID", "=", props.raceID)
-      .related("player"),
-  );
-
   function playerRace() {
-    return playerRaces().find((r) => r.playerID === props.z.userID);
+    return props.playerRaces().find((r) => r.playerID === props.z.userID);
   }
 
   createEffect(() => {
@@ -48,22 +44,16 @@ export function RaceArea(props: {
   }
 
   return (
-    <>
-      <Show when={playerRaces()}>
-        {(playerRaces) => (
-          <RaceInput
-            z={props.z}
-            quote={props.quote}
-            raceID={props.raceID}
-            initialProgress={getInitialProgress()}
-            playerRaces={
-              playerRaces as Accessor<(PlayerRace & { player: Player })[]>
-            }
-            status={props.status}
-          />
-        )}
-      </Show>
-    </>
+    <Show when={playerRace()}>
+      <RaceInput
+        z={props.z}
+        quote={props.quote}
+        raceID={props.raceID}
+        initialProgress={getInitialProgress()}
+        playerRaces={props.playerRaces}
+        status={props.status}
+      />
+    </Show>
   );
 }
 
@@ -247,7 +237,11 @@ function RaceInput(props: {
               <div class="font-quote text-2xl tracking-widest invisible">
                 {done(race.progress)}
               </div>
-              <Cursor color={race.player?.color} placement="bottom" isActive>
+              <Cursor
+                color={race.player?.color}
+                placement="bottom"
+                isActive={(race.progress ?? 0) > 0}
+              >
                 {race.player?.name}
               </Cursor>
             </div>
@@ -257,9 +251,11 @@ function RaceInput(props: {
 
       <div
         class="absolute right-0 transition-opacity"
-        style={{ opacity: textRightOffset() / 100 }}
+        style={{ opacity: (textRightOffset() - 100) / 100 }}
       >
-        <Podium playerRaces={props.playerRaces} />
+        {props.playerRaces().length > 1 && (
+          <Podium playerRaces={props.playerRaces} quoteLength={text().length} />
+        )}
       </div>
 
       <input
@@ -296,12 +292,12 @@ function Cursor(props: {
       `}
       style={{ "background-color": props.color }}
     >
-      <div
-        class={`bg-inherit absolute text-white rounded-lg px-2 py-0.5 text-sm -translate-x-1/2
-          ${props.placement === "bottom" ? "-bottom-7" : "-top-7"}`}
+      <PlayerName
+        class={`absolute -translate-x-1/2 ${props.placement === "bottom" ? "-bottom-7" : "-top-7"}`}
+        color={props.color}
       >
         {props.children}
-      </div>
+      </PlayerName>
     </div>
   );
 }
