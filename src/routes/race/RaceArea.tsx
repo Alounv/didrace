@@ -63,12 +63,6 @@ export function RaceArea(props: {
           />
         )}
       </Show>
-
-      <Podium
-        playerRaces={
-          playerRaces as Accessor<(PlayerRace & { player: Player })[]>
-        }
-      />
     </>
   );
 }
@@ -85,9 +79,10 @@ function RaceInput(props: {
 
   let inputRef: HTMLInputElement;
   let typedRef: HTMLSpanElement | undefined;
+  let containerRef: HTMLLabelElement | undefined;
   const [input, setInput] = createSignal<string>("");
   const [charIndex, setCharIndex] = createSignal(props.initialProgress);
-  const [offset, setOffset] = createSignal(0);
+  const [isCursorActive, setIsCursorActive] = createSignal(false);
   const [otherQuotes] = useQuery(() =>
     props.z.query.quote.where("id", "!=", props.quote.id),
   );
@@ -95,8 +90,8 @@ function RaceInput(props: {
   // --- Effects ---
 
   createEffect(() => {
-    if (typedRef) {
-      setOffset(typedRef.offsetWidth ?? 0);
+    if (canPlayerPlay()) {
+      inputRef!.focus();
     }
   });
 
@@ -118,6 +113,15 @@ function RaceInput(props: {
   function canPlayerPlay() {
     return props.status === "started" && !playerRace()?.end;
   }
+  function offset() {
+    return typedRef?.offsetWidth ?? 0;
+  }
+  function textRightOffset() {
+    return offset() - (containerRef?.offsetWidth ?? 0);
+  }
+  function done(progress: number): string {
+    return text().slice(0, progress);
+  }
 
   // --- Helpers
 
@@ -129,6 +133,7 @@ function RaceInput(props: {
       ...partial,
     });
   }
+
   function endRace() {
     const newRaceId = id();
     const quoteID = otherQuotes()[randInt(otherQuotes().length)].id;
@@ -203,22 +208,11 @@ function RaceInput(props: {
     });
   }
 
-  function done(progress: number): string {
-    return text().slice(0, progress);
-  }
-
-  const [isCursorActive, setIsCursorActive] = createSignal(false);
-
-  createEffect(() => {
-    if (canPlayerPlay()) {
-      inputRef!.focus();
-    }
-  });
-
   return (
     <label
       for="input-id"
       class="relative transition-all flex-1 h-full flex items-center"
+      ref={containerRef}
     >
       {!playerRace()?.end && (
         <Cursor
@@ -231,7 +225,7 @@ function RaceInput(props: {
       )}
 
       <div
-        class="absolute top-0 w-max transition-all left-0 h-full flex items-center"
+        class="absolute top-0 w-max transition-all left-0 h-full flex items-center gap-12"
         style={{ translate: `-${offset()}px` }}
       >
         <div class="font-quote text-2xl tracking-widest">
@@ -261,6 +255,13 @@ function RaceInput(props: {
         </For>
       </div>
 
+      <div
+        class="absolute right-0 transition-opacity"
+        style={{ opacity: textRightOffset() / 100 }}
+      >
+        <Podium playerRaces={props.playerRaces} />
+      </div>
+
       <input
         id="input-id"
         autofocus
@@ -274,7 +275,6 @@ function RaceInput(props: {
           const value = e.currentTarget.value;
           const isWordComplete = onChange(value);
           setInput(isWordComplete ? "" : value);
-          setOffset(typedRef?.offsetWidth ?? 0);
         }}
       />
     </label>
