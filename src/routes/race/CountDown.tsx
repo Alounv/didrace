@@ -46,7 +46,15 @@ export function CountDown(props: {
       class={`flex flex-col gap-4 items-stretch mr-24 ${props.hasStartedTyping ? "opacity-0" : ""} transition-opacity`}
     >
       {props.status === "ready" ? (
-        <Button onClick={() => start()}>Start (press space)</Button>
+        <div class="flex items-center gap-2">
+          <Button
+            class="bg-transparent"
+            onClick={() => navigator.clipboard.writeText(window.location.href)}
+          >
+            Copy URL
+          </Button>
+          <Button onClick={() => start()}>Start (press space)</Button>
+        </div>
       ) : (
         <div class="flex items-center gap-2">
           {["ready", "starting", "started"].includes(props.status) && (

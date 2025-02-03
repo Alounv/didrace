@@ -103,9 +103,8 @@ function RaceInput(props: {
   function canPlayerPlay() {
     return props.status === "started" && !playerRace()?.end;
   }
-  function offset() {
-    return typedRef?.offsetWidth ?? 0;
-  }
+  const [offset, setOffset] = createSignal(0);
+
   function textRightOffset() {
     return offset() - (containerRef?.offsetWidth ?? 0);
   }
@@ -271,6 +270,7 @@ function RaceInput(props: {
           const value = e.currentTarget.value;
           const isWordComplete = onChange(value);
           setInput(isWordComplete ? "" : value);
+          setOffset(typedRef?.offsetWidth ?? 0);
         }}
       />
     </label>
