@@ -1,10 +1,10 @@
 import { Zero } from "@rocicorp/zero";
 import { Player, PlayerRace, Schema } from "../../schema";
 import { Accessor, JSX, Show } from "solid-js";
-import { Link } from "../../design-system";
 import { addKeyboardEventListener } from "../../addKeyboardEventListener";
 import { useNavigate } from "@solidjs/router";
 import { Podium } from "./Podium";
+import { SoftButton } from "../../design-system";
 
 export function End(props: {
   z: Zero<Schema>;
@@ -57,7 +57,9 @@ export function End(props: {
       </div>
 
       {props.nextRaceID && (
-        <Link href={`/races/${props.nextRaceID}`}>Next (or press space)</Link>
+        <SoftButton href={`/races/${props.nextRaceID}`}>
+          Next (or press space)
+        </SoftButton>
       )}
     </div>
   );

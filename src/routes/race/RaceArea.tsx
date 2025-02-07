@@ -253,7 +253,22 @@ function RaceInput(props: {
         style={{ opacity: (freeRightSpace() - 100) / 100 }}
       >
         {props.playerRaces().length > 1 && (
-          <Podium playerRaces={props.playerRaces} quoteLength={text().length} />
+          <Podium
+            playerRaces={props.playerRaces}
+            quoteLength={text().length}
+            endRace={() => {
+              for (const race of props.playerRaces()) {
+                if (race.end) continue;
+
+                props.z.mutate.player_race.update({
+                  raceID: props.raceID,
+                  playerID: race.playerID,
+                  end: Date.now(),
+                });
+              }
+              endRace();
+            }}
+          />
         )}
       </div>
 

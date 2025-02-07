@@ -45,10 +45,10 @@ export function CountDown(props: {
 
   return (
     <div
-      class={`flex flex-col gap-4 items-stretch mr-24 ${props.hasStartedTyping ? "opacity-0" : ""} transition-opacity`}
+      class={`flex flex-col gap-4 items-stretch flex-1 ${props.hasStartedTyping ? "opacity-0" : ""} transition-opacity`}
     >
       {props.status === "ready" ? (
-        <div class="flex flex-col gap-2 items-start shrink-0">
+        <div class="flex flex-col gap-2 items-start">
           <SoftButton
             onClick={() => navigator.clipboard.writeText(window.location.href)}
           >

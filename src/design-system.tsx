@@ -15,15 +15,24 @@ export function Button(props: {
 
 export function SoftButton(props: {
   children: JSX.Element;
-  onClick: () => void;
+  onClick?: () => void;
+  href?: string;
   class?: string;
 }) {
   const cls = () =>
-    `btn btn-sm btn-outline border-stone-400 text-stone-400 hover:bg-stone-700 rounded-md ${props.class}`;
+    `btn btn-outline border-stone-400 text-stone-400 hover:bg-stone-700 rounded-md ${props.class}`;
   return (
-    <button class={cls()} onClick={() => props.onClick()}>
-      {props.children}
-    </button>
+    <>
+      {props.href ? (
+        <A class={cls()} href={props.href}>
+          {props.children}
+        </A>
+      ) : (
+        <button class={cls()} onClick={() => props?.onClick?.()}>
+          {props.children}
+        </button>
+      )}
+    </>
   );
 }
 
