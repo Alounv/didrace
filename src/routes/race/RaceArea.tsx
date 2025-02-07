@@ -69,6 +69,7 @@ function RaceInput(props: {
 
   let inputRef: HTMLInputElement;
   let typedRef: HTMLSpanElement | undefined;
+  let textRef: HTMLDivElement | undefined;
   let containerRef: HTMLLabelElement | undefined;
   const [input, setInput] = createSignal<string>("");
   const [charIndex, setCharIndex] = createSignal(props.initialProgress);
@@ -104,10 +105,8 @@ function RaceInput(props: {
     return props.status === "started" && !playerRace()?.end;
   }
   const [offset, setOffset] = createSignal(0);
+  const [freeRightSpace, setFreeRightSpace] = createSignal(0);
 
-  function textRightOffset() {
-    return offset() - (containerRef?.offsetWidth ?? 0);
-  }
   function done(progress: number): string {
     return text().slice(0, progress);
   }
@@ -216,6 +215,7 @@ function RaceInput(props: {
       <div
         class="absolute top-0 w-max transition-all left-0 h-full flex items-center gap-12"
         style={{ translate: `-${offset()}px` }}
+        ref={textRef}
       >
         <div class="font-quote text-2xl tracking-widest">
           <span ref={typedRef}>
@@ -250,7 +250,7 @@ function RaceInput(props: {
 
       <div
         class="absolute right-0 transition-opacity"
-        style={{ opacity: (textRightOffset() - 100) / 100 }}
+        style={{ opacity: (freeRightSpace() - 100) / 100 }}
       >
         {props.playerRaces().length > 1 && (
           <Podium playerRaces={props.playerRaces} quoteLength={text().length} />
@@ -271,6 +271,11 @@ function RaceInput(props: {
           const isWordComplete = onChange(value);
           setInput(isWordComplete ? "" : value);
           setOffset(typedRef?.offsetWidth ?? 0);
+          setFreeRightSpace(
+            (containerRef?.offsetWidth ?? 0) -
+              (textRef?.offsetWidth ?? 0) +
+              (typedRef?.offsetWidth ?? 0),
+          );
         }}
       />
     </label>
