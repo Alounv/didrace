@@ -34,17 +34,16 @@ export function End(props: {
   }
 
   return (
-    <div class="flex flex-col items-center gap-24 m-auto">
-      <div
-        class={`flex items-center ${props.playerRaces().length > 1 ? "justify-between gap-12" : "justify-center"}`}
-      >
+    <div class="flex flex-col gap-12 m-auto">
+      <div class="font-quote text-2xl tracking-widest max-w-3xl">
+        {props.quote}
+      </div>
+
+      <div class="flex items-center justify-between gap-12">
         <div class="flex gap-12 items-center justify-center">
           <div class="flex flex-col gap-4 shrink-0 items-start">
             <Tag class="bg-violet-600">{`${speed().wpm} WPM`}</Tag>
             <Tag class="bg-teal-600">{`${speed().sec} sec`}</Tag>
-          </div>
-          <div class="font-quote text-2xl tracking-widest max-w-xl">
-            {props.quote}
           </div>
         </div>
 
@@ -57,7 +56,7 @@ export function End(props: {
       </div>
 
       {props.nextRaceID && (
-        <SoftButton href={`/races/${props.nextRaceID}`}>
+        <SoftButton href={`/races/${props.nextRaceID}`} class="self-center">
           Next (or press space)
         </SoftButton>
       )}
@@ -68,7 +67,7 @@ export function End(props: {
 function Tag(props: { children: JSX.Element; class?: string }) {
   return (
     <div
-      class={`text-2xl font-bold rounded-xl px-5 py-4 bg-black ${props.class}`}
+      class={`text-xl font-bold rounded-xl px-4 py-3 bg-black ${props.class}`}
     >
       {props.children}
     </div>
