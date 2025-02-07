@@ -7,7 +7,7 @@ export function PlayerName(props: {
 }) {
   return (
     <div
-      class={`text-white rounded-lg px-2 py-0.5 text-sm ${props.class}`}
+      class={`badge ${props.class}`}
       style={{ "background-color": props.color }}
     >
       {props.children}

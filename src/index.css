@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@fontsource/lato";
+@plugin "daisyui";
 
 body {
     background-color: #323437;

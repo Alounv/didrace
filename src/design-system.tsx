@@ -7,11 +7,21 @@ export function Button(props: {
   class?: string;
 }) {
   return (
-    <button
-      class={`text-white bg-stone-900 hover:bg-stone-800 rounded text-sm px-3 py-1.5 focus:outline-none focus:bg-stone-800 ${props.class}`}
-      style={{ "justify-content": "center" }}
-      onClick={() => props.onClick()}
-    >
+    <button class={`btn ${props.class}`} onClick={() => props.onClick()}>
+      {props.children}
+    </button>
+  );
+}
+
+export function SoftButton(props: {
+  children: JSX.Element;
+  onClick: () => void;
+  class?: string;
+}) {
+  const cls = () =>
+    `btn btn-sm btn-outline border-stone-400 text-stone-400 hover:bg-stone-700 rounded-md ${props.class}`;
+  return (
+    <button class={cls()} onClick={() => props.onClick()}>
       {props.children}
     </button>
   );
@@ -23,14 +33,7 @@ export function Link(props: {
   class?: string;
 }) {
   return (
-    <A
-      class={
-        "text-white bg-stone-700 hover:bg-stone-600 rounded text-sm px-3 py-1.5 focus:outline-none focus:bg-stone-600 " +
-        props.class
-      }
-      style={{ "justify-content": "center" }}
-      href={props.href}
-    >
+    <A class={`btn ${props.class}`} href={props.href}>
       {props.children}
     </A>
   );

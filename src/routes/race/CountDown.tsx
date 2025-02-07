@@ -1,8 +1,9 @@
 import { Zero } from "@rocicorp/zero";
 import { createEffect, createSignal } from "solid-js";
 import { Race, Schema } from "../../schema";
-import { Button } from "../../design-system";
+import { SoftButton } from "../../design-system";
 import { addKeyboardEventListener } from "../../addKeyboardEventListener";
+import { useNavigate } from "@solidjs/router";
 
 export function CountDown(props: {
   raceID: string;
@@ -10,6 +11,7 @@ export function CountDown(props: {
   hasStartedTyping: boolean;
   z: Zero<Schema>;
 }) {
+  const navigate = useNavigate();
   const [countdown, setCountdown] = createSignal(4);
 
   createEffect(() => {
@@ -46,14 +48,25 @@ export function CountDown(props: {
       class={`flex flex-col gap-4 items-stretch mr-24 ${props.hasStartedTyping ? "opacity-0" : ""} transition-opacity`}
     >
       {props.status === "ready" ? (
-        <div class="flex items-center gap-2">
-          <Button
-            class="bg-transparent"
+        <div class="flex flex-col gap-2 items-start shrink-0">
+          <SoftButton
             onClick={() => navigator.clipboard.writeText(window.location.href)}
           >
-            Copy URL
-          </Button>
-          <Button onClick={() => start()}>Start (press space)</Button>
+            🔗 Copy URL
+          </SoftButton>
+          <SoftButton onClick={() => start()}>🚀 Start Race [SPACE]</SoftButton>
+          <SoftButton
+            onClick={() => {
+              props.z.mutate.player_race
+                .delete({
+                  playerID: props.z.userID,
+                  raceID: props.raceID,
+                })
+                .then(() => navigate("/"));
+            }}
+          >
+            🏃 Leave Race
+          </SoftButton>
         </div>
       ) : (
         <div class="flex items-center gap-2">

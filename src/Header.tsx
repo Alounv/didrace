@@ -30,7 +30,7 @@ function Header(props: { z: Zero<Schema> }) {
         <Logo />
       </A>
 
-      <div class="ml-auto flex gap-4 items-center">
+      <div class="ml-auto flex gap-12 items-center">
         {props.z.userID === "anon" ? (
           <div class="flex gap-2 items-center">
             Login
@@ -44,9 +44,9 @@ function Header(props: { z: Zero<Schema> }) {
         {props.z.userID !== "anon" && (
           <Show when={player()}>
             {(player) => (
-              <>
+              <div class="flex gap-4 items-center">
                 <div
-                  class="text-white px-2 py-1 rounded"
+                  class="text-white px-2 py-0.5 rounded"
                   style={{ "background-color": player().color }}
                 >
                   {player().name}
@@ -70,7 +70,7 @@ function Header(props: { z: Zero<Schema> }) {
                     </div>
                   )}
                 </div>
-              </>
+              </div>
             )}
           </Show>
         )}
