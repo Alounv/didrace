@@ -53,13 +53,17 @@ export function Podium(props: {
       countDown() === TIME_TO_FINISH_IN_S
     ) {
       interval = setInterval(() => {
-        if (countDown() <= 0) {
-          props.endRace?.();
-          setCountDown(TIME_TO_FINISH_IN_S);
-          clearInterval(interval);
+        if (countDown() > 0) {
+          setCountDown((c) => c - 1);
+          return;
         }
 
-        setCountDown((c) => c - 1);
+        if (countDown() === 0) {
+          props.endRace?.();
+        }
+
+        setCountDown(TIME_TO_FINISH_IN_S);
+        clearInterval(interval);
       }, 1000);
     }
   });

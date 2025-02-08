@@ -4,8 +4,8 @@ import { useNavigate, useParams } from "@solidjs/router";
 import { Accessor, createEffect, Match, Show, Switch } from "solid-js";
 import { Player, PlayerRace, Schema } from "../../schema";
 import { CountDown } from "./CountDown";
-import { RaceArea } from "./RaceArea";
 import { End } from "./End";
+import { RaceArea } from "./RaceArea";
 
 function RacePage(props: { z: Zero<Schema> }) {
   const params = useParams();
