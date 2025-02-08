@@ -226,26 +226,12 @@ function RaceInput(props: {
           <span class="text-stone-400">{display().rest}</span>
         </div>
 
-        <For
-          each={props
+        <OtherPlayers
+          playerRaces={props
             .playerRaces()
             .filter((r) => r.playerID !== props.z.userID)}
-        >
-          {(race) => (
-            <div class="absolute top-0 flex h-full items-center ">
-              <div class="font-quote text-2xl tracking-widest invisible">
-                {done(race.progress)}
-              </div>
-              <Cursor
-                color={race.player?.color}
-                placement="bottom"
-                isActive={(race.progress ?? 0) > 0}
-              >
-                {race.player?.name}
-              </Cursor>
-            </div>
-          )}
-        </For>
+          done={done}
+        />
       </div>
 
       <div
@@ -351,4 +337,52 @@ function getDisplay({
     rest: text.slice(index),
     saved: text.slice(0, charIndex),
   };
+}
+
+function OtherPlayers(props: {
+  playerRaces: (PlayerRace & { player: Player })[];
+  done: (progress: number) => string;
+}) {
+  const [offsets, setOffsets] = createSignal<Record<string, number>>({});
+
+  return (
+    <For each={props.playerRaces}>
+      {(race) => {
+        const typed = props.done(race.progress);
+        let typedRef: HTMLDivElement | undefined;
+
+        createEffect(() => {
+          if (typed && typedRef) {
+            setOffsets((p) => ({
+              ...p,
+              [race.playerID]: typedRef.offsetWidth,
+            }));
+          }
+        });
+        return (
+          <div class="absolute top-2.5 flex items-center ">
+            <div
+              class="font-quote text-2xl tracking-widest invisible"
+              ref={typedRef}
+            >
+              {typed}
+            </div>
+
+            <div
+              class="absolute transition-transform h-full"
+              style={{ translate: `${offsets()[race.playerID]}px` }}
+            >
+              <Cursor
+                color={race.player?.color}
+                placement="bottom"
+                isActive={(race.progress ?? 0) > 0}
+              >
+                {race.player?.name}
+              </Cursor>
+            </div>
+          </div>
+        );
+      }}
+    </For>
+  );
 }
