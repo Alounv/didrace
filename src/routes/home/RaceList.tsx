@@ -20,7 +20,7 @@ export function RaceList(props: {
     <div class="flex flex-col gap-8 mt-20">
       <div class="text-lg">{props.title}</div>
       <ol class="flex flex-wrap gap-8">
-        {props.children}
+        <div>{props.children}</div>
         <For each={props.races}>{(r) => <RaceCard race={r} z={props.z} />}</For>
       </ol>
     </div>

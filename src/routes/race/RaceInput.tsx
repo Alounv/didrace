@@ -118,7 +118,7 @@ export function RaceInput(props: {
       ).length;
 
       // Race complete
-      if (notFinishedCount <= 1) {
+      if (notFinishedCount === 0 && props.playerRaces.length > 1) {
         endRace();
       }
 
@@ -189,24 +189,23 @@ export function RaceInput(props: {
         class="absolute right-0 transition-opacity"
         style={{ opacity: (freeRightSpace() - 100) / 100 }}
       >
-        {props.playerRaces.length > 1 && freeRightSpace() > 100 && (
-          <Podium
-            playerRaces={props.playerRaces}
-            quoteLength={text().length}
-            endRace={() => {
-              for (const race of props.playerRaces) {
-                if (race.end) continue;
+        <Podium
+          playerRaces={props.playerRaces}
+          quoteLength={text().length}
+          endRace={() => {
+            for (const race of props.playerRaces) {
+              if (race.end) continue;
 
-                props.z.mutate.player_race.update({
-                  raceID: props.raceID,
-                  playerID: race.playerID,
-                  end: Date.now(),
-                });
-              }
-              endRace();
-            }}
-          />
-        )}
+              props.z.mutate.player_race.update({
+                raceID: props.raceID,
+                playerID: race.playerID,
+                end: Date.now(),
+              });
+            }
+
+            endRace();
+          }}
+        />
       </div>
 
       <input

@@ -1,8 +1,9 @@
-import { createEffect, createSignal, For } from "solid-js";
+import { createEffect, createSignal, For, onCleanup } from "solid-js";
 import { Player, PlayerRace } from "../../schema";
 import { PlayerName } from "./Player";
 import { getSpeed } from "./End";
 import { Avatar } from "../../components/Avatar";
+import { Button } from "../../components/design-system";
 
 const TIME_TO_FINISH_IN_S = 30;
 
@@ -12,6 +13,7 @@ export function Podium(props: {
   quoteLength: number;
 }) {
   const [countDown, setCountDown] = createSignal(TIME_TO_FINISH_IN_S);
+  const [canForceEnd, setCanForceEnd] = createSignal(false);
   function firstStart() {
     return Math.min(
       ...props.playerRaces.flatMap((r) => (r.start ? [r.start] : [])),
@@ -60,7 +62,7 @@ export function Podium(props: {
         }
 
         if (countDown() === 0) {
-          props.endRace?.();
+          setCanForceEnd(true);
         }
 
         setCountDown(TIME_TO_FINISH_IN_S);
@@ -69,11 +71,24 @@ export function Podium(props: {
     }
   });
 
+  onCleanup(() => {
+    if (interval) {
+      clearInterval(interval);
+    }
+  });
+
   return (
     <div class="flex flex-col gap-4 text-sm text-white">
       {countDown() < TIME_TO_FINISH_IN_S && (
         <div class="text-lg">{`${countDown()} seconds`}</div>
       )}
+      <Button
+        onClick={() => props?.endRace?.()}
+        disabled={!canForceEnd()}
+        class="text-lg"
+      >
+        End Race
+      </Button>
       <ol class="flex flex-col gap-2 text-sm text-white shrink-0">
         <For each={sortedPlayerRaces()}>
           {(playerRace, index) => (

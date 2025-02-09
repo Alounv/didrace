@@ -52,10 +52,12 @@ export function CountDown(props: {
 
       if (e.code === "Escape") {
         leave();
+        return;
       }
 
       if (e.code === "Space") {
         start();
+        return;
       }
     },
   });

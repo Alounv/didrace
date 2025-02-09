@@ -5,9 +5,14 @@ export function Button(props: {
   children: JSX.Element;
   onClick: () => void;
   class?: string;
+  disabled?: boolean;
 }) {
   return (
-    <button class={`btn ${props.class}`} onClick={() => props.onClick()}>
+    <button
+      class={`btn ${props.class}`}
+      onClick={() => props.onClick()}
+      disabled={props.disabled}
+    >
       {props.children}
     </button>
   );
