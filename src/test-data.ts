@@ -1,5 +1,5 @@
-import { id } from "./id";
-import { randBetween, randInt } from "./rand";
+import { id } from "./utils/id";
+import { randBetween, randInt } from "./utils/rand";
 import type { Player, PlayerRace, Quote, Race } from "./schema";
 
 const PLAYER_NAMES = [

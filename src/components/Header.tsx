@@ -2,9 +2,9 @@ import { Show } from "solid-js";
 import Cookies from "js-cookie";
 import { useQuery } from "@rocicorp/zero/solid";
 import { Zero } from "@rocicorp/zero";
-import { Schema } from "./schema";
 import { Button, Logo } from "./design-system";
 import { A } from "@solidjs/router";
+import { Schema } from "../schema";
 
 function Header(props: { z: Zero<Schema> }) {
   const [player] = useQuery(() =>

@@ -1,8 +1,8 @@
 import { useQuery } from "@rocicorp/zero/solid";
 import { Zero } from "@rocicorp/zero";
 import { Schema } from "../../schema";
-import { id } from "../../id";
-import { randInt } from "../../rand";
+import { id } from "../../utils/id";
+import { randInt } from "../../utils/rand";
 
 export function CreateRace(props: { z: Zero<Schema> }) {
   const [quotes] = useQuery(() => props.z.query.quote);

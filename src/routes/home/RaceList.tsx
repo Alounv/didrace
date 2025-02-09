@@ -1,7 +1,7 @@
 import { For, JSX } from "solid-js";
 import { Zero } from "@rocicorp/zero";
 import { Player, Race, Schema } from "../../schema";
-import { formatDate } from "../../date";
+import { formatDate } from "../../utils/date";
 import { A } from "@solidjs/router";
 
 export type PopulatedRace = Race & {

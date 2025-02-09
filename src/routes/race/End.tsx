@@ -1,10 +1,10 @@
 import { Zero } from "@rocicorp/zero";
 import { Player, PlayerRace, Schema } from "../../schema";
 import { Accessor, JSX, Show } from "solid-js";
-import { addKeyboardEventListener } from "../../addKeyboardEventListener";
 import { useNavigate } from "@solidjs/router";
 import { Podium } from "./Podium";
-import { SoftButton } from "../../design-system";
+import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
+import { SoftButton } from "../../components/design-system";
 
 export function End(props: {
   z: Zero<Schema>;

@@ -1,9 +1,9 @@
 import { Zero } from "@rocicorp/zero";
 import { createEffect, createSignal } from "solid-js";
 import { Race, Schema } from "../../schema";
-import { SoftButton } from "../../design-system";
-import { addKeyboardEventListener } from "../../addKeyboardEventListener";
 import { useNavigate } from "@solidjs/router";
+import { SoftButton } from "../../components/design-system";
+import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
 
 export function CountDown(props: {
   raceID: string;
