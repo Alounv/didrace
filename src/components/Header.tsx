@@ -5,6 +5,7 @@ import { Zero } from "@rocicorp/zero";
 import { Button, Logo } from "./design-system";
 import { A } from "@solidjs/router";
 import { Schema } from "../schema";
+import { Avatar } from "./Avatar";
 
 function Header(props: { z: Zero<Schema> }) {
   const [player] = useQuery(() =>
@@ -46,30 +47,12 @@ function Header(props: { z: Zero<Schema> }) {
             {(player) => (
               <div class="flex gap-4 items-center">
                 <div
-                  class="text-white px-2 py-0.5 rounded"
+                  class="text-white px-2 py-0.5 rounded font-quote"
                   style={{ "background-color": player().color }}
                 >
                   {player().name}
                 </div>
-                <div
-                  class="w-10 h-10 rounded-full border-solid border-3 flex items-center justify-center"
-                  style={{
-                    "border-color": player().color,
-                    "background-color": player().color,
-                  }}
-                >
-                  {player().avatar ? (
-                    <img
-                      src={player().avatar ?? ""}
-                      class="rounded-full"
-                      title={player()?.name}
-                    />
-                  ) : (
-                    <div class="text-white text-lg font-bold font-quote">
-                      {player().name.slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
-                </div>
+                <Avatar player={player()} class="w-10 h-10" />
               </div>
             )}
           </Show>

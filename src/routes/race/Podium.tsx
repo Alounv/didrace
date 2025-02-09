@@ -2,6 +2,7 @@ import { Accessor, createEffect, createSignal, For } from "solid-js";
 import { Player, PlayerRace } from "../../schema";
 import { PlayerName } from "./Player";
 import { getSpeed } from "./End";
+import { Avatar } from "../../components/Avatar";
 
 const TIME_TO_FINISH_IN_S = 30;
 
@@ -77,17 +78,20 @@ export function Podium(props: {
       <ol class="flex flex-col gap-2 text-sm text-white shrink-0">
         <For each={sortedPlayerRaces()}>
           {(playerRace, index) => (
-            <li class="flex items-center gap-4">
-              <span>{index() + 1}.</span>
+            <li class="flex items-center gap-4 justify-start">
+              <div class="w-3">{index() + 1}.</div>
 
-              <PlayerName
-                color={playerRace.player.color}
-                class={playerRace.end ? "opacity-100" : "opacity-30"}
-              >
-                {playerRace.player.name}
-              </PlayerName>
+              <div class="flex gap-2 items-center">
+                <Avatar player={playerRace.player} class="w-8 h-8" />
+                <PlayerName
+                  color={playerRace.player.color}
+                  class={playerRace.end ? "opacity-100" : "opacity-30"}
+                >
+                  {playerRace.player.name}
+                </PlayerName>
+              </div>
 
-              <span>{`${speed(playerRace).wpm} WPM`}</span>
+              <div>{`${speed(playerRace).wpm} WPM`}</div>
             </li>
           )}
         </For>

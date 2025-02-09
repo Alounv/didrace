@@ -36,7 +36,7 @@ export function Adversaries(props: {
               style={{ translate: `${offsets()[race.playerID]}px` }}
             >
               <Cursor
-                color={race.player?.color}
+                player={race.player as Player}
                 placement="bottom"
                 isActive={(race.progress ?? 0) > 0}
               >

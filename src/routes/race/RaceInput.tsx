@@ -155,7 +155,7 @@ export function RaceInput(props: {
     >
       {!playerRace()?.end && (
         <Cursor
-          color={playerRace()?.player?.color}
+          player={playerRace()?.player as Player}
           isActive={isCursorActive()}
           isPulsing={charIndex() === 0}
         >
