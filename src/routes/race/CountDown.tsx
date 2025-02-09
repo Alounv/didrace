@@ -34,10 +34,27 @@ export function CountDown(props: {
     }, 1000 * 4);
   }
 
+  function leave() {
+    props.z.mutate.player_race
+      .delete({
+        playerID: props.z.userID,
+        raceID: props.raceID,
+      })
+      .then(() => navigate("/"));
+  }
+
   addKeyboardEventListener({
-    keys: ["Space"],
-    callback: () => {
-      if (props.status === "ready") {
+    keys: ["Space", "Escape"],
+    callback: (e) => {
+      if (props.status !== "ready" || !e) {
+        return;
+      }
+
+      if (e.code === "Escape") {
+        leave();
+      }
+
+      if (e.code === "Space") {
         start();
       }
     },
@@ -54,19 +71,8 @@ export function CountDown(props: {
           >
             🔗 Copy URL
           </SoftButton>
-          <SoftButton onClick={() => start()}>🚀 Start Race [SPACE]</SoftButton>
-          <SoftButton
-            onClick={() => {
-              props.z.mutate.player_race
-                .delete({
-                  playerID: props.z.userID,
-                  raceID: props.raceID,
-                })
-                .then(() => navigate("/"));
-            }}
-          >
-            🏃 Leave Race
-          </SoftButton>
+          <SoftButton onClick={start}>🚀 Start Race [SPACE]</SoftButton>
+          <SoftButton onClick={leave}>🏃 Leave Race [ESC]</SoftButton>
         </div>
       ) : (
         <div class="flex items-center gap-2">

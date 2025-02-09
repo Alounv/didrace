@@ -1,4 +1,4 @@
-import { Accessor, createEffect, createSignal, For } from "solid-js";
+import { createEffect, createSignal, For } from "solid-js";
 import { Player, PlayerRace } from "../../schema";
 import { PlayerName } from "./Player";
 import { getSpeed } from "./End";
@@ -8,17 +8,17 @@ const TIME_TO_FINISH_IN_S = 30;
 
 export function Podium(props: {
   endRace?: () => void;
-  playerRaces: Accessor<(PlayerRace & { player: Player })[]>;
+  playerRaces: (PlayerRace & { player: Player })[];
   quoteLength: number;
 }) {
   const [countDown, setCountDown] = createSignal(TIME_TO_FINISH_IN_S);
   function firstStart() {
     return Math.min(
-      ...props.playerRaces().flatMap((r) => (r.start ? [r.start] : [])),
+      ...props.playerRaces.flatMap((r) => (r.start ? [r.start] : [])),
     );
   }
   function sortedPlayerRaces() {
-    const races = [...props.playerRaces()];
+    const races = [...props.playerRaces];
 
     races.sort((a, b) => {
       const aEnd = a.end;
@@ -50,7 +50,7 @@ export function Podium(props: {
   createEffect(() => {
     if (
       props.endRace &&
-      props.playerRaces().some((r) => r.end) &&
+      props.playerRaces.some((r) => r.end) &&
       countDown() === TIME_TO_FINISH_IN_S
     ) {
       interval = setInterval(() => {
@@ -74,13 +74,11 @@ export function Podium(props: {
       {countDown() < TIME_TO_FINISH_IN_S && (
         <div class="text-lg">{`${countDown()} seconds`}</div>
       )}
-
       <ol class="flex flex-col gap-2 text-sm text-white shrink-0">
         <For each={sortedPlayerRaces()}>
           {(playerRace, index) => (
             <li class="flex items-center gap-4 justify-start">
               <div class="w-3">{index() + 1}.</div>
-
               <div class="flex gap-2 items-center">
                 <Avatar player={playerRace.player} class="w-8 h-8" />
                 <PlayerName
@@ -90,7 +88,6 @@ export function Podium(props: {
                   {playerRace.player.name}
                 </PlayerName>
               </div>
-
               <div>{`${speed(playerRace).wpm} WPM`}</div>
             </li>
           )}

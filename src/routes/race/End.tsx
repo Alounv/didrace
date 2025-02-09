@@ -16,10 +16,29 @@ export function End(props: {
 }) {
   const navigate = useNavigate();
 
+  function leave() {
+    props.z.mutate.player_race
+      .delete({
+        playerID: props.z.userID,
+        raceID: props.raceID,
+      })
+      .then(() => navigate("/"));
+  }
+
   addKeyboardEventListener({
-    keys: ["Space"],
-    callback: () => {
-      navigate(`/races/${props.nextRaceID}`);
+    keys: ["Space", "Escape"],
+    callback: (e) => {
+      if (!e) {
+        return;
+      }
+
+      if (e.code === "Space") {
+        navigate(`/races/${props.nextRaceID}`);
+      }
+
+      if (e.code === "Escape") {
+        leave();
+      }
     },
   });
   function firstStart() {
@@ -49,17 +68,20 @@ export function End(props: {
 
         <Show when={props.playerRaces().length > 1}>
           <Podium
-            playerRaces={props.playerRaces}
+            playerRaces={props.playerRaces()}
             quoteLength={props.quote.length}
           />
         </Show>
       </div>
 
-      {props.nextRaceID && (
-        <SoftButton href={`/races/${props.nextRaceID}`} class="self-center">
-          Next (or press space)
-        </SoftButton>
-      )}
+      <div class="flex gap-4 justify-center">
+        <SoftButton onClick={leave}>🏃 Leave [ESC]</SoftButton>
+        {props.nextRaceID && (
+          <SoftButton href={`/races/${props.nextRaceID}`} class="self-center">
+            🚀 Next Race [SPACE]
+          </SoftButton>
+        )}
+      </div>
     </div>
   );
 }

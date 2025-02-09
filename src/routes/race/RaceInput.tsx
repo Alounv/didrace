@@ -1,6 +1,6 @@
 import { Zero } from "@rocicorp/zero";
 import { useQuery } from "@rocicorp/zero/solid";
-import { Accessor, createEffect, createSignal } from "solid-js";
+import { createEffect, createSignal } from "solid-js";
 import { Player, PlayerRace, Quote, Race, Schema } from "../../schema";
 import { id } from "../../utils/id";
 import { randInt } from "../../utils/rand";
@@ -14,7 +14,7 @@ export function RaceInput(props: {
   raceID: string;
   initialProgress: number;
   status: Race["status"];
-  playerRaces: Accessor<(PlayerRace & { player: Player })[]>;
+  playerRaces: (PlayerRace & { player: Player })[];
 }) {
   // --- States ---
 
@@ -40,7 +40,7 @@ export function RaceInput(props: {
   // --- Derived ---
 
   function playerRace() {
-    return props.playerRaces().find((r) => r.playerID === props.z.userID);
+    return props.playerRaces.find((r) => r.playerID === props.z.userID);
   }
   function text() {
     return props.quote.body;
@@ -113,9 +113,9 @@ export function RaceInput(props: {
         end: Date.now(),
       });
 
-      const notFinishedCount = props
-        .playerRaces()
-        ?.filter((r) => r.end === null).length;
+      const notFinishedCount = props.playerRaces?.filter(
+        (r) => r.end === null,
+      ).length;
 
       // Race complete
       if (notFinishedCount <= 1) {
@@ -178,9 +178,9 @@ export function RaceInput(props: {
         </div>
 
         <Adversaries
-          playerRaces={props
-            .playerRaces()
-            .filter((r) => r.playerID !== props.z.userID)}
+          playerRaces={props.playerRaces.filter(
+            (r) => r.playerID !== props.z.userID,
+          )}
           done={done}
         />
       </div>
@@ -189,12 +189,12 @@ export function RaceInput(props: {
         class="absolute right-0 transition-opacity"
         style={{ opacity: (freeRightSpace() - 100) / 100 }}
       >
-        {props.playerRaces().length > 1 && freeRightSpace() < 100 && (
+        {props.playerRaces.length > 1 && freeRightSpace() > 100 && (
           <Podium
             playerRaces={props.playerRaces}
             quoteLength={text().length}
             endRace={() => {
-              for (const race of props.playerRaces()) {
+              for (const race of props.playerRaces) {
                 if (race.end) continue;
 
                 props.z.mutate.player_race.update({

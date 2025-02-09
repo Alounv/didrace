@@ -46,7 +46,7 @@ export function RaceArea(props: {
         quote={props.quote}
         raceID={props.raceID}
         initialProgress={getInitialProgress()}
-        playerRaces={props.playerRaces}
+        playerRaces={props.playerRaces()}
         status={props.status}
       />
     </Show>
