@@ -65,7 +65,7 @@ function Header(props: { z: Zero<Schema> }) {
                       title={player()?.name}
                     />
                   ) : (
-                    <div class="text-white text-lg font-bold font-lato">
+                    <div class="text-white text-lg font-bold font-quote">
                       {player().name.slice(0, 2).toUpperCase()}
                     </div>
                   )}
