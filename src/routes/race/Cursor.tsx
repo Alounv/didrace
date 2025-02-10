@@ -6,7 +6,7 @@ import { Avatar } from "../../components/Avatar";
 export function Cursor(props: {
   children: JSX.Element;
   player?: Player;
-  placement?: "top" | "bottom";
+  isCurrent?: boolean;
   isActive: boolean;
   isPulsing?: boolean;
 }) {
@@ -23,9 +23,9 @@ export function Cursor(props: {
       style={{ "background-color": color() }}
     >
       <div
-        class={`absolute -translate-x-1/2 ${props.placement === "bottom" ? "top-8" : "bottom-8"}`}
+        class={`absolute -translate-x-1/2 ${props.isCurrent ? "bottom-9" : "top-9"}`}
       >
-        {props.player?.avatar ? (
+        {props.player?.avatar && !props.isCurrent ? (
           <Avatar player={props.player} class="w-8 h-8" />
         ) : (
           <PlayerName color={color()}>{props.children}</PlayerName>

@@ -55,7 +55,7 @@ function RacePage(props: { z: Zero<Schema> }) {
 
               <Match when={race().status !== "finished"}>
                 <>
-                  <div class="flex gap-8 my-auto items-center w-full h-12">
+                  <div class="flex gap-8 my-auto items-center w-full h-12 relative">
                     <div class="w-4/10 flex justify-end">
                       <CountDown
                         raceID={race().id}
