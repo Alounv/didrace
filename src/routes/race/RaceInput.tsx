@@ -123,12 +123,12 @@ export function RaceInput(props: {
         end: Date.now(),
       });
 
-      const notFinishedCount = props.playerRaces?.filter(
+      const notFinishedCount = adversaries().filter(
         (r) => r.end === null,
       ).length;
 
       // Race complete
-      if (notFinishedCount === 0 && props.playerRaces.length > 1) {
+      if (notFinishedCount === 0) {
         endRace();
       }
 
@@ -214,7 +214,7 @@ export function RaceInput(props: {
 
         <div
           class="absolute right-0 transition-opacity"
-          style={{ opacity: (freeRightSpace() - 100) / 100 }}
+          style={{ opacity: (freeRightSpace() - 200) / 100 }}
         >
           <Podium playerRaces={props.playerRaces} quoteLength={text().length}>
             <EndRaceButton endRace={endRace} playerRaces={props.playerRaces} />
