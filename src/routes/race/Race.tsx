@@ -49,8 +49,7 @@ function RacePage(props: { z: Zero<Schema> }) {
                   raceID={race().id}
                   quote={quote()}
                   nextRaceID={race().nextRaceID}
-                  playerRaces={playerRaces}
-                  end={playerRace()?.end}
+                  playerRaces={playerRaces()}
                 />
               </Match>
 

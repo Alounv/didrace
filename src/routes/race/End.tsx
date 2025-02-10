@@ -1,6 +1,6 @@
 import { Zero } from "@rocicorp/zero";
 import { Player, PlayerRace, Schema } from "../../schema";
-import { Accessor, JSX, Show } from "solid-js";
+import { JSX, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { Podium } from "./Podium";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
@@ -11,8 +11,7 @@ export function End(props: {
   raceID: string;
   quote: string;
   nextRaceID: string | null;
-  playerRaces: Accessor<(PlayerRace & { player: Player })[]>;
-  end: number | undefined | null;
+  playerRaces: (PlayerRace & { player: Player })[];
 }) {
   const navigate = useNavigate();
 
@@ -42,13 +41,17 @@ export function End(props: {
     },
   });
   function firstStart() {
-    return Math.min(...props.playerRaces().map((r) => r.start ?? 0));
+    const starts = props.playerRaces.map((r) => r.start ?? Infinity);
+    return Math.min(...starts);
   }
   function speed() {
+    const playerRace = props.playerRaces.find(
+      (r) => r.playerID === props.z.userID,
+    );
     return getSpeed({
-      end: props.end,
+      end: playerRace?.end,
       start: firstStart(),
-      len: props.quote.length,
+      len: playerRace?.progress ?? 0,
     });
   }
 
@@ -66,9 +69,9 @@ export function End(props: {
           </div>
         </div>
 
-        <Show when={props.playerRaces().length > 1}>
+        <Show when={props.playerRaces.length > 1}>
           <Podium
-            playerRaces={props.playerRaces()}
+            playerRaces={props.playerRaces}
             quoteLength={props.quote.length}
           />
         </Show>

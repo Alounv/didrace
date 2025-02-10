@@ -78,34 +78,24 @@ export function RaceInput(props: {
     const newRaceId = id();
     const quoteID = otherQuotes()[randInt(otherQuotes().length)].id;
 
-    // Create next race
-    await props.z.mutate.race.insert({
-      id: newRaceId,
-      status: "ready",
-      authorID: props.z.userID,
-      quoteID,
+    await Promise.all([
+      // Create next race
+      props.z.mutate.race.insert({
+        id: newRaceId,
+        status: "ready",
+        authorID: props.z.userID,
+        quoteID,
 
-      timestamp: Date.now(),
-    });
+        timestamp: Date.now(),
+      }),
 
-    // Terminate non finished player races
-    const racesToTerminate = props.playerRaces.filter((r) => !r.end);
-    await Promise.all(
-      racesToTerminate.map((r) =>
-        props.z.mutate.player_race.update({
-          raceID: props.raceID,
-          playerID: r.playerID,
-          end: Date.now(),
-        }),
-      ),
-    );
-
-    // Terminate current race
-    await props.z.mutate.race.update({
-      id: props.raceID,
-      status: "finished",
-      nextRaceID: newRaceId,
-    });
+      // Terminate current race
+      props.z.mutate.race.update({
+        id: props.raceID,
+        status: "finished",
+        nextRaceID: newRaceId,
+      }),
+    ]);
   }
 
   // --- Logic ---

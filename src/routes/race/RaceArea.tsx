@@ -20,7 +20,6 @@ export function RaceArea(props: {
       playerID: props.z.userID,
       raceID: props.raceID,
       progress: 0,
-      start: null,
       end: null,
     });
   });
