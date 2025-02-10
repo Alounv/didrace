@@ -7,6 +7,7 @@ import { randInt } from "../../utils/rand";
 import { Podium } from "./Podium";
 import { Adversaries } from "./Adversaries";
 import { Cursor } from "./Cursor";
+import { EndRaceButton } from "./EndRaceButton";
 
 export function RaceInput(props: {
   z: Zero<Schema>;
@@ -73,12 +74,12 @@ export function RaceInput(props: {
     });
   }
 
-  function endRace() {
+  async function endRace() {
     const newRaceId = id();
     const quoteID = otherQuotes()[randInt(otherQuotes().length)].id;
 
     // Create next race
-    props.z.mutate.race.insert({
+    await props.z.mutate.race.insert({
       id: newRaceId,
       status: "ready",
       authorID: props.z.userID,
@@ -87,8 +88,20 @@ export function RaceInput(props: {
       timestamp: Date.now(),
     });
 
+    // Terminate non finished player races
+    const racesToTerminate = props.playerRaces.filter((r) => !r.end);
+    await Promise.all(
+      racesToTerminate.map((r) =>
+        props.z.mutate.player_race.update({
+          raceID: props.raceID,
+          playerID: r.playerID,
+          end: Date.now(),
+        }),
+      ),
+    );
+
     // Terminate current race
-    props.z.mutate.race.update({
+    await props.z.mutate.race.update({
       id: props.raceID,
       status: "finished",
       nextRaceID: newRaceId,
@@ -189,23 +202,9 @@ export function RaceInput(props: {
         class="absolute right-0 transition-opacity"
         style={{ opacity: (freeRightSpace() - 100) / 100 }}
       >
-        <Podium
-          playerRaces={props.playerRaces}
-          quoteLength={text().length}
-          endRace={() => {
-            for (const race of props.playerRaces) {
-              if (race.end) continue;
-
-              props.z.mutate.player_race.update({
-                raceID: props.raceID,
-                playerID: race.playerID,
-                end: Date.now(),
-              });
-            }
-
-            endRace();
-          }}
-        />
+        <Podium playerRaces={props.playerRaces} quoteLength={text().length}>
+          <EndRaceButton endRace={endRace} playerRaces={props.playerRaces} />
+        </Podium>
       </div>
 
       <input
