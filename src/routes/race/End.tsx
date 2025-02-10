@@ -44,21 +44,26 @@ export function End(props: {
     const starts = props.playerRaces.map((r) => r.start ?? Infinity);
     return Math.min(...starts);
   }
+
+  function playerRace() {
+    return props.playerRaces.find((r) => r.playerID === props.z.userID);
+  }
   function speed() {
-    const playerRace = props.playerRaces.find(
-      (r) => r.playerID === props.z.userID,
-    );
+    const race = playerRace();
     return getSpeed({
-      end: playerRace?.end,
+      end: race?.end,
       start: firstStart(),
-      len: playerRace?.progress ?? 0,
+      len: race?.progress ?? 0,
     });
   }
 
   return (
     <div class="flex flex-col gap-12 m-auto">
       <div class="font-quote text-2xl tracking-widest max-w-3xl">
-        {props.quote}
+        <span>{props.quote.slice(0, playerRace()?.progress)}</span>
+        <span class="text-stone-600">
+          {props.quote.slice(playerRace()?.progress)}
+        </span>
       </div>
 
       <div class="flex items-center justify-between gap-12">
