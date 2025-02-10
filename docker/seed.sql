@@ -11,7 +11,8 @@
 
     CREATE TABLE "quote" (
       "id" VARCHAR PRIMARY KEY,
-      "body" VARCHAR NOT NULL
+      "body" VARCHAR NOT NULL,
+      "source" VARCHAR NOT NULL
     );
 
     CREATE TABLE "race" (

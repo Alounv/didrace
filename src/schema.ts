@@ -32,6 +32,7 @@ const quote = table("quote")
     id: string(),
 
     body: string(),
+    source: string(),
   })
   .primaryKey("id");
 

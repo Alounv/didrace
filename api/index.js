@@ -5,6 +5,7 @@ import * as dotenv from "dotenv";
 import { nanoid } from "nanoid";
 import { discordAuth } from "@hono/oauth-providers/discord";
 import { setCookie } from "hono/cookie";
+// import { quotes } from "./quotes";
 import pg from "pg";
 
 // --- Env ---
@@ -14,6 +15,31 @@ dotenv.config({ path: ".env" });
 // --- Hono ---
 
 export const app = new Hono().basePath("/api");
+
+// app.get("/init-quotes", async (c) => {
+//   const hasQuotes = await pool.query("SELECT * FROM quote LIMIT 1");
+//   if (hasQuotes.rowCount > 0) {
+//     return c.json({ ok: false });
+//   }
+
+//   const queries = quotes.map((q) => ({
+//     query: "INSERT INTO quote (id, body, source) VALUES($1, $2, $3)",
+//     values: [q.id, q.text, q.source],
+//   }));
+
+//   await pool.query("BEGIN");
+//   try {
+//     for (const q of queries) {
+//       await pool.query(q.query, q.values);
+//     }
+//     await pool.query("COMMIT");
+//   } catch (e) {
+//     await pool.query("ROLLBACK");
+//     throw e;
+//   }
+
+//   return c.json({ ok: true });
+// });
 
 app.use(
   "/discord",

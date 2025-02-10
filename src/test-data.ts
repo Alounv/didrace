@@ -26,7 +26,7 @@ const SAMPLE_QUOTES = [
 export function generateQuotes(count: number): Quote[] {
   return Array.from({ length: count }, (_, i) => ({
     id: id(),
-    title: `Quote ${i + 1}`,
+    source: `Quote ${i + 1}`,
     body: SAMPLE_QUOTES[i % SAMPLE_QUOTES.length],
   }));
 }
