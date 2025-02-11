@@ -10,6 +10,7 @@ export function CountDown(props: {
   status: Race["status"];
   hasStartedTyping: boolean;
   z: Zero<Schema>;
+  isAlone: boolean;
 }) {
   const navigate = useNavigate();
   const [countdown, setCountdown] = createSignal(4);
@@ -21,6 +22,14 @@ export function CountDown(props: {
   });
 
   function start() {
+    if (props.isAlone) {
+      props.z.mutate.race.update({
+        id: props.raceID,
+        status: "started",
+      });
+      return;
+    }
+
     props.z.mutate.race.update({
       id: props.raceID,
       status: "starting",
@@ -56,6 +65,7 @@ export function CountDown(props: {
       }
 
       if (e.code === "Space") {
+        e.preventDefault();
         start();
         return;
       }

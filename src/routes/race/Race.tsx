@@ -62,6 +62,7 @@ function RacePage(props: { z: Zero<Schema> }) {
                         status={race().status}
                         z={props.z}
                         hasStartedTyping={(playerRace()?.progress ?? 0) > 0}
+                        isAlone={playerRaces().length === 1}
                       />
                     </div>
 
