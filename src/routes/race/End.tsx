@@ -1,6 +1,6 @@
 import { Zero } from "@rocicorp/zero";
-import { Player, PlayerRace, Schema } from "../../schema";
-import { JSX, Show } from "solid-js";
+import { Player, PlayerRace, Quote, Schema } from "../../schema";
+import { createSignal, JSX, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { Podium } from "./Podium";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
@@ -9,10 +9,11 @@ import { SoftButton } from "../../components/design-system";
 export function End(props: {
   z: Zero<Schema>;
   raceID: string;
-  quote: string;
+  quote: Quote;
   nextRaceID: string | null;
   playerRaces: (PlayerRace & { player: Player })[];
 }) {
+  const [rendered] = createSignal(Date.now());
   const navigate = useNavigate();
 
   function leave() {
@@ -27,7 +28,7 @@ export function End(props: {
   addKeyboardEventListener({
     keys: ["Space", "Escape"],
     callback: (e) => {
-      if (!e) {
+      if (!e || Date.now() - rendered() < 1000) {
         return;
       }
 
@@ -58,12 +59,15 @@ export function End(props: {
   }
 
   return (
-    <div class="flex flex-col gap-12 m-auto">
-      <div class="font-quote text-2xl tracking-widest max-w-3xl">
-        <span>{props.quote.slice(0, playerRace()?.progress)}</span>
-        <span class="text-stone-600">
-          {props.quote.slice(playerRace()?.progress)}
-        </span>
+    <div class="flex flex-col gap-10 m-auto">
+      <div class="flex flex-col gap-4">
+        <div class="font-quote text-2xl tracking-widest max-w-3xl text-justify">
+          <span>{props.quote.body.slice(0, playerRace()?.progress)}</span>
+          <span class="text-stone-600">
+            {props.quote.body.slice(playerRace()?.progress)}
+          </span>
+        </div>
+        <div class="ml-auto text-stone-500 text-lg">{props.quote.source}</div>
       </div>
 
       <div class="flex items-center justify-between gap-12">
@@ -77,7 +81,7 @@ export function End(props: {
         <Show when={props.playerRaces.length > 1}>
           <Podium
             playerRaces={props.playerRaces}
-            quoteLength={props.quote.length}
+            quoteLength={props.quote.body.length}
           />
         </Show>
       </div>

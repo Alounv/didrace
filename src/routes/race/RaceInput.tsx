@@ -268,12 +268,13 @@ function getDisplay({
     }
   }
 
+  const incorrect = Math.max(chars.length - correctIndex, 0);
   const index = correctIndex + charIndex;
 
   return {
     correct: typed.slice(0, correctIndex),
     incorrect: typed.slice(correctIndex).replace(/ /g, "_"),
-    rest: text.slice(index),
+    rest: text.slice(index + incorrect),
     saved: text.slice(0, charIndex),
   };
 }

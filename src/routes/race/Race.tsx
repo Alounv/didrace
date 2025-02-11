@@ -2,7 +2,7 @@ import { Zero } from "@rocicorp/zero";
 import { useQuery } from "@rocicorp/zero/solid";
 import { useNavigate, useParams } from "@solidjs/router";
 import { Accessor, createEffect, Match, Show, Switch } from "solid-js";
-import { Player, PlayerRace, Schema } from "../../schema";
+import { Player, PlayerRace, Quote, Schema } from "../../schema";
 import { CountDown } from "./CountDown";
 import { End } from "./End";
 import { RaceArea } from "./RaceArea";
@@ -47,7 +47,7 @@ function RacePage(props: { z: Zero<Schema> }) {
                 <End
                   z={props.z}
                   raceID={race().id}
-                  quote={quote()}
+                  quote={race().quote as Quote}
                   nextRaceID={race().nextRaceID}
                   playerRaces={playerRaces()}
                 />
