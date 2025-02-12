@@ -16,7 +16,7 @@ export function Avatar(props: { player: Player; class?: string }) {
           }}
         />
       ) : (
-        <div class="text-neutral-content text-base font-bold font-quote w-full h-full" />
+        <div class="text-base-content text-base font-bold font-quote w-full h-full" />
       )}
     </div>
   );

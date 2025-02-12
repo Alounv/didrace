@@ -196,8 +196,8 @@ export function RaceInput(props: {
         >
           <div class="font-quote text-2xl tracking-widest">
             <span ref={typedRef}>
-              <span class="text-neutral-content">{display().saved}</span>
-              <span class="text-neutral-content transition-all">
+              <span class="text-base-content">{display().saved}</span>
+              <span class="text-base-content transition-all">
                 {display().correct}
               </span>
               <span class="bg-error rounded-xs">{display().incorrect}</span>

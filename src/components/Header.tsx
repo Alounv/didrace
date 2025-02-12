@@ -14,7 +14,7 @@ function Header(props: { z: Zero<Schema> }) {
   );
 
   return (
-    <div class="bg-base-100 rounded-xl p-8 flex items-center h-22">
+    <div class="bg-base-100 p-8 items-center h-22 card flex-row">
       <A href="/">
         <Logo />
       </A>
@@ -31,7 +31,7 @@ function Header(props: { z: Zero<Schema> }) {
             {(player) => (
               <div class="flex gap-4 items-center">
                 <div
-                  class="text-neutral-content px-2 py-0.5 rounded font-quote"
+                  class="text-base-content px-2 py-0.5 rounded font-quote"
                   style={{ "background-color": player().color }}
                 >
                   {player().name}

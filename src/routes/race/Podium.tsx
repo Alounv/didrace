@@ -44,10 +44,10 @@ export function Podium(props: {
   }
 
   return (
-    <div class="flex flex-col gap-4 text-sm text-neutral-content items-start">
+    <div class="flex flex-col gap-4 text-sm text-base-content items-start">
       {props?.children}
 
-      <ol class="flex flex-col gap-2 text-sm text-neutral-content shrink-0">
+      <ol class="flex flex-col gap-2 text-sm text-base-content shrink-0">
         <For each={sortedPlayerRaces()}>
           {(playerRace, index) => (
             <li class="flex items-center gap-4 justify-start">

@@ -2,6 +2,41 @@ import { For } from "solid-js";
 import { onMount } from "solid-js";
 import { themeChange } from "theme-change";
 
+const THEMES = [
+  "light",
+  "dark",
+  "cupcake",
+  "bumblebee",
+  "emerald",
+  "corporate",
+  "synthwave",
+  "retro",
+  "cyberpunk",
+  "valentine",
+  "halloween",
+  "garden",
+  "forest",
+  "aqua",
+  "lofi",
+  "pastel",
+  "fantasy",
+  "wireframe",
+  "black",
+  "luxury",
+  "dracula",
+  "cmyk",
+  "autumn",
+  "business",
+  "acid",
+  "lemonade",
+  "night",
+  "coffee",
+  "winter",
+  "dim",
+  "nord",
+  "sunset",
+];
+
 export function ThemeController() {
   onMount(async () => {
     themeChange();
@@ -12,24 +47,26 @@ export function ThemeController() {
       <div tabindex="0" role="button" class="btn m-1">
         Theme
       </div>
-      <ul
+      <div
         tabindex="0"
-        class="dropdown-content bg-base-300 rounded-box z-[1] w-52 p-2 shadow-2xl"
+        class="dropdown-content bg-base-300 rounded-box z-[1] w-52 p-2 shadow-2xl h-96 overflow-y-auto"
       >
-        <For each={["Default", "Retro", "Cyberpunk", "Valentine", "Aqua"]}>
-          {(theme) => (
-            <li>
-              <input
-                type="radio"
-                name="theme-dropdown"
-                class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-                aria-label={theme}
-                value={theme.toLowerCase()}
-              />
-            </li>
-          )}
-        </For>
-      </ul>
+        <ul class="p-2">
+          <For each={THEMES}>
+            {(theme) => (
+              <li>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label={theme}
+                  value={theme}
+                />
+              </li>
+            )}
+          </For>
+        </ul>
+      </div>
     </div>
   );
 }
