@@ -200,9 +200,11 @@ export function RaceInput(props: {
               <span class="text-base-content transition-all">
                 {display().correct}
               </span>
-              <span class="bg-error rounded-xs">{display().incorrect}</span>
+              <span class="bg-error text-error-content rounded-xs">
+                {display().incorrect}
+              </span>
             </span>
-            <span class="text-neutral-400">{display().rest}</span>
+            <span class="opacity-50">{display().rest}</span>
 
             <Adversaries
               currentPlayerOffset={offset()}

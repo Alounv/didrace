@@ -1,12 +1,13 @@
 import { Show } from "solid-js";
 import { useQuery } from "@rocicorp/zero/solid";
 import { Zero } from "@rocicorp/zero";
-import { Logo } from "./design-system";
 import { A } from "@solidjs/router";
 import { Schema } from "../schema";
 import { Avatar } from "./Avatar";
 import { ThemeController } from "./Theme";
 import { Auth } from "./Auth";
+import { Logo } from "./Logo";
+import { PlayerName } from "../routes/race/PlayerName";
 
 function Header(props: { z: Zero<Schema> }) {
   const [player] = useQuery(() =>
@@ -20,22 +21,17 @@ function Header(props: { z: Zero<Schema> }) {
       </A>
 
       <div class="ml-auto flex gap-4 items-center">
-        <div class="flex gap-4 items-center">
-          <Auth z={props.z} />
+        <ThemeController />
 
-          <ThemeController />
-        </div>
+        <Auth z={props.z} />
 
         {props.z.userID !== "anon" && (
           <Show when={player()}>
             {(player) => (
               <div class="flex gap-4 items-center">
-                <div
-                  class="text-base-content px-2 py-0.5 rounded font-quote"
-                  style={{ "background-color": player().color }}
-                >
+                <PlayerName color={player().color} class="text-lg py-4">
                   {player().name}
-                </div>
+                </PlayerName>
                 <Avatar player={player()} class="w-10 h-10" />
               </div>
             )}

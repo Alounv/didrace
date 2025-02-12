@@ -27,11 +27,10 @@ export function Auth(props: { z: Zero<Schema> }) {
       }
     >
       <div class="flex gap-2 items-center">
-        Login
-        <button class="btn" onClick={discordLogin}>
+        <button class="btn btn-primary" onClick={discordLogin}>
           Discord
         </button>
-        <button class="btn" onClick={guestLogin}>
+        <button class="btn btn-secondary" onClick={guestLogin}>
           Guest
         </button>
       </div>

@@ -2,7 +2,7 @@ import { Zero } from "@rocicorp/zero";
 import { createEffect, createSignal } from "solid-js";
 import { Race, Schema } from "../../schema";
 import { useNavigate } from "@solidjs/router";
-import { Button } from "../../components/design-system";
+import { Button } from "../../components/Button";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
 
 export function CountDown(props: {

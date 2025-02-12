@@ -4,7 +4,7 @@ import { createSignal, JSX, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { Podium } from "./Podium";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
-import { Button } from "../../components/design-system";
+import { Button } from "../../components/Button";
 
 export function End(props: {
   z: Zero<Schema>;
@@ -63,11 +63,11 @@ export function End(props: {
       <div class="flex flex-col gap-4">
         <div class="font-quote text-2xl tracking-widest max-w-3xl text-justify">
           <span>{props.quote.body.slice(0, playerRace()?.progress)}</span>
-          <span class="text-neutral-600">
+          <span class="opacity-50">
             {props.quote.body.slice(playerRace()?.progress)}
           </span>
         </div>
-        <div class="ml-auto text-neutral-500 text-lg">{props.quote.source}</div>
+        <div class="ml-auto text-secondary text-lg">{props.quote.source}</div>
       </div>
 
       <div class="flex items-center justify-between gap-12">

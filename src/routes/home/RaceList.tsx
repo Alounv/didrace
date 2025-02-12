@@ -45,7 +45,7 @@ function RaceCard(props: { race: PopulatedRace; z: Zero<Schema> }) {
   return (
     <li
       class="card w-50 h-50 bg-base-100 p-4 justify-between
-      text-xs text-neutral-500 border border-transparent hover:border-primary group"
+      text-xs border border-transparent hover:border-primary group"
     >
       <div class="flex gap-2 items-center">
         <Avatar player={props.race.author} class="w-8 h-8" />
@@ -54,7 +54,7 @@ function RaceCard(props: { race: PopulatedRace; z: Zero<Schema> }) {
 
       <A
         href={`/races/${props.race.id}`}
-        class="border border-neutral-500 rounded p-4 text-neutral-400 group-hover:bg-primary group-hover:border-transparent group-hover:text-base-content flex justify-between items-center"
+        class="border border-primary rounded p-4 group-hover:bg-primary group-hover:border-transparent group-hover:text-primary-content flex justify-between items-center"
       >
         Join race
         <AvatarStack players={props.race.players} />

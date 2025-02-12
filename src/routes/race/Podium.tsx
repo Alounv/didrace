@@ -1,6 +1,6 @@
 import { For, JSX } from "solid-js";
 import { Player, PlayerRace } from "../../schema";
-import { PlayerName } from "./Player";
+import { PlayerName } from "./PlayerName";
 import { getSpeed } from "./End";
 import { Avatar } from "../../components/Avatar";
 
@@ -56,7 +56,7 @@ export function Podium(props: {
                 <Avatar player={playerRace.player} class="w-8 h-8" />
                 <PlayerName
                   color={playerRace.player.color}
-                  class={playerRace.end ? "opacity-100" : "opacity-30"}
+                  class={playerRace.end ? "" : "opacity-50"}
                 >
                   {playerRace.player.name}
                 </PlayerName>
