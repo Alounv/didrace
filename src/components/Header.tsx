@@ -14,6 +14,10 @@ function Header(props: { z: Zero<Schema> }) {
     props.z.query.player.where("id", "=", props.z.userID).one(),
   );
 
+  function loggedIn() {
+    return props.z.userID !== "anon";
+  }
+
   return (
     <div class="bg-base-100 p-8 items-center h-22 card flex-row">
       <A href="/">
@@ -21,11 +25,11 @@ function Header(props: { z: Zero<Schema> }) {
       </A>
 
       <div class="ml-auto flex gap-4 items-center">
-        <ThemeController />
+        {loggedIn() && <ThemeController />}
 
         <Auth z={props.z} />
 
-        {props.z.userID !== "anon" && (
+        {loggedIn() && (
           <Show when={player()}>
             {(player) => (
               <div class="flex gap-4 items-center">

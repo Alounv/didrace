@@ -4,6 +4,12 @@ import { Race, Schema } from "../../schema";
 import { useNavigate } from "@solidjs/router";
 import { Button } from "../../components/Button";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
+import { Icon } from "solid-heroicons";
+import {
+  arrowLeftOnRectangle,
+  chevronDoubleRight,
+  clipboardDocumentCheck,
+} from "solid-heroicons/solid-mini";
 
 export function CountDown(props: {
   raceID: string;
@@ -81,10 +87,17 @@ export function CountDown(props: {
           <Button
             onClick={() => navigator.clipboard.writeText(window.location.href)}
           >
-            🔗 Copy URL
+            <Icon path={clipboardDocumentCheck} class="size-5" />
+            Copy URL
           </Button>
-          <Button onClick={start}>🚀 Start Race [SPACE]</Button>
-          <Button onClick={leave}>🏃 Leave Race [ESC]</Button>
+          <Button onClick={start}>
+            <Icon path={chevronDoubleRight} class="size-5" />
+            Start Race [SPACE]
+          </Button>
+          <Button onClick={leave}>
+            <Icon path={arrowLeftOnRectangle} class="size-5" />
+            Leave Race [ESC]
+          </Button>
         </div>
       ) : (
         <div class="flex items-center gap-2">

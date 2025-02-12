@@ -5,6 +5,11 @@ import { useNavigate } from "@solidjs/router";
 import { Podium } from "./Podium";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
 import { Button } from "../../components/Button";
+import { Icon } from "solid-heroicons";
+import {
+  arrowLeftOnRectangle,
+  chevronDoubleRight,
+} from "solid-heroicons/solid-mini";
 
 export function End(props: {
   z: Zero<Schema>;
@@ -87,10 +92,14 @@ export function End(props: {
       </div>
 
       <div class="flex gap-4 justify-center">
-        <Button onClick={leave}>🏃 Leave [ESC]</Button>
+        <Button onClick={leave}>
+          <Icon path={arrowLeftOnRectangle} class="size-5" />
+          Leave [ESC]
+        </Button>
         {props.nextRaceID && (
           <Button href={`/races/${props.nextRaceID}`} class="self-center">
-            🚀 Next Race [SPACE]
+            <Icon path={chevronDoubleRight} class="size-5" />
+            Next Race [SPACE]
           </Button>
         )}
       </div>

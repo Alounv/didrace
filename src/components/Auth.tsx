@@ -2,6 +2,8 @@ import { Show } from "solid-js";
 import Cookies from "js-cookie";
 import { Zero } from "@rocicorp/zero";
 import { Schema } from "../schema";
+import { Icon } from "solid-heroicons";
+import { arrowLeftOnRectangle } from "solid-heroicons/outline";
 
 export function Auth(props: { z: Zero<Schema> }) {
   function discordLogin() {
@@ -22,6 +24,7 @@ export function Auth(props: { z: Zero<Schema> }) {
       when={props.z.userID === "anon"}
       fallback={
         <button class="btn" onClick={logout}>
+          <Icon path={arrowLeftOnRectangle} class="size-5" />
           Logout
         </button>
       }

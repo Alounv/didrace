@@ -4,6 +4,8 @@ import { Player, Race, Schema } from "../../schema";
 import { formatDate } from "../../utils/date";
 import { A } from "@solidjs/router";
 import { Avatar } from "../../components/Avatar";
+import { trash } from "solid-heroicons/solid-mini";
+import { Icon } from "solid-heroicons";
 
 export type PopulatedRace = Race & {
   players: Player[];
@@ -66,7 +68,7 @@ function RaceCard(props: { race: PopulatedRace; z: Zero<Schema> }) {
           class="hover:text-error btn-outline rounded-md p-2"
           onClick={deleteRace}
         >
-          X
+          <Icon path={trash} class="size-4" />
         </button>
       </div>
     </li>
