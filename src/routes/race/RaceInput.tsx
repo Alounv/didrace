@@ -196,11 +196,13 @@ export function RaceInput(props: {
         >
           <div class="font-quote text-2xl tracking-widest">
             <span ref={typedRef}>
-              <span class="text-white">{display().saved}</span>
-              <span class="text-white transition-all">{display().correct}</span>
-              <span class="bg-red-600 rounded-xs">{display().incorrect}</span>
+              <span class="text-neutral-content">{display().saved}</span>
+              <span class="text-neutral-content transition-all">
+                {display().correct}
+              </span>
+              <span class="bg-error rounded-xs">{display().incorrect}</span>
             </span>
-            <span class="text-stone-400">{display().rest}</span>
+            <span class="text-neutral-400">{display().rest}</span>
 
             <Adversaries
               currentPlayerOffset={offset()}

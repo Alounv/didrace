@@ -10,7 +10,7 @@ export function CreateRace(props: { z: Zero<Schema> }) {
 
   return (
     <button
-      class="w-50 h-50 bg-background-light rounded-lg justify-between  border border-transparent hover:bg-violet-700 text-white"
+      class="w-50 h-50 bg-base-100 rounded-lg justify-between border border-transparent hover:bg-primary text-neutral-content btn-primary"
       onClick={() => {
         props.z.mutate.race.insert({
           id: id(),

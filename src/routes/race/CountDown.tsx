@@ -2,7 +2,7 @@ import { Zero } from "@rocicorp/zero";
 import { createEffect, createSignal } from "solid-js";
 import { Race, Schema } from "../../schema";
 import { useNavigate } from "@solidjs/router";
-import { SoftButton } from "../../components/design-system";
+import { Button } from "../../components/design-system";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
 
 export function CountDown(props: {
@@ -78,13 +78,13 @@ export function CountDown(props: {
     >
       {props.status === "ready" ? (
         <div class="flex flex-col gap-2 items-start">
-          <SoftButton
+          <Button
             onClick={() => navigator.clipboard.writeText(window.location.href)}
           >
             🔗 Copy URL
-          </SoftButton>
-          <SoftButton onClick={start}>🚀 Start Race [SPACE]</SoftButton>
-          <SoftButton onClick={leave}>🏃 Leave Race [ESC]</SoftButton>
+          </Button>
+          <Button onClick={start}>🚀 Start Race [SPACE]</Button>
+          <Button onClick={leave}>🏃 Leave Race [ESC]</Button>
         </div>
       ) : (
         <div class="flex items-center gap-2">
@@ -130,9 +130,9 @@ function Dot(props: { color: "r" | "g" | null }) {
   function colorClass() {
     switch (props.color) {
       case "r":
-        return " bg-red-600";
+        return " bg-error";
       case "g":
-        return " bg-green-600";
+        return " bg-success";
       default:
         return "bg-text";
     }

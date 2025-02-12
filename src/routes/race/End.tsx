@@ -4,7 +4,7 @@ import { createSignal, JSX, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { Podium } from "./Podium";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
-import { SoftButton } from "../../components/design-system";
+import { Button } from "../../components/design-system";
 
 export function End(props: {
   z: Zero<Schema>;
@@ -63,18 +63,18 @@ export function End(props: {
       <div class="flex flex-col gap-4">
         <div class="font-quote text-2xl tracking-widest max-w-3xl text-justify">
           <span>{props.quote.body.slice(0, playerRace()?.progress)}</span>
-          <span class="text-stone-600">
+          <span class="text-neutral-600">
             {props.quote.body.slice(playerRace()?.progress)}
           </span>
         </div>
-        <div class="ml-auto text-stone-500 text-lg">{props.quote.source}</div>
+        <div class="ml-auto text-neutral-500 text-lg">{props.quote.source}</div>
       </div>
 
       <div class="flex items-center justify-between gap-12">
         <div class="flex gap-12 items-center justify-center">
           <div class="flex flex-col gap-4 shrink-0 items-start">
-            <Tag class="bg-violet-600">{`${speed().wpm} WPM`}</Tag>
-            <Tag class="bg-teal-600">{`${speed().sec} sec`}</Tag>
+            <Tag class="bg-primary text-primary-content">{`${speed().wpm} WPM`}</Tag>
+            <Tag class="bg-secondary text-secondary-content">{`${speed().sec} sec`}</Tag>
           </div>
         </div>
 
@@ -87,11 +87,11 @@ export function End(props: {
       </div>
 
       <div class="flex gap-4 justify-center">
-        <SoftButton onClick={leave}>🏃 Leave [ESC]</SoftButton>
+        <Button onClick={leave}>🏃 Leave [ESC]</Button>
         {props.nextRaceID && (
-          <SoftButton href={`/races/${props.nextRaceID}`} class="self-center">
+          <Button href={`/races/${props.nextRaceID}`} class="self-center">
             🚀 Next Race [SPACE]
-          </SoftButton>
+          </Button>
         )}
       </div>
     </div>

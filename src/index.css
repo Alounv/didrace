@@ -1,18 +1,14 @@
 @import "tailwindcss";
 @import "@fontsource/lato";
 @import "@fontsource/poppins";
-@plugin "daisyui";
+@plugin "daisyui" {
+    themes: all;
+}
 
 body {
-    background-color: #323437;
-    color: #cfcfcf;
     font-family: "Poppins";
 }
 
 @theme {
-    --color-background: #323437;
-    --color-text: #cfcfcf;
-    --color-background-light: #3b3b3b;
-
     --font-lato: "Lato";
 }

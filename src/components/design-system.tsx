@@ -3,29 +3,11 @@ import { JSX } from "solid-js";
 
 export function Button(props: {
   children: JSX.Element;
-  onClick: () => void;
-  class?: string;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      class={`btn ${props.class}`}
-      onClick={() => props.onClick()}
-      disabled={props.disabled}
-    >
-      {props.children}
-    </button>
-  );
-}
-
-export function SoftButton(props: {
-  children: JSX.Element;
   onClick?: () => void;
   href?: string;
   class?: string;
 }) {
-  const cls = () =>
-    `btn btn-outline border-stone-400 text-stone-400 hover:bg-stone-700 rounded-md ${props.class}`;
+  const cls = () => `btn btn-outline ${props.class}`;
   return (
     <>
       {props.href ? (
@@ -38,18 +20,6 @@ export function SoftButton(props: {
         </button>
       )}
     </>
-  );
-}
-
-export function Link(props: {
-  children: JSX.Element;
-  href: string;
-  class?: string;
-}) {
-  return (
-    <A class={`btn ${props.class}`} href={props.href}>
-      {props.children}
-    </A>
   );
 }
 

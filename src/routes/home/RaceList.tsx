@@ -44,18 +44,18 @@ function RaceCard(props: { race: PopulatedRace; z: Zero<Schema> }) {
 
   return (
     <li
-      class="flex flex-col gap-2 w-50 h-50 bg-background-light p-4
-      rounded-lg justify-between text-xs text-stone-500 border border-transparent
-      hover:border-violet-700 group"
+      class="flex flex-col gap-2 w-50 h-50 bg-base-100 p-4
+      rounded-lg justify-between text-xs text-neutral-500 border border-transparent
+      hover:border-primary group"
     >
       <div class="flex gap-2 items-center">
         <Avatar player={props.race.author} class="w-8 h-8" />
-        <div class="text-base text-text">{title()}</div>
+        <div class="text-base text-base-content">{title()}</div>
       </div>
 
       <A
         href={`/races/${props.race.id}`}
-        class="border border-stone-500 rounded p-4 text-stone-400 group-hover:bg-violet-700 group-hover:border-transparent group-hover:text-white flex justify-between items-center"
+        class="border border-neutral-500 rounded p-4 text-neutral-400 group-hover:bg-primary group-hover:border-transparent group-hover:text-neutral-content flex justify-between items-center"
       >
         Join race
         <AvatarStack players={props.race.players} />
@@ -63,8 +63,11 @@ function RaceCard(props: { race: PopulatedRace; z: Zero<Schema> }) {
 
       <div class="flex gap-2 justify-between items-center">
         <div>{formatDate(props.race.timestamp)}</div>
-        <button class="hover:bg-stone-600 rounded-md p-2" onClick={deleteRace}>
-          🗑️
+        <button
+          class="hover:text-error btn-outline rounded-md p-2"
+          onClick={deleteRace}
+        >
+          X
         </button>
       </div>
     </li>

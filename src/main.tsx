@@ -30,7 +30,7 @@ const root = document.getElementById("root");
 
 function Layout(props: { children?: JSX.Element }) {
   return (
-    <div class="p-10 h-screen flex flex-col gap-8 overflow-x-hidden">
+    <div class="p-10 h-screen flex flex-col gap-8 overflow-x-hidden bg-base-300 text-base-content">
       <Header z={z} />
       <div class="flex-1 flex flex-col items-start">{props.children}</div>
     </div>

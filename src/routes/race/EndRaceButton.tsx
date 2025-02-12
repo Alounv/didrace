@@ -1,5 +1,4 @@
 import { createSignal, onCleanup } from "solid-js";
-import { Button } from "../../components/design-system";
 import { PlayerRace } from "../../schema";
 
 const TIME_TO_FINISH_IN_S = 20;
@@ -33,13 +32,14 @@ export function EndRaceButton(props: {
 
   return (
     <div class="flex gap-2 items-center">
-      <Button
+      <button
+        class="btn btn-primary btn-sm"
         onClick={() => props.endRace()}
         disabled={sinceFirstArrival() < TIME_TO_FINISH_IN_S}
       >
         End Race
-      </Button>
-      <div class="text-sm text-text">{displayEndRace()}</div>
+      </button>
+      <div class="text-sm text-base-content">{displayEndRace()}</div>
     </div>
   );
 }
