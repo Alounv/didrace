@@ -41,7 +41,7 @@ const THEMES = [
 
 export function ThemeController() {
   onMount(async () => {
-    themeChange();
+    themeChange(false);
   });
 
   return (
@@ -62,6 +62,7 @@ export function ThemeController() {
                   name="theme-dropdown"
                   class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
                   aria-label={theme}
+                  data-set-theme={theme}
                   value={theme}
                 />
               </li>
