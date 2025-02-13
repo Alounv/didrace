@@ -37,6 +37,14 @@ function RacePage(props: { z: Zero<Schema> }) {
     }
   });
 
+  createEffect(() => {
+    // If the user got here via link, the race could be finished and he has no player race
+    // In this case we redirect him directly to the next race
+    if (!playerRace() && race()?.status === "finished" && race()?.nextRaceID) {
+      navigate(`/races/${race()?.nextRaceID}`);
+    }
+  });
+
   return (
     <Show when={playerRaces() && quote()}>
       <Show when={race()}>

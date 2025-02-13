@@ -147,7 +147,7 @@ function Dot(props: { color: "r" | "g" | null }) {
       case "g":
         return " bg-success";
       default:
-        return "bg-text";
+        return "bg-base-content";
     }
   }
   return <div class={`rounded-full h-7 w-7 ${colorClass()}`} />;

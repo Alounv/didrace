@@ -46,6 +46,7 @@ export function End(props: {
       }
     },
   });
+
   function firstStart() {
     const starts = props.playerRaces.map((r) => r.start ?? Infinity);
     return Math.min(...starts);
@@ -54,6 +55,7 @@ export function End(props: {
   function playerRace() {
     return props.playerRaces.find((r) => r.playerID === props.z.userID);
   }
+
   function speed() {
     const race = playerRace();
     return getSpeed({
