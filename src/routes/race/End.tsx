@@ -10,6 +10,7 @@ import {
   arrowLeftOnRectangle,
   chevronDoubleRight,
 } from "solid-heroicons/solid-mini";
+import { getSpeed } from "../../domain/playerRace";
 
 export function End(props: {
   z: Zero<Schema>;
@@ -117,23 +118,4 @@ function Tag(props: { children: JSX.Element; class?: string }) {
       {props.children}
     </div>
   );
-}
-
-export function getSpeed({
-  end,
-  start,
-  len,
-}: {
-  end: number | null | undefined;
-  start: number;
-  len: number;
-}) {
-  const duration = (end ?? Date.now()) - start;
-  const sec = duration / 1000;
-  const min = sec / 60;
-
-  return {
-    sec: Math.round(sec),
-    wpm: Math.round(len / 5 / min),
-  };
 }

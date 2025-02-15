@@ -10,6 +10,7 @@ import {
   chevronDoubleRight,
   clipboardDocumentCheck,
 } from "solid-heroicons/solid-mini";
+import { leave, start } from "../../domain/race";
 
 export function CountDown(props: {
   raceID: string;
@@ -27,37 +28,6 @@ export function CountDown(props: {
     }
   });
 
-  function start() {
-    if (props.isAlone) {
-      props.z.mutate.race.update({
-        id: props.raceID,
-        status: "started",
-      });
-      return;
-    }
-
-    props.z.mutate.race.update({
-      id: props.raceID,
-      status: "starting",
-    });
-
-    setTimeout(() => {
-      props.z.mutate.race.update({
-        id: props.raceID,
-        status: "started",
-      });
-    }, 1000 * 4);
-  }
-
-  function leave() {
-    props.z.mutate.player_race
-      .delete({
-        playerID: props.z.userID,
-        raceID: props.raceID,
-      })
-      .then(() => navigate("/"));
-  }
-
   addKeyboardEventListener({
     keys: ["Space", "Escape"],
     callback: (e) => {
@@ -66,13 +36,14 @@ export function CountDown(props: {
       }
 
       if (e.code === "Escape") {
-        leave();
+        leave({ ...props, isAlone: props.isAlone });
+        navigate("/");
         return;
       }
 
       if (e.code === "Space") {
         e.preventDefault();
-        start();
+        start({ ...props, isAlone: props.isAlone });
         return;
       }
     },
@@ -90,11 +61,16 @@ export function CountDown(props: {
             <Icon path={clipboardDocumentCheck} class="size-5" />
             Copy URL
           </Button>
-          <Button onClick={start}>
+          <Button onClick={() => start({ ...props, isAlone: props.isAlone })}>
             <Icon path={chevronDoubleRight} class="size-5" />
             Start Race [SPACE]
           </Button>
-          <Button onClick={leave}>
+          <Button
+            onClick={() => {
+              leave({ ...props, isAlone: props.isAlone });
+              navigate("/");
+            }}
+          >
             <Icon path={arrowLeftOnRectangle} class="size-5" />
             Leave Race [ESC]
           </Button>
