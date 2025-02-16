@@ -1,5 +1,6 @@
 import { Zero } from "@rocicorp/zero";
 import { PlayerRace, Schema } from "../schema";
+import { randInt } from "../utils/rand";
 
 /**
  * Initialize or reset player race
@@ -87,7 +88,7 @@ export function onTyped({
   target,
   adversaries,
   endRace,
-  start,
+  playerRace,
 }: {
   z: Zero<Schema>;
   raceID: string;
@@ -95,9 +96,9 @@ export function onTyped({
   charIndex: number;
   text: string;
   target: string;
-  adversaries: { end: null | number }[];
+  adversaries: { progress: number; end: null | number }[];
   endRace: () => void;
-  start: number;
+  playerRace: PlayerRace;
 }): boolean {
   const progress = Math.min(charIndex + typed.length, text.length);
 
@@ -126,14 +127,25 @@ export function onTyped({
 
   // Word complete --> (save player progress and move to next word)
   if (target.length + 1 === typed.length) {
-    savePlayerRace({ z, raceID, partial: { progress } });
+    const isLast = adversaries.every((a) => a.progress > progress);
+    const shouldHaveItem = isLast && !playerRace.item && randInt(4) === 0;
+
+    savePlayerRace({
+      z,
+      raceID,
+      partial: {
+        progress,
+        ...(shouldHaveItem ? { item: "missile" } : {}),
+      },
+    });
+
     return true;
   }
 
   savePlayerRace({
     z,
     raceID,
-    partial: { progress, start },
+    partial: { progress, start: playerRace.start ?? Date.now() },
   });
   return false;
 }
@@ -198,4 +210,45 @@ export function computePlayerRaces<P extends PlayerRace>({
       len: race.progress,
     }).wpm,
   }));
+}
+
+/**
+ * Activate item logic here
+ */
+export function activateItem({
+  z,
+  raceID,
+  playerRace,
+  adversaries,
+}: {
+  z: Zero<Schema>;
+  raceID: string;
+  playerRace: PlayerRace;
+  adversaries: PlayerRace[];
+}) {
+  // remove item
+  z.mutate.player_race.update({
+    playerID: z.userID,
+    raceID: raceID,
+    item: null,
+  });
+
+  // Activate item logic here
+  switch (playerRace.item) {
+    case "missile": {
+      const first = adversaries.reduce((acc, r) =>
+        r.progress > acc.progress ? r : acc,
+      );
+
+      z.mutate.player_race.update({
+        playerID: first!.playerID,
+        raceID: raceID,
+        effect: "stuned",
+      });
+
+      break;
+    }
+    default:
+      break;
+  }
 }

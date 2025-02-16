@@ -75,6 +75,8 @@ export function generatePlayerRaces(
           playerID: player.id,
           raceID: race.id,
           progress: hasFinished ? 100 : hasStarted ? randBetween(0, 99) : 0,
+          item: null,
+          effect: null,
           start: hasStarted ? Date.now() - randBetween(0, 60000) : null,
           end: hasFinished ? Date.now() : null,
         });

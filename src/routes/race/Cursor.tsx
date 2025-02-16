@@ -1,7 +1,8 @@
 import { JSX } from "solid-js";
 import { PlayerName } from "./PlayerName";
-import { Player } from "../../schema";
+import { Player, PlayerRace } from "../../schema";
 import { Avatar } from "../../components/Avatar";
+import { Effect } from "./ItemAndEffect";
 
 export function Cursor(props: {
   children: JSX.Element;
@@ -9,6 +10,7 @@ export function Cursor(props: {
   isCurrent?: boolean;
   isActive: boolean;
   isPulsing?: boolean;
+  effect?: PlayerRace["effect"];
 }) {
   function color() {
     return props.player.color;
@@ -23,13 +25,15 @@ export function Cursor(props: {
       style={{ "background-color": color() }}
     >
       <div
-        class={`absolute -translate-x-1/2 ${props.isCurrent ? "bottom-9" : "top-9"}`}
+        class={`absolute flex flex-col gap-2 items-center -translate-x-1/2 ${props.isCurrent ? "bottom-9" : "top-9"}`}
       >
         {props.player.avatar && !props.isCurrent ? (
           <Avatar player={props.player} class="w-8 h-8" />
         ) : (
           <PlayerName color={props.player.color}>{props.children}</PlayerName>
         )}
+
+        {props.effect && <Effect />}
       </div>
     </div>
   );

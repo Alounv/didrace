@@ -1,6 +1,6 @@
 import { Zero } from "@rocicorp/zero";
 import { useQuery } from "@rocicorp/zero/solid";
-import { createEffect, createSignal } from "solid-js";
+import { createEffect, createSignal, Show } from "solid-js";
 import { Player, PlayerRace, Quote, Race, Schema } from "../../schema";
 import { Podium } from "./Podium";
 import { Adversaries, AdversariesSides } from "./Adversaries";
@@ -8,6 +8,7 @@ import { Cursor } from "./Cursor";
 import { EndRaceButton } from "./EndRaceButton";
 import { getProgress, onTyped } from "../../domain/playerRace";
 import { end } from "../../domain/race";
+import { ItemAndEffect } from "./ItemAndEffect";
 
 export function RaceInput(props: {
   z: Zero<Schema>;
@@ -103,14 +104,27 @@ export function RaceInput(props: {
         ref={containerRef}
       >
         {!playerRace()?.end && (
-          <Cursor
-            player={playerRace()?.player as Player}
-            isActive={isCursorActive()}
-            isPulsing={charIndex() === 0}
-            isCurrent
-          >
-            You
-          </Cursor>
+          <div class="relative">
+            <Show when={playerRace()}>
+              {(playerRace) => (
+                <ItemAndEffect
+                  z={props.z}
+                  raceID={props.raceID}
+                  playerRace={playerRace()}
+                  adversaries={adversaries()}
+                />
+              )}
+            </Show>
+
+            <Cursor
+              player={playerRace()?.player as Player}
+              isActive={isCursorActive()}
+              isPulsing={charIndex() === 0}
+              isCurrent
+            >
+              You
+            </Cursor>
+          </div>
         )}
 
         <div
@@ -172,7 +186,7 @@ export function RaceInput(props: {
               target: word(),
               adversaries: adversaries(),
               endRace: () => end({ ...props, quotes: otherQuotes() }),
-              start: playerRace()?.start ?? Date.now(),
+              playerRace: playerRace()!,
             });
 
             if (isWordComplete) {

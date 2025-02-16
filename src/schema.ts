@@ -58,6 +58,9 @@ const player_race = table("player_race")
     progress: number(),
     start: number().optional(), // null means the player never started typing
     end: number().optional(), // null means the player did not finish the race
+
+    effect: enumeration<"stuned">().optional(),
+    item: enumeration<"missile">().optional(),
   })
   .primaryKey("playerID", "raceID");
 

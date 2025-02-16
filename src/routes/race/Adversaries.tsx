@@ -64,6 +64,7 @@ export function Adversaries(props: {
               <Cursor
                 player={race.player as Player}
                 isActive={(race.progress ?? 0) > 0}
+                effect={race.effect}
               >
                 {race.player?.name}
               </Cursor>
