@@ -21,7 +21,7 @@ export function Effect() {
   return (
     <div class="flex gap-2">
       <span>💥</span>
-      <span>BOOM</span>
+      <span>STUNED</span>
     </div>
   );
 }

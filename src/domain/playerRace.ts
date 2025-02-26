@@ -40,6 +40,13 @@ export function savePlayerRace({
   });
 }
 
+export type TextDisplay = {
+  correct: string;
+  incorrect: string;
+  rest: string;
+  saved: string;
+};
+
 /**
  * Determin in wich category each caracter should be displayed
  */
@@ -53,7 +60,7 @@ export function getProgress({
   typed: string;
   charIndex: number;
   text: string;
-}) {
+}): TextDisplay {
   const chars = typed.split("");
 
   let correctIndex = typed.length;
@@ -68,10 +75,10 @@ export function getProgress({
   const index = correctIndex + charIndex;
 
   return {
-    correct: typed.slice(0, correctIndex),
+    correct: typed.slice(0, correctIndex).replace(/ /g, "\u00A0"),
     incorrect: typed.slice(correctIndex).replace(/ /g, "_"),
-    rest: text.slice(index + incorrect),
-    saved: text.slice(0, charIndex),
+    rest: text.slice(index + incorrect).replace(/ /g, "\u00A0"),
+    saved: text.slice(0, charIndex).replace(/ /g, "\u00A0"),
   };
 }
 
@@ -128,7 +135,8 @@ export function onTyped({
   // Word complete --> (save player progress and move to next word)
   if (target.length + 1 === typed.length) {
     const isLast = adversaries.every((a) => a.progress > progress);
-    const shouldHaveItem = isLast && !playerRace.item && randInt(4) === 0;
+    const shouldHaveItem = isLast && !playerRace.item && randInt(5) === 0; // 1 on 6
+    const shouldRemoveEffect = randInt(3) === 0; // 1 on 4
 
     savePlayerRace({
       z,
@@ -136,6 +144,8 @@ export function onTyped({
       partial: {
         progress,
         ...(shouldHaveItem ? { item: "missile" } : {}),
+        ...(!isLast ? { item: null } : {}),
+        ...(shouldRemoveEffect ? { effect: null } : {}),
       },
     });
 

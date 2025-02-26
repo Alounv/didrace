@@ -9,6 +9,7 @@ import { EndRaceButton } from "./EndRaceButton";
 import { getProgress, onTyped } from "../../domain/playerRace";
 import { end } from "../../domain/race";
 import { ItemAndEffect } from "./ItemAndEffect";
+import { RaceText } from "./RaceText";
 
 export function RaceInput(props: {
   z: Zero<Schema>;
@@ -132,7 +133,7 @@ export function RaceInput(props: {
           style={{ translate: `-${offset()}px` }}
           ref={textRef}
         >
-          <div class="font-quote text-2xl tracking-widest">
+          <div class="font-quote text-2xl tracking-widest flex">
             <span ref={typedRef}>
               <span class="text-base-content">{display().saved}</span>
               <span class="text-base-content transition-all">
@@ -142,7 +143,11 @@ export function RaceInput(props: {
                 {display().incorrect}
               </span>
             </span>
-            <span class="opacity-50">{display().rest}</span>
+
+            <RaceText
+              text={display().rest}
+              effect={playerRace()?.effect ?? null}
+            />
 
             <Adversaries
               currentPlayerOffset={offset()}
