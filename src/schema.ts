@@ -1,4 +1,5 @@
 import {
+  ANYONE_CAN,
   boolean,
   createSchema,
   definePermissions,
@@ -165,6 +166,21 @@ type AuthData = { sub: string | null };
 
 // --- Permissions ---
 
+// export const permissions = definePermissions<AuthData, Schema>(schema, () => {
+//   const allowIfIssueCreator = (
+//     authData: AuthData,
+//     {cmp}: ExpressionBuilder<IssueSchema>,
+//   ) => cmp('creatorID', '=', authData.sub);
+
+//   return {
+//     issue: {
+//       row: {
+//         delete: [allowIfIssueCreator],
+//       },
+//     },
+//   };
+// });
+
 export const permissions = definePermissions<AuthData, Schema>(schema, () => {
   const allowIfLoggedIn = (
     authData: AuthData,
@@ -195,36 +211,50 @@ export const permissions = definePermissions<AuthData, Schema>(schema, () => {
   return {
     player: {
       row: {
+        select: [allowIfLoggedIn],
         insert: NOBODY_CAN,
-        update: { preMutation: [allowIfHimself] },
+        update: {
+          preMutation: [allowIfHimself],
+          postMutation: [allowIfHimself],
+        },
         delete: [allowIfHimself],
       },
     },
     quote: {
       row: {
+        select: ANYONE_CAN,
         insert: NOBODY_CAN,
-        update: { preMutation: NOBODY_CAN },
+        update: { preMutation: NOBODY_CAN, postMutation: NOBODY_CAN },
         delete: NOBODY_CAN,
       },
     },
     player_race: {
       row: {
+        select: [allowIfLoggedIn],
         insert: [allowIfLoggedIn],
-        update: { preMutation: [allowIfRacePlayer] },
+        update: {
+          preMutation: [allowIfLoggedIn],
+          postMutation: [allowIfLoggedIn],
+        },
         delete: [allowIfRacePlayer],
       },
     },
     race: {
       row: {
+        select: [allowIfLoggedIn],
         insert: [allowIfLoggedIn],
-        update: { preMutation: [allowIfLoggedIn] },
+        update: {
+          preMutation: [allowIfLoggedIn],
+          postMutation: [allowIfLoggedIn],
+        },
         delete: [allowIfLoggedIn],
       },
     },
     typed_word: {
       row: {
+        select: [allowIfWordPlayer],
         insert: [allowIfWordPlayer],
-        update: { preMutation: NOBODY_CAN },
+        update: { preMutation: NOBODY_CAN, postMutation: NOBODY_CAN },
         delete: NOBODY_CAN,
       },
     },

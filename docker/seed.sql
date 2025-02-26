@@ -1,4 +1,4 @@
-    DROP TABLE IF EXISTS "player", "quote", "race", "player_race", "typed_word";
+    DROP TABLE IF EXISTS "player", "race", "player_race", "typed_word"; -- not quotes
 
     CREATE TABLE "player" (
       "id" VARCHAR PRIMARY KEY,
@@ -9,11 +9,11 @@
       "lastLogin" BIGINT NOT NULL
     );
 
-    CREATE TABLE "quote" (
-      "id" VARCHAR PRIMARY KEY,
-      "body" VARCHAR NOT NULL,
-      "source" VARCHAR NOT NULL
-    );
+    -- CREATE TABLE "quote" (
+    --   "id" VARCHAR PRIMARY KEY,
+    --   "body" VARCHAR NOT NULL,
+    --   "source" VARCHAR NOT NULL
+    -- );
 
     CREATE TABLE "race" (
       "id" VARCHAR PRIMARY KEY,
@@ -30,6 +30,8 @@
       "progress" INTEGER NOT NULL,
       "start" BIGINT,
       "end" BIGINT,
+      "item" VARCHAR CHECK (item IN ('missile')),
+      "effect" VARCHAR CHECK (effect IN ('stuned')),
       PRIMARY KEY ("playerID", "raceID")
     );
 
@@ -53,10 +55,10 @@
       ('ni', 'Guest', '#E28B12', 0),
       ('ti', 'Guest', '#E2CA12', 0);
 
-  INSERT INTO "quote" (id, body) VALUES
-      ('t1', 'La vie est un mystère qu''il faut vivre, et non un problème à résoudre.'),
-      ('t2', 'Le bonheur n''est pas une destination à atteindre, mais une façon de voyager.'),
-      ('t3', 'On ne voit bien qu''avec le coeur. L''essentiel est invisible pour les yeux.'),
-      ('t4', 'Le succès n''est pas final, l''échec n''est pas fatal. C''est le courage de continuer qui compte.'),
-      ('t5', 'La plus grande gloire n''est pas de ne jamais tomber, mais de se relever à chaque chute.'),
-      ('t6', 'La simplicité est la sophistication suprême.');
+  -- INSERT INTO "quote" (id, body) VALUES
+  --     ('t1', 'La vie est un mystère qu''il faut vivre, et non un problème à résoudre.'),
+  --     ('t2', 'Le bonheur n''est pas une destination à atteindre, mais une façon de voyager.'),
+  --     ('t3', 'On ne voit bien qu''avec le coeur. L''essentiel est invisible pour les yeux.'),
+  --     ('t4', 'Le succès n''est pas final, l''échec n''est pas fatal. C''est le courage de continuer qui compte.'),
+  --     ('t5', 'La plus grande gloire n''est pas de ne jamais tomber, mais de se relever à chaque chute.'),
+  --     ('t6', 'La simplicité est la sophistication suprême.');

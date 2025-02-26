@@ -9,16 +9,6 @@ export function ItemAndEffect(props: {
   playerRace: PlayerRace;
   adversaries: PlayerRace[];
 }) {
-  addKeyboardEventListener({
-    keys: ["Tab"],
-    callback: (e) => {
-      if (e?.code === "Tab") {
-        activateItem(props);
-        return;
-      }
-    },
-  });
-
   return (
     <div class="absolute -top-24 -translate-x-1/2 flex flex-col gap-2">
       {props.playerRace.effect && <Effect />}
@@ -58,7 +48,7 @@ function Item(props: {
     <div class="flex gap-2">
       <span>🚀</span>
       <span>Missile</span>
-      <span>[TAB]</span>
+      <span>[Enter]</span>
     </div>
   );
 }

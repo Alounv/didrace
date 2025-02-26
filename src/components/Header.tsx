@@ -10,9 +10,7 @@ import { Logo } from "./Logo";
 import { PlayerName } from "../routes/race/PlayerName";
 
 function Header(props: { z: Zero<Schema> }) {
-  const [player] = useQuery(() =>
-    props.z.query.player.where("id", "=", props.z.userID).one(),
-  );
+  const [quotes] = useQuery(() => props.z.query.quote);
 
   function loggedIn() {
     return props.z.userID !== "anon";
@@ -27,22 +25,34 @@ function Header(props: { z: Zero<Schema> }) {
       <div class="ml-auto flex gap-4 items-center">
         {loggedIn() && <ThemeController />}
 
-        <Auth z={props.z} />
-
-        {loggedIn() && (
-          <Show when={player()}>
-            {(player) => (
-              <div class="flex gap-4 items-center">
-                <PlayerName color={player().color} class="text-lg py-4">
-                  {player().name}
-                </PlayerName>
-                <Avatar player={player()} class="w-10 h-10" />
-              </div>
-            )}
-          </Show>
+        {quotes().length > 0 ? (
+          <Auth z={props.z} />
+        ) : (
+          <div class="text-error">db connection issue</div>
         )}
+
+        {loggedIn() && <CurrentUser z={props.z} />}
       </div>
     </div>
+  );
+}
+
+function CurrentUser(props: { z: Zero<Schema> }) {
+  const [player] = useQuery(() =>
+    props.z.query.player.where("id", "=", props.z.userID).one(),
+  );
+
+  return (
+    <Show when={player()}>
+      {(player) => (
+        <div class="flex gap-4 items-center">
+          <PlayerName color={player().color} class="text-lg py-4">
+            {player().name}
+          </PlayerName>
+          <Avatar player={player()} class="w-10 h-10" />
+        </div>
+      )}
+    </Show>
   );
 }
 

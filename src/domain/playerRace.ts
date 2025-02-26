@@ -215,7 +215,7 @@ export function computePlayerRaces<P extends PlayerRace>({
 /**
  * Activate item logic here
  */
-export function activateItem({
+export async function activateItem({
   z,
   raceID,
   playerRace,
@@ -227,7 +227,7 @@ export function activateItem({
   adversaries: PlayerRace[];
 }) {
   // remove item
-  z.mutate.player_race.update({
+  await z.mutate.player_race.update({
     playerID: z.userID,
     raceID: raceID,
     item: null,
@@ -240,7 +240,7 @@ export function activateItem({
         r.progress > acc.progress ? r : acc,
       );
 
-      z.mutate.player_race.update({
+      await z.mutate.player_race.update({
         playerID: first!.playerID,
         raceID: raceID,
         effect: "stuned",
