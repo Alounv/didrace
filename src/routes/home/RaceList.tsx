@@ -1,4 +1,4 @@
-import { For, JSX } from "solid-js";
+import { For, JSX, onMount } from "solid-js";
 import { Zero } from "@rocicorp/zero";
 import { Player, Race, Schema } from "../../schema";
 import { formatDate } from "../../utils/date";
@@ -6,6 +6,7 @@ import { A } from "@solidjs/router";
 import { Avatar } from "../../components/Avatar";
 import { trash } from "solid-heroicons/solid-mini";
 import { Icon } from "solid-heroicons";
+import { leaveAllRaces } from "../../domain/race";
 
 export type PopulatedRace = Race & {
   players: Player[];
@@ -18,6 +19,11 @@ export function RaceList(props: {
   children?: JSX.Element;
   title: string;
 }) {
+  onMount(() => {
+    // Leave all races if on the home page
+    leaveAllRaces(props);
+  });
+
   return (
     <div class="flex flex-col gap-8 mt-20">
       <div class="text-lg">{props.title}</div>

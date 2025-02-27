@@ -136,7 +136,7 @@ export function onTyped({
   if (target.length + 1 === typed.length) {
     const isLast = adversaries.every((a) => a.progress > progress);
     const shouldHaveItem = isLast && !playerRace.item && randInt(5) === 0; // 1 on 6
-    const shouldRemoveEffect = randInt(3) === 0; // 1 on 4
+    const shouldRemoveEffect = randInt(4) === 0; // 1 on 5
 
     savePlayerRace({
       z,

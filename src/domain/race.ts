@@ -103,3 +103,20 @@ export async function leave({
     await z.mutate.race.update({ id: raceID, status: "finished" });
   }
 }
+
+/**
+ * Leave all races
+ */
+export async function leaveAllRaces({
+  z,
+  races,
+}: {
+  z: Zero<Schema>;
+  races: { id: string }[];
+}) {
+  await Promise.all([
+    races.map((r) =>
+      z.mutate.player_race.delete({ playerID: z.userID, raceID: r.id }),
+    ),
+  ]);
+}
