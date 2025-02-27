@@ -136,7 +136,6 @@ export function onTyped({
   if (target.length + 1 === typed.length) {
     const isLast = adversaries.every((a) => a.progress > progress);
     const shouldHaveItem = isLast && !playerRace.item && randInt(5) === 0; // 1 on 6
-    const shouldRemoveEffect = randInt(4) === 0; // 1 on 5
 
     savePlayerRace({
       z,
@@ -145,7 +144,6 @@ export function onTyped({
         progress,
         ...(shouldHaveItem ? { item: "missile" } : {}),
         ...(!isLast ? { item: null } : {}),
-        ...(shouldRemoveEffect ? { effect: null } : {}),
       },
     });
 
@@ -261,4 +259,21 @@ export async function activateItem({
     default:
       break;
   }
+}
+
+/**
+ * Clean effect logic here
+ */
+export function cleanEffect({
+  z,
+  raceID,
+}: {
+  z: Zero<Schema>;
+  raceID: string;
+}) {
+  return z.mutate.player_race.update({
+    playerID: z.userID,
+    raceID: raceID,
+    effect: null,
+  });
 }

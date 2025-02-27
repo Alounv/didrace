@@ -16,6 +16,7 @@ export function RaceText(props: {
     const rest = props.text.slice(AFFECTED_LENGTH);
     return { words, rest };
   }
+
   return (
     <div class="flex opacity-50">
       <For each={text().words}>

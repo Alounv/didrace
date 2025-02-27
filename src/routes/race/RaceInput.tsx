@@ -6,10 +6,12 @@ import { Podium } from "./Podium";
 import { Adversaries, AdversariesSides } from "./Adversaries";
 import { Cursor } from "./Cursor";
 import { EndRaceButton } from "./EndRaceButton";
-import { getProgress, onTyped } from "../../domain/playerRace";
+import { cleanEffect, getProgress, onTyped } from "../../domain/playerRace";
 import { end } from "../../domain/race";
 import { ItemAndEffect } from "./ItemAndEffect";
 import { RaceText } from "./RaceText";
+
+const EFFECT_DURATION = 5000;
 
 export function RaceInput(props: {
   z: Zero<Schema>;
@@ -45,6 +47,14 @@ export function RaceInput(props: {
   createEffect(() => {
     if (canPlayerPlay()) {
       inputRef!.focus();
+    }
+  });
+
+  createEffect(() => {
+    if (playerRace()?.effect) {
+      setTimeout(() => {
+        cleanEffect(props);
+      }, EFFECT_DURATION);
     }
   });
 
