@@ -106,12 +106,12 @@ export function onTyped({
   adversaries: { progress: number; end: null | number }[];
   endRace: () => void;
   playerRace: PlayerRace;
-}): boolean {
+}): { hasError: boolean; isComplete: boolean } {
   const progress = Math.min(charIndex + typed.length, text.length);
 
   // There is a error --> (word not complete)
   if (!target.startsWith(typed.trim())) {
-    return false;
+    return { hasError: true, isComplete: false };
   }
 
   // Player race complete --> save player progress and end player race
@@ -129,7 +129,7 @@ export function onTyped({
       endRace();
     }
 
-    return false;
+    return { hasError: false, isComplete: true };
   }
 
   // Word complete --> (save player progress and move to next word)
@@ -147,7 +147,7 @@ export function onTyped({
       },
     });
 
-    return true;
+    return { hasError: false, isComplete: true };
   }
 
   savePlayerRace({
@@ -155,7 +155,7 @@ export function onTyped({
     raceID,
     partial: { progress, start: playerRace.start ?? Date.now() },
   });
-  return false;
+  return { hasError: false, isComplete: false };
 }
 
 /**

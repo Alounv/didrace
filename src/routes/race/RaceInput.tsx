@@ -10,6 +10,7 @@ import { cleanEffect, getProgress, onTyped } from "../../domain/playerRace";
 import { end } from "../../domain/race";
 import { ItemAndEffect } from "./ItemAndEffect";
 import { RaceText } from "./RaceText";
+import { saveTypedWord } from "../../domain/typedWords";
 
 const EFFECT_DURATION = 5000;
 
@@ -26,6 +27,8 @@ export function RaceInput(props: {
   let typedRef: HTMLSpanElement | undefined;
   let textRef: HTMLDivElement | undefined;
   let containerRef: HTMLLabelElement | undefined;
+  let hadErrorRef: boolean = false;
+  let startRef: number = 0;
 
   // --- States ---
 
@@ -193,7 +196,7 @@ export function RaceInput(props: {
           onInput={(e) => {
             const typed = e.currentTarget.value;
 
-            const isWordComplete = onTyped({
+            const { hasError, isComplete } = onTyped({
               ...props,
               typed,
               charIndex: charIndex(),
@@ -204,9 +207,23 @@ export function RaceInput(props: {
               playerRace: playerRace()!,
             });
 
-            if (isWordComplete) {
+            if (hasError) {
+              hadErrorRef = true;
+            }
+
+            if (isComplete) {
+              const now = Date.now();
               setCharIndex((i) => i + typed.length);
               setInput("");
+              saveTypedWord({
+                ...props,
+                word: typed,
+                start: startRef,
+                hadError: hadErrorRef,
+                now,
+              });
+              hadErrorRef = false;
+              startRef = now;
             } else {
               setInput(typed);
             }
