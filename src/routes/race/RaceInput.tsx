@@ -28,7 +28,7 @@ export function RaceInput(props: {
   let textRef: HTMLDivElement | undefined;
   let containerRef: HTMLLabelElement | undefined;
   let hadErrorRef: boolean = false;
-  let startRef: number = 0;
+  let startRef: number | null = null;
 
   // --- States ---
 
@@ -196,6 +196,10 @@ export function RaceInput(props: {
           onInput={(e) => {
             const typed = e.currentTarget.value;
 
+            if (startRef === null) {
+              startRef = Date.now();
+            }
+
             const { hasError, isComplete } = onTyped({
               ...props,
               typed,
@@ -223,7 +227,7 @@ export function RaceInput(props: {
                 now,
               });
               hadErrorRef = false;
-              startRef = now;
+              startRef = null;
             } else {
               setInput(typed);
             }

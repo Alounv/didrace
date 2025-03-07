@@ -1,6 +1,6 @@
 import { Zero } from "@rocicorp/zero";
-import { Player, PlayerRace, Quote, Schema } from "../../schema";
-import { createSignal, JSX, Show } from "solid-js";
+import { Player, PlayerRace, Quote, Schema, TypedWord } from "../../schema";
+import { createSignal, JSX, Show, For } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { Podium } from "./Podium";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
@@ -11,6 +11,7 @@ import {
   chevronDoubleRight,
 } from "solid-heroicons/solid-mini";
 import { getSpeed } from "../../domain/playerRace";
+import { useQuery } from "@rocicorp/zero/solid";
 
 export function End(props: {
   z: Zero<Schema>;
@@ -21,6 +22,13 @@ export function End(props: {
 }) {
   const [rendered] = createSignal(Date.now());
   const navigate = useNavigate();
+
+  const [words] = useQuery(() =>
+    props.z.query.typed_word
+      .where("playerID", "=", props.z.userID)
+      .where("raceID", "=", props.raceID)
+      .orderBy("timestamp", "asc"),
+  );
 
   function leave() {
     props.z.mutate.player_race
@@ -70,7 +78,8 @@ export function End(props: {
     <div class="flex flex-col gap-10 m-auto">
       <div class="flex flex-col gap-4">
         <div class="font-quote text-2xl tracking-widest max-w-3xl text-justify">
-          <span>{props.quote.body.slice(0, playerRace()?.progress)}</span>
+          <For each={words()}>{(w) => <Word {...w} />}</For>
+
           <span class="opacity-50">
             {props.quote.body.slice(playerRace()?.progress)}
           </span>
@@ -118,4 +127,8 @@ function Tag(props: { children: JSX.Element; class?: string }) {
       {props.children}
     </div>
   );
+}
+
+function Word(word: TypedWord) {
+  return <span class={word.hadError ? "text-error" : ""}>{word.word}</span>;
 }
