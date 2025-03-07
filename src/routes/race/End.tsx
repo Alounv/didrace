@@ -74,6 +74,12 @@ export function End(props: {
     });
   }
 
+  function accuracy() {
+    const total = words().length;
+    const incorrect = words().filter((w) => w.hadError).length;
+    return Math.round(((total - incorrect) / total) * 100);
+  }
+
   return (
     <div class="flex flex-col gap-10 m-auto">
       <div class="flex flex-col gap-4">
@@ -91,7 +97,7 @@ export function End(props: {
         <div class="flex gap-12 items-center justify-center">
           <div class="flex flex-col gap-4 shrink-0 items-start">
             <Tag class="bg-primary text-primary-content">{`${speed().wpm} WPM`}</Tag>
-            <Tag class="bg-secondary text-secondary-content">{`${speed().sec} sec`}</Tag>
+            <Tag class="bg-secondary text-secondary-content">{`${accuracy()}% correct`}</Tag>
           </div>
         </div>
 
