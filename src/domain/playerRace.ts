@@ -135,7 +135,9 @@ export function onTyped({
   // Word complete --> (save player progress and move to next word)
   if (target.length + 1 === typed.length) {
     const isLast = adversaries.every((a) => a.progress > progress);
-    const shouldHaveItem = isLast && !playerRace.item && randInt(5) === 0; // 1 on 6
+    const notFinishedCount = adversaries.filter((r) => r.end === null).length;
+    const shouldHaveItem =
+      notFinishedCount > 0 && isLast && !playerRace.item && randInt(5) === 0; // 1 on 6
 
     savePlayerRace({
       z,
