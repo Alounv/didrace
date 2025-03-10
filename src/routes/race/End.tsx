@@ -30,6 +30,19 @@ export function End(props: {
       .orderBy("timestamp", "asc"),
   );
 
+  const [oldPlayerRaces] = useQuery(() => {
+    return (
+      props.z.query.player_race
+        .where("playerID", "=", props.z.userID)
+        .where("end", "IS NOT", null)
+        .where("raceID", "IS NOT", props.raceID)
+        // eslint-disable-next-line solid/reactivity
+        .whereExists("quote", (q) => q.where("id", "=", props.quote.id))
+        .orderBy("start", "asc")
+        .limit(10)
+    );
+  });
+
   function leave() {
     props.z.mutate.player_race
       .delete({
@@ -100,6 +113,28 @@ export function End(props: {
             <Tag class="bg-secondary text-secondary-content">{`${accuracy()}% correct`}</Tag>
           </div>
         </div>
+
+        <Show when={oldPlayerRaces().length > 1}>
+          <div class="flex gap-1 items-end h-40 border border-base-100 flex-1 p-2">
+            <For each={oldPlayerRaces()}>
+              {(r) => {
+                const speed = getSpeed({
+                  end: r.end,
+                  start: r.start as number,
+                  len: props.quote.body.length,
+                });
+                return (
+                  <div
+                    class="bg-primary w-6 py-1"
+                    style={{ height: `${speed.wpm}px` }}
+                  >
+                    <div class="rotate-90 whitespace-nowrap">{`${speed.wpm}`}</div>
+                  </div>
+                );
+              }}
+            </For>
+          </div>
+        </Show>
 
         <Show when={props.playerRaces.length > 1}>
           <Podium

@@ -128,6 +128,18 @@ const playerRaceRelationships = relationships(player_race, ({ one, many }) => ({
     destField: ["playerID", "raceID"],
     destSchema: typed_word,
   }),
+  quote: many(
+    {
+      sourceField: ["raceID"],
+      destField: ["id"],
+      destSchema: race,
+    },
+    {
+      sourceField: ["quoteID"],
+      destSchema: quote,
+      destField: ["id"],
+    },
+  ),
 }));
 
 const playerRelationships = relationships(player, ({ many }) => ({
