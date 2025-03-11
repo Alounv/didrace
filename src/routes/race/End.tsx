@@ -20,15 +20,36 @@ export function End(props: {
   nextRaceID: string | null;
   playerRaces: (PlayerRace & { player: Player })[];
 }) {
-  const [rendered] = createSignal(Date.now());
-  const navigate = useNavigate();
-
   const [words] = useQuery(() =>
     props.z.query.typed_word
       .where("playerID", "=", props.z.userID)
       .where("raceID", "=", props.raceID)
       .orderBy("timestamp", "asc"),
   );
+  return (
+    <Show when={words().length > 0}>
+      <EndInternal
+        z={props.z}
+        raceID={props.raceID}
+        quote={props.quote}
+        nextRaceID={props.nextRaceID}
+        playerRaces={props.playerRaces}
+        words={words()}
+      />
+    </Show>
+  );
+}
+
+function EndInternal(props: {
+  z: Zero<Schema>;
+  raceID: string;
+  quote: Quote;
+  nextRaceID: string | null;
+  playerRaces: (PlayerRace & { player: Player })[];
+  words: TypedWord[];
+}) {
+  const [rendered] = createSignal(Date.now());
+  const navigate = useNavigate();
 
   const [oldPlayerRaces] = useQuery(() => {
     return (
@@ -88,8 +109,8 @@ export function End(props: {
   }
 
   function accuracy() {
-    const total = words().length;
-    const incorrect = words().filter((w) => w.hadError).length;
+    const total = props.words.length;
+    const incorrect = props.words.filter((w) => w.hadError).length;
     return Math.round(((total - incorrect) / total) * 100);
   }
 
@@ -97,7 +118,7 @@ export function End(props: {
     <div class="flex flex-col gap-10 m-auto">
       <div class="flex flex-col gap-4">
         <div class="font-quote text-2xl tracking-widest max-w-3xl text-justify">
-          <For each={words()}>{(w) => <Word {...w} />}</For>
+          <For each={props.words}>{(w) => <Word {...w} />}</For>
 
           <span class="opacity-50">
             {props.quote.body.slice(playerRace()?.progress)}
@@ -110,38 +131,31 @@ export function End(props: {
         <div class="flex gap-12 items-center justify-center">
           <div class="flex flex-col gap-4 shrink-0 items-start">
             <Tag class="bg-primary text-primary-content">{`${speed().wpm} WPM`}</Tag>
-            <Tag class="bg-secondary text-secondary-content">{`${accuracy()}% correct`}</Tag>
+            <Tag class="bg-info text-info-content">{`${accuracy()}% correct`}</Tag>
           </div>
         </div>
 
-        <Show when={oldPlayerRaces().length > 1}>
-          <div class="flex gap-1 items-end h-40 border border-base-100 flex-1 p-2">
+        <div class="flex-1 border border-base-100 p-2">
+          <div class="text-base-100">History for this quote</div>
+          <div class="flex gap-1 items-end h-40">
             <For each={oldPlayerRaces()}>
-              {(r) => {
-                const speed = getSpeed({
-                  end: r.end,
-                  start: r.start as number,
-                  len: props.quote.body.length,
-                });
-                return (
-                  <div
-                    class="bg-primary w-6 py-1"
-                    style={{ height: `${speed.wpm}px` }}
-                  >
-                    <div class="rotate-90 whitespace-nowrap">{`${speed.wpm}`}</div>
-                  </div>
-                );
-              }}
+              {(r) => <RaceBar race={r} len={props.quote.body.length} />}
             </For>
-          </div>
-        </Show>
 
-        <Show when={props.playerRaces.length > 1}>
-          <Podium
-            playerRaces={props.playerRaces}
-            quoteLength={props.quote.body.length}
-          />
-        </Show>
+            <RaceBar
+              race={playerRace()!}
+              isCurrent
+              len={props.quote.body.length}
+            />
+          </div>
+
+          <Show when={props.playerRaces.length > 1}>
+            <Podium
+              playerRaces={props.playerRaces}
+              quoteLength={props.quote.body.length}
+            />
+          </Show>
+        </div>
       </div>
 
       <div class="flex gap-4 justify-center">
@@ -162,9 +176,7 @@ export function End(props: {
 
 function Tag(props: { children: JSX.Element; class?: string }) {
   return (
-    <div
-      class={`text-xl font-bold rounded-xl px-4 py-3 bg-black ${props.class}`}
-    >
+    <div class={`badge text-xl font-bold px-4 py-6 bg-black ${props.class}`}>
       {props.children}
     </div>
   );
@@ -172,4 +184,27 @@ function Tag(props: { children: JSX.Element; class?: string }) {
 
 function Word(word: TypedWord) {
   return <span class={word.hadError ? "text-error" : ""}>{word.word}</span>;
+}
+
+function RaceBar(props: {
+  race: PlayerRace;
+  len: number;
+  isCurrent?: boolean;
+}) {
+  function speed() {
+    return getSpeed({
+      end: props.race.end,
+      start: props.race.start as number,
+      len: props.len,
+    });
+  }
+
+  return (
+    <div
+      class={`badge w-6 py-1 ${props.isCurrent ? "bg-primary text-primary-content" : "bg-secondary text-secondary-content"}`}
+      style={{ height: `${speed().wpm}px` }}
+    >
+      <div class="rotate-90 whitespace-nowrap">{`${speed().wpm}`}</div>
+    </div>
+  );
 }

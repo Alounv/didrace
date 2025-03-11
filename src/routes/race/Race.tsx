@@ -40,7 +40,12 @@ function RacePage(props: { z: Zero<Schema> }) {
   createEffect(() => {
     // If the user got here via link, the race could be finished and he has no player race
     // In this case we redirect him directly to the next race
-    if (!playerRace() && race()?.status === "finished" && race()?.nextRaceID) {
+    if (
+      playerRaces().length &&
+      !playerRace() &&
+      race()?.status === "finished" &&
+      race()?.nextRaceID
+    ) {
       navigate(`/races/${race()?.nextRaceID}`);
     }
   });
@@ -74,14 +79,14 @@ function RacePage(props: { z: Zero<Schema> }) {
                       />
                     </div>
 
-                    <Show when={race().quote}>
-                      {(quote) => (
+                    <Show when={playerRaces()}>
+                      {(playerRaces) => (
                         <RaceArea
-                          quote={quote()}
+                          quote={race().quote!}
                           raceID={race().id}
                           z={props.z}
                           status={race().status}
-                          playerRaces={playerRaces}
+                          playerRaces={playerRaces()}
                         />
                       )}
                     </Show>
