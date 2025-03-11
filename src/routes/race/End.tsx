@@ -148,14 +148,14 @@ function EndInternal(props: {
               len={props.quote.body.length}
             />
           </div>
-
-          <Show when={props.playerRaces.length > 1}>
-            <Podium
-              playerRaces={props.playerRaces}
-              quoteLength={props.quote.body.length}
-            />
-          </Show>
         </div>
+
+        <Show when={props.playerRaces.length > 1}>
+          <Podium
+            playerRaces={props.playerRaces}
+            quoteLength={props.quote.body.length}
+          />
+        </Show>
       </div>
 
       <div class="flex gap-4 justify-center">
