@@ -179,7 +179,7 @@ async function createPlayer(player) {
       nanoid(),
       player.discordID,
       player.name,
-      player.color ?? randColor(),
+      randColor(),
       player.avatar,
       Date.now(),
     ],
