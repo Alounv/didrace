@@ -33,7 +33,7 @@ export function Cursor(props: {
           <PlayerName color={props.player.color}>{props.children}</PlayerName>
         )}
 
-        {props.effect && <Effect />}
+        {props.effect && <Effect effect={props.effect} />}
       </div>
     </div>
   );

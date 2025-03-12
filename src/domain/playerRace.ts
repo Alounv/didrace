@@ -144,7 +144,7 @@ export function onTyped({
       raceID,
       partial: {
         progress,
-        ...(shouldHaveItem ? { item: "missile" } : {}),
+        ...(shouldHaveItem ? { item: getItem() } : {}),
         ...(!isLast ? { item: null } : {}),
       },
     });
@@ -158,6 +158,11 @@ export function onTyped({
     partial: { progress, start: playerRace.start ?? Date.now() },
   });
   return { hasError: false, isComplete: false };
+}
+
+function getItem(): PlayerRace["item"] {
+  const items = ["missile", "blob", "fader"] as const;
+  return items[randInt(items.length)];
 }
 
 /**
@@ -245,15 +250,19 @@ export async function activateItem({
 
   // Activate item logic here
   switch (playerRace.item) {
-    case "missile": {
+    case "missile":
+    case "blob":
+    case "fader": {
       const first = adversaries.reduce((acc, r) =>
         r.progress > acc.progress ? r : acc,
       );
 
+      const effect = EFFECTS[playerRace.item];
+
       await z.mutate.player_race.update({
         playerID: first!.playerID,
         raceID: raceID,
-        effect: "stuned",
+        effect,
       });
 
       break;
@@ -262,6 +271,12 @@ export async function activateItem({
       break;
   }
 }
+
+const EFFECTS = {
+  missile: "stuned",
+  blob: "poisoned",
+  fader: "faded",
+} as const;
 
 /**
  * Clean effect logic here

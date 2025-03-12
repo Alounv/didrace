@@ -1,8 +1,8 @@
-import { For } from "solid-js";
+import { For, Switch, Match } from "solid-js";
 import { PlayerRace } from "../../schema";
 import { randInt } from "../../utils/rand";
 
-const AFFECTED_LENGTH = 12;
+const AFFECTED_LENGTH = 24;
 
 export function RaceText(props: {
   text: string;
@@ -35,10 +35,8 @@ function Word(props: { word: string; effect: PlayerRace["effect"] }) {
       ) : (
         <div class="flex">
           <For each={props.word.split("")}>
-            {(char) => (
-              <div class={getEffect(props.effect)}>
-                <div class={getEffect(props.effect)}>{char}</div>
-              </div>
+            {(char, index) => (
+              <Letter letter={char} effect={props.effect} index={index()} />
             )}
           </For>
         </div>
@@ -47,13 +45,41 @@ function Word(props: { word: string; effect: PlayerRace["effect"] }) {
   );
 }
 
-function getEffect(effect?: PlayerRace["effect"]) {
+function Letter(props: {
+  letter: string;
+  effect: PlayerRace["effect"];
+  index: number;
+}) {
+  return (
+    <Switch>
+      <Match when={props.effect === "stuned"}>
+        <div class={getStunedClass()}>
+          <div class={getStunedClass()}>{props.letter}</div>
+        </div>
+      </Match>
+
+      <Match when={props.effect !== "stuned"}>
+        <div>
+          <div class={getAnimationClass(props.effect)}>{props.letter}</div>
+        </div>
+      </Match>
+    </Switch>
+  );
+}
+
+function getAnimationClass(effect: PlayerRace["effect"]) {
   switch (effect) {
-    case "stuned":
-      return `${ANIMATIONS[randInt(3) as 0 | 1 | 2 | 3]} $`;
+    case "poisoned":
+      return "scale-300 transition-transform duration-5000";
+    case "faded":
+      return "opacity-0 transition-opacity duration-5000";
     default:
       return "";
   }
+}
+
+function getStunedClass() {
+  return ANIMATIONS[randInt(3) as 0 | 1 | 2 | 3];
 }
 
 const ANIMATIONS = {

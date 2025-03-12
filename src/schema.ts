@@ -60,8 +60,8 @@ const player_race = table("player_race")
     start: number().optional(), // null means the player never started typing
     end: number().optional(), // null means the player did not finish the race
 
-    effect: enumeration<"stuned">().optional(),
-    item: enumeration<"missile">().optional(),
+    effect: enumeration<"stuned" | "poisoned" | "faded">().optional(),
+    item: enumeration<"missile" | "blob" | "fader">().optional(),
   })
   .primaryKey("playerID", "raceID");
 

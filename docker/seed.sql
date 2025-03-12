@@ -30,8 +30,8 @@
       "progress" INTEGER NOT NULL,
       "start" BIGINT,
       "end" BIGINT,
-      "item" VARCHAR CHECK (item IN ('missile')),
-      "effect" VARCHAR CHECK (effect IN ('stuned')),
+      "item" VARCHAR,
+      "effect" VARCHAR,
       PRIMARY KEY ("playerID", "raceID")
     );
 
