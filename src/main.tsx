@@ -8,6 +8,7 @@ import { decodeJwt } from "jose";
 import { createZero } from "@rocicorp/zero/solid";
 import { JSX, lazy } from "solid-js";
 import Header from "./components/Header.tsx";
+import { Profile } from "./routes/analytics/Analytics.tsx";
 
 const Home = lazy(() => import("./routes/home/Home.tsx"));
 const Race = lazy(() => import("./routes/race/Race.tsx"));
@@ -42,6 +43,7 @@ render(
     <Router root={Layout}>
       <Route path="/" component={() => <Home z={z} />} />
       <Route path="/races/:id" component={() => <Race z={z} />} />
+      <Route path="/profile" component={() => <Profile z={z} />} />
     </Router>
   ),
   root!,

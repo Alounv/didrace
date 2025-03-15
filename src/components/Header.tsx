@@ -8,7 +8,7 @@ import { ThemeController } from "./Theme";
 import { Auth } from "./Auth";
 import { Logo } from "./Logo";
 import { PlayerName } from "../routes/race/PlayerName";
-import { Profile } from "./Profile";
+import { Settings } from "./Settings";
 
 function Header(props: { z: Zero<Schema> }) {
   const [quotes] = useQuery(() => props.z.query.quote);
@@ -46,14 +46,18 @@ function CurrentUser(props: { z: Zero<Schema> }) {
   return (
     <Show when={player()}>
       {(player) => (
-        <div class="flex gap-4 items-center dropdown">
-          <PlayerName color={player().color} class="text-lg py-4" isButton>
-            {player().name}
-          </PlayerName>
+        <div class="flex gap-4 items-center">
+          <div class="dropdown">
+            <PlayerName color={player().color} class="text-lg py-4" isButton>
+              {player().name}
+            </PlayerName>
 
-          <Avatar player={player()} class="w-10 h-10" isButton />
+            <Settings player={player()} z={props.z} class="dropdown-content" />
+          </div>
 
-          <Profile player={player()} z={props.z} />
+          <A href="/profile">
+            <Avatar player={player()} class="w-10 h-10" />
+          </A>
         </div>
       )}
     </Show>
