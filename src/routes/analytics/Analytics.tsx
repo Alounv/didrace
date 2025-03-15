@@ -14,7 +14,7 @@ export function Profile(props: { z: Zero<Schema> }) {
   const [typed] = useQuery(() =>
     props.z.query.typed_word
       .where("playerID", "=", props.z.userID)
-      .orderBy("timestamp", "asc")
+      .orderBy("timestamp", "desc")
       .limit(LIMIT),
   );
 
