@@ -2,8 +2,11 @@ import { For } from "solid-js";
 import { Zero } from "@rocicorp/zero";
 import { Schema } from "../../schema";
 import { useQuery } from "@rocicorp/zero/solid";
+import { Button } from "../../components/Button";
+import { Icon } from "solid-heroicons";
+import { clipboardDocumentCheck } from "solid-heroicons/outline";
 
-const LIMIT = 2000;
+const LIMIT = 3000;
 
 type WordData = {
   count: number;
@@ -41,14 +44,25 @@ export function Profile(props: { z: Zero<Schema> }) {
 
   return (
     <div class="border border-base-200 rounded p-4 mx-auto">
-      <div class="text-secondary mb-4">
-        <div>
+      <div class="text-secondary mb-4 max-w-2xl">
+        <div class="mb-2">
           {`On the last ${LIMIT} words typed, the ones with at least 2 errors.`}
         </div>
-        <div>
-          {`Words are sorted by total number of errors which is a good indicator of how much those words slow you down.`}
+        <div class="mb-4">
+          {`Words are sorted by total number of errors which is a good indicator of how much those words slow you down (since it combines frequency and error rate).`}
         </div>
-        <div>{`(since it combines frequency and error rate)`}</div>
+        <Button
+          onClick={() =>
+            navigator.clipboard.writeText(
+              sortedWords()
+                .map(([w]) => w)
+                .join(""),
+            )
+          }
+        >
+          <Icon path={clipboardDocumentCheck} class="size-5" />
+          {`Copy those ${sortedWords().length} words`}
+        </Button>
       </div>
 
       <table class="table">
