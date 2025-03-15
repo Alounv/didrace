@@ -70,11 +70,11 @@ function Letter(props: {
 function getAnimationClass(effect: PlayerRace["effect"]) {
   switch (effect) {
     case "poisoned":
-      return "scale-300 transition-transform duration-5000";
+      return "scale-300 transition-all duration-5000";
     case "faded":
-      return "opacity-0 transition-opacity duration-5000";
+      return "opacity-0 transition-all duration-5000";
     default:
-      return "";
+      return "transition-all duration-5000";
   }
 }
 
