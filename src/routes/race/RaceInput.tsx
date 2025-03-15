@@ -67,7 +67,7 @@ export function RaceInput(props: {
     return props.playerRaces.find((r) => r.playerID === props.z.userID);
   }
   function text() {
-    return props.quote.body.replace(/'/g, "'");
+    return props.quote.body.replace(/’/g, "'");
   }
   function wordIndex() {
     const soFar = text().slice(0, charIndex());
