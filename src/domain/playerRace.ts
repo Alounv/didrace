@@ -253,14 +253,22 @@ export async function activateItem({
     case "missile":
     case "blob":
     case "fader": {
-      const first = adversaries
-        .filter((a) => !a.end)
-        .reduce((acc, r) => (r.progress > acc.progress ? r : acc));
+      const potentialTargets = adversaries
+        .filter((a) => !a.end && a.progress > playerRace.progress)
+        .map((a) => ({ ...a, diff: a.progress - playerRace.progress }));
+      const totalDiff = potentialTargets.reduce((acc, c) => acc + c.diff, 0);
+      const targets = potentialTargets.map((a) => ({
+        playerID: a.playerID,
+        chances: a.diff / totalDiff,
+      }));
+
+      const targetPlayerID =
+        targets[Math.floor(Math.random() * targets.length)].playerID;
 
       const effect = EFFECTS[playerRace.item];
 
       await z.mutate.player_race.update({
-        playerID: first!.playerID,
+        playerID: targetPlayerID,
         raceID: raceID,
         effect,
       });
