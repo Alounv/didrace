@@ -253,9 +253,9 @@ export async function activateItem({
     case "missile":
     case "blob":
     case "fader": {
-      const first = adversaries.reduce((acc, r) =>
-        r.progress > acc.progress ? r : acc,
-      );
+      const first = adversaries
+        .filter((a) => !a.end)
+        .reduce((acc, r) => (r.progress > acc.progress ? r : acc));
 
       const effect = EFFECTS[playerRace.item];
 
