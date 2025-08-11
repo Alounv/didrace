@@ -13,7 +13,7 @@ type WordData = {
   errors: number;
 };
 
-export function Profile(props: { z: Zero<Schema> }) {
+export function Profile() {
   const [typed] = useQuery(() =>
     props.z.query.typed_word
       .where("playerID", "=", props.z.userID)
@@ -46,7 +46,7 @@ export function Profile(props: { z: Zero<Schema> }) {
     <div class="border border-base-200 rounded p-4 mx-auto">
       <div class="text-secondary mb-4 max-w-2xl">
         <div class="mb-2">
-          {`On the last ${LIMIT} words typed, the ones with at least 2 errors.`}
+          {`On your typed words, the ones with at least 2 errors.`}
         </div>
         <div class="mb-4">
           {`Words are sorted by total number of errors which is a good indicator of how much those words slow you down (since it combines frequency and error rate).`}

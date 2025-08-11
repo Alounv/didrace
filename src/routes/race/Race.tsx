@@ -7,7 +7,7 @@ import { CountDown } from "./CountDown";
 import { End } from "./End";
 import { RaceArea } from "./RaceArea";
 
-function RacePage(props: { z: Zero<Schema> }) {
+function RacePage() {
   const params = useParams();
   const [race] = useQuery(() =>
     props.z.query.race

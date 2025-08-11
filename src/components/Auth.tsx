@@ -5,7 +5,7 @@ import { Schema } from "../schema";
 import { Icon } from "solid-heroicons";
 import { arrowLeftOnRectangle } from "solid-heroicons/outline";
 
-export function Auth(props: { z: Zero<Schema> }) {
+export function Auth() {
   function discordLogin() {
     window.location.href = "/api/discord";
   }

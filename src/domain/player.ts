@@ -9,6 +9,6 @@ export function updatePlayer({
   color,
   name,
   avatar,
-}: Partial<Pick<Player, "name" | "color" | "avatar">> & { z: Zero<Schema> }) {
+}: Partial<Pick<Player, "name" | "color" | "avatar">>) {
   z.mutate.player.update({ id: z.userID, color, name, avatar });
 }

@@ -6,110 +6,122 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Didrace is a real-time multiplayer typing race application built with:
 - **Frontend**: Vite + SolidJS + TailwindCSS + DaisyUI
-- **Backend**: Hono API server 
-- **Database**: Zero Cache for real-time synchronization with PostgreSQL upstream
-- **Authentication**: Discord OAuth with JWT cookies
-- **Deployment**: Fly.io with Docker
+- **Backend**: Convex functions (replaces Hono API)
+- **Database**: Convex (real-time database with built-in subscriptions)
+- **Authentication**: Discord OAuth with JWT cookies (preserved from Zero migration)
+- **Development**: Bun package manager
 
 ## Development Commands
 
 ### Setup
 ```bash
-npm install
+bun install
 ```
 
 ### Development Server
 ```bash
-# Start UI with local Zero Cache/database connection
-npm run dev:ui
+# Start both Convex backend and UI (recommended)
+bun run dev
 
-# Start Zero Cache development server
-npm run dev:zero-cache
+# Start Convex functions only
+bun run dev:convex
 
-# Start local database (Docker)
-npm run dev:db-up
-
-# Stop local database
-npm run dev:db-down
-
-# Clean database and cache files
-npm run dev:clean
+# Start UI only
+bun run dev:ui
 ```
 
-### Build & Quality
+### Build & Deployment
 ```bash
 # Build for production
-npm run build
+bun run build
 
 # Lint code
-npm run lint
+bun run lint
 
-# Generate permissions SQL from schema
-npm run permissions
+# Deploy Convex functions
+bun run deploy:convex
 ```
 
 ## Architecture
 
 ### Real-time Data Layer
-The app uses **Zero Cache** for real-time synchronization:
-- Schema defined in `src/schema.ts` with tables for players, races, quotes, and typed words
-- Permissions system controls data access based on JWT authentication
-- Zero instance created in `src/main.tsx` with user authentication
+The app uses **Convex** for real-time synchronization:
+- Schema defined in `convex/schema.ts` with tables: players, races, quotes, playerRaces, typedWords
+- Built-in real-time subscriptions - no manual WebSocket management needed
+- Convex client configured in `src/convex.ts`
 
 ### Frontend Structure
 - **Routes**: Home (`/`), Race (`/races/:id`), Profile (`/profile`)
 - **Components**: Reusable UI components in `src/components/`
 - **Race Logic**: Complex race management in `src/routes/race/` with real-time progress tracking
-- **Domain Models**: TypeScript types in `src/domain/` for business logic
+- **Domain Models**: Business logic in `src/domain/` (both Zero and Convex versions exist)
+- **Types**: TypeScript definitions in `src/types.ts`
 
-### Backend API (`api/index.js`)
-- Discord OAuth authentication endpoints (`/api/discord`, `/api/guest`)
-- JWT token management with 30-day expiration
-- Direct PostgreSQL queries for user management
-- Hono server integrated with Vite dev server
+### Backend Functions (`convex/`)
+- **Authentication**: `authentication.ts` - Discord OAuth and guest login endpoints
+- **Players**: `players.ts` - User management queries and mutations
+- **Races**: `races.ts` - Race operations (create, join, update status, progress)
+- **Quotes**: `quotes.ts` - Quote management
+- **Analytics**: `analytics.ts` - Typed words tracking for performance metrics
+- **HTTP Routes**: `http.ts` - HTTP endpoint configuration
 
-### Database Schema
+### Database Schema (Convex)
 Core tables:
-- `player`: User accounts with Discord integration
-- `race`: Race instances with status tracking
-- `quote`: Text content for typing races  
-- `player_race`: Join table with progress and game effects
-- `typed_word`: Analytics data for performance tracking
+- `players`: User accounts with Discord integration
+- `races`: Race instances with status tracking  
+- `quotes`: Text content for typing races
+- `playerRaces`: Join table with progress and game effects
+- `typedWords`: Analytics data for performance tracking
 
 ## Environment Variables Required
 
 ```bash
-ZERO_UPSTREAM_DB=          # PostgreSQL connection string
-ZERO_AUTH_SECRET=          # JWT signing secret
-VITE_PUBLIC_SERVER=        # Zero Cache server URL
-DISCORD_CLIENT_ID=         # Discord app client ID
-DISCORD_CLIENT_SECRET=     # Discord app client secret
+# .env.local
+VITE_CONVEX_URL=http://127.0.0.1:3210  # Local Convex development
+DISCORD_CLIENT_ID=                      # Discord app client ID
+DISCORD_CLIENT_SECRET=                  # Discord app client secret
+ZERO_AUTH_SECRET=                       # JWT signing secret (preserved)
+CONVEX_DEPLOYMENT=                      # Set automatically by npx convex dev
 ```
 
 ## Key Development Patterns
 
-### Data Fetching
-Use Zero queries for reactive data:
+### Data Fetching (Convex)
 ```typescript
-const races = z.query.race.where('status', 'ready');
+import { useQuery, useMutation } from "convex/solid";
+import { api } from "../convex/_generated/api";
+import { getCurrentUser } from "./convex";
+
+const { token } = getCurrentUser();
+const races = useQuery(api.races.getRacesByStatus, { status: "ready", token });
+const createRace = useMutation(api.races.createRace);
 ```
 
 ### Real-time Updates
-Components automatically re-render when Zero data changes. Race progress updates propagate instantly to all participants.
+Components automatically re-render when Convex data changes. All race updates propagate instantly to participants via built-in subscriptions.
 
-### Authentication Flow
-1. Discord OAuth or guest login sets JWT cookie
-2. JWT decoded in `main.tsx` to get user ID
-3. User ID passed to Zero instance for permissions
-4. Components receive authenticated Zero instance via props
+### Authentication Flow (Preserved from Zero)
+1. Discord OAuth or guest login sets JWT cookie via HTTP actions
+2. JWT decoded in components using `getCurrentUser()` helper
+3. Token passed to Convex functions for authorization
+4. Functions validate JWT and extract user ID for permissions
 
 ### Race State Management
 Race status flows: `ready` → `starting` → `started` → `finished`/`cancelled`
-Player progress tracked in `player_race.progress` (0-100)
+Player progress tracked in `playerRaces.progress` (0-100)
+
+## Migration Status
+
+The codebase contains both Zero and Convex implementations:
+- **Current**: Zero-based components (existing)
+- **New**: Convex-based examples (`*-convex.tsx` files)
+- **Main entry**: Updated to use Convex (`src/main.tsx`)
+
+To complete migration: Replace remaining Zero components with Convex equivalents using the example files as templates.
 
 ## Testing & Deployment
 
-- No specific test commands defined - check for test frameworks if adding tests
 - Uses TypeScript strict mode with ESLint
-- Fly.io deployment configured via `fly.toml`
-- Database seeding via `docker/seed.sql`
+- Convex provides built-in dashboard at http://127.0.0.1:6790 for local development
+- Deploy Convex functions with `bun run deploy:convex`
+- Frontend can be deployed to any static hosting (Vercel, Netlify, etc.)

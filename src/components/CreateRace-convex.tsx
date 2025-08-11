@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from "../../convex-solid";
-import { api } from "../../../convex/_generated/api";
-import { getCurrentUser } from "../../convex";
+import { createQuery, createMutation } from "../convex-solid";
+import { api } from "../../convex/_generated/api";
+import { getCurrentUser } from "../convex";
 
 export function CreateRace() {
   const { token } = getCurrentUser();
