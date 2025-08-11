@@ -1,12 +1,11 @@
 import { For, JSX } from "solid-js";
-import { Player, PlayerRace } from "../../schema";
 import { PlayerName } from "./PlayerName";
 import { Avatar } from "../../components/Avatar";
-import { computePlayerRaces } from "../../domain/playerRace";
+import { computePlayerRaces } from "../../domain/playerRace-convex";
 
 export function Podium(props: {
   children?: JSX.Element;
-  playerRaces: (PlayerRace & { player: Player })[];
+  playerRaces: any[];
   quoteLength: number;
 }) {
   return (

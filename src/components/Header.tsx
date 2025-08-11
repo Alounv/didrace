@@ -11,13 +11,19 @@ import { getCurrentUser } from "../convex";
 import { createQuery } from "../convex-solid";
 import { api } from "../../convex/_generated/api";
 import { guestLogin as doGuestLogin } from "../auth/guestAuth";
+import { redirectToDiscordOAuth } from "../auth/discordAuth";
 
 function Header() {
   const { isAuthenticated } = getCurrentUser();
   const quotes = createQuery(api.quotes.getAllQuotes, {});
 
   function discordLogin() {
-    window.location.href = "/api/discord";
+    try {
+      redirectToDiscordOAuth();
+    } catch (error) {
+      console.error("Failed to initiate Discord login:", error);
+      alert("Failed to start Discord login. Please try again.");
+    }
   }
 
   async function guestLogin() {
