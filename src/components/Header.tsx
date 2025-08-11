@@ -10,6 +10,7 @@ import { arrowLeftOnRectangle } from "solid-heroicons/outline";
 import { getCurrentUser } from "../convex";
 import { createQuery } from "../convex-solid";
 import { api } from "../../convex/_generated/api";
+import { guestLogin as doGuestLogin } from "../auth/guestAuth";
 
 function Header() {
   const { isAuthenticated } = getCurrentUser();
@@ -19,8 +20,13 @@ function Header() {
     window.location.href = "/api/discord";
   }
 
-  function guestLogin() {
-    window.location.href = "/api/guest";
+  async function guestLogin() {
+    try {
+      await doGuestLogin();
+    } catch (error) {
+      console.error("Failed to login as guest:", error);
+      alert("Failed to login as guest. Please try again.");
+    }
   }
 
   function logout() {

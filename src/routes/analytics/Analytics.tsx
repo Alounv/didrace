@@ -1,7 +1,7 @@
 import { For } from "solid-js";
-import { Zero } from "@rocicorp/zero";
-import { Schema } from "../../schema";
-import { useQuery } from "@rocicorp/zero/solid";
+import { createQuery } from "../../convex-solid";
+import { api } from "../../../convex/_generated/api";
+import { getCurrentUser } from "../../convex";
 import { Button } from "../../components/Button";
 import { Icon } from "solid-heroicons";
 import { clipboardDocumentCheck } from "solid-heroicons/outline";
@@ -14,17 +14,17 @@ type WordData = {
 };
 
 export function Profile() {
-  const [typed] = useQuery(() =>
-    props.z.query.typed_word
-      .where("playerID", "=", props.z.userID)
-      .orderBy("timestamp", "desc")
-      .limit(LIMIT),
-  );
+  const { userID, token } = getCurrentUser();
+  const typed = createQuery(api.analytics.getPlayerTypedWords, {
+    playerId: userID as any,
+    token,
+  });
 
   function words() {
     const grouped: Record<string, WordData> = {};
+    const typedWords = typed() || [];
 
-    for (const { word, hadError } of typed()) {
+    for (const { word, hadError } of typedWords) {
       const existing = grouped[word];
       grouped[word] = {
         count: (existing?.count || 0) + 1,

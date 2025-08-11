@@ -1,41 +1,44 @@
-import { Zero } from "@rocicorp/zero";
 import { onMount, Show } from "solid-js";
-import { Player, PlayerRace, Quote, Race, Schema } from "../../schema";
+import { createMutation } from "../../convex-solid";
+import { api } from "../../../convex/_generated/api";
+import { getCurrentUser } from "../../convex";
+import { Race, PlayerRaceWithPlayer } from "../../types";
 import { RaceInput } from "./RaceInput";
-import { resetPlayerRace } from "../../domain/playerRace";
 
 export function RaceArea(props: {
-  z: Zero<Schema>;
-  raceID: string;
-  quote: Quote;
-  status: Race["status"];
-  playerRaces: (PlayerRace & { player: Player })[];
+  race: Race;
+  playerRace?: any;
+  playerRaces: PlayerRaceWithPlayer[];
+  quote: string;
 }) {
+  const { userID } = getCurrentUser();
+  
   return (
     <Show
-      when={props.playerRaces.some((r) => r.playerID === props.z.userID)}
-      fallback={<Initializer {...props} />}
+      when={props.playerRaces.some((r) => r.playerID === userID)}
+      fallback={<Initializer race={props.race} />}
     >
       <RaceInput
-        z={props.z}
-        quote={props.quote}
-        raceID={props.raceID}
+        race={props.race}
+        playerRace={props.playerRace}
         playerRaces={props.playerRaces}
-        status={props.status}
+        quote={props.quote}
       />
     </Show>
   );
 }
 
-function Initializer(props: {
-  z: Zero<Schema>;
-  raceID: string;
-  status: Race["status"];
-}) {
-  // Initialize player race, or reset it  on mount
-  onMount(() => {
-    if (["ready", "started", "starting"].includes(props.status)) {
-      resetPlayerRace(props);
+function Initializer(props: { race: Race }) {
+  const { token } = getCurrentUser();
+  const joinRace = createMutation(api.races.joinRace);
+
+  // Initialize player race on mount
+  onMount(async () => {
+    if (["ready", "started", "starting"].includes(props.race.status)) {
+      await joinRace({
+        raceId: props.race._id,
+        token,
+      });
     }
   });
   return <div />;

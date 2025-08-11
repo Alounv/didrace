@@ -85,10 +85,15 @@ export async function end({
   });
   
   // Update current race to finished with next race ID
-  // Note: You'd need to add a setNextRaceID mutation to races.ts
+  await convex.mutation(api.races.setNextRaceID, {
+    raceId: raceID,
+    nextRaceID: newRaceId,
+    token,
+  });
+  
   await convex.mutation(api.races.updateRaceStatus, {
     raceId: raceID,
-    status: "finished",
+    status: "finished", 
     token,
   });
   
@@ -107,11 +112,10 @@ export async function leave({
 }) {
   const { token } = getCurrentUser();
   
-  // Note: You'd need to add a leaveRace mutation to races.ts
-  // await convex.mutation(api.races.leaveRace, {
-  //   raceId: raceID,
-  //   token,
-  // });
+  await convex.mutation(api.races.leaveRace, {
+    raceId: raceID,
+    token,
+  });
 
   if (isAlone) {
     await convex.mutation(api.races.updateRaceStatus, {

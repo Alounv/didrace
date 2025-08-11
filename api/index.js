@@ -1,198 +1,148 @@
-import { Hono } from "hono";
-import { handle } from "hono/vercel";
-import { SignJWT } from "jose";
-import * as dotenv from "dotenv";
-import { nanoid } from "nanoid";
-import { discordAuth } from "@hono/oauth-providers/discord";
-import { setCookie } from "hono/cookie";
-// import { quotes } from "./quotes";
-import pg from "pg";
+// import { Hono } from "hono";
+// import { handle } from "hono/vercel";
+// import { SignJWT } from "jose";
+// import * as dotenv from "dotenv";
+// import { discordAuth } from "@hono/oauth-providers/discord";
+// import { setCookie } from "hono/cookie";
+// import { ConvexHttpClient } from "convex/browser";
+// import { api } from "../convex/_generated/api.js";
 
-// --- Env ---
+// // --- Env ---
 
-dotenv.config({ path: ".env" });
+// dotenv.config({ path: ".env" });
 
-// --- Hono ---
+// // --- Convex Client ---
 
-export const app = new Hono().basePath("/api");
+// const convex = new ConvexHttpClient(process.env.CONVEX_URL);
 
-// app.get("/init-quotes", async (c) => {
-//   const hasQuotes = await pool.query("SELECT * FROM quote LIMIT 1");
-//   if (hasQuotes.rowCount > 0) {
-//     return c.json({ ok: false });
+// // --- Hono ---
+
+// export const app = new Hono().basePath("/api");
+
+// app.use(
+//   "/discord",
+//   discordAuth({
+//     client_id: process.env.DISCORD_CLIENT_ID,
+//     client_secret: process.env.DISCORD_CLIENT_SECRET,
+//     scope: ["identify", "email"],
+//   }),
+// );
+
+// app.get("/discord", async (c) => {
+//   // const token = c.get("token");
+//   // const refreshToken = c.get("refresh-token");
+//   // const grantedScopes = c.get("granted-scopes");
+//   const user = c.get("user-discord");
+
+//   let player = await getPlayerByDiscordId(must(user?.id));
+
+//   if (!player) {
+//     player = await createPlayer({
+//       discordID: must(user?.id),
+//       name: user?.global_name ?? "Anonymous",
+//       avatar: user?.avatar
+//         ? `https://cdn.discordapp.com/avatars/${user?.id}/${user?.avatar}.png`
+//         : null,
+//       color: user?.accent_color ?? null,
+//     });
 //   }
 
-//   const queries = quotes.map((q) => ({
-//     query: "INSERT INTO quote (id, body, source) VALUES($1, $2, $3)",
-//     values: [q.id, q.text, q.source],
-//   }));
+//   setJWT({ c, sub: player._id });
 
-//   await pool.query("BEGIN");
-//   try {
-//     for (const q of queries) {
-//       await pool.query(q.query, q.values);
-//     }
-//     await pool.query("COMMIT");
-//   } catch (e) {
-//     await pool.query("ROLLBACK");
-//     throw e;
-//   }
+//   await updatePlayerLastLogin(player._id);
 
-//   return c.json({ ok: true });
+//   // Sleep for a second to make sure the JWT is set
+//   await sleep(500);
+
+//   return c.redirect("/");
 // });
 
-app.use(
-  "/discord",
-  discordAuth({
-    client_id: process.env.DISCORD_CLIENT_ID,
-    client_secret: process.env.DISCORD_CLIENT_SECRET,
-    scope: ["identify", "email"],
-  }),
-);
+// app.get("/guest", async (c) => {
+//   const guestID = await getLastGuest();
 
-app.get("/discord", async (c) => {
-  // const token = c.get("token");
-  // const refreshToken = c.get("refresh-token");
-  // const grantedScopes = c.get("granted-scopes");
-  const user = c.get("user-discord");
+//   setJWT({ c, sub: guestID });
 
-  let player = await getPlayerByDiscordId(must(user?.id));
+//   await updatePlayerLastLogin(guestID);
 
-  if (!player) {
-    player = await createPlayer({
-      discordID: must(user?.id),
-      name: user?.global_name ?? "Anonymous",
-      avatar: user?.avatar
-        ? `https://cdn.discordapp.com/avatars/${user?.id}/${user?.avatar}.png`
-        : null,
-      color: user?.accent_color ?? null,
-    });
-  }
+//   // Sleep for a second to make sure the JWT is set
+//   await sleep(500);
 
-  setJWT({ c, sub: player.id });
+//   return c.redirect("/");
+// });
 
-  await updatePlayerLastLogin(player.id);
+// // --- Utils ---
 
-  // Sleep for a second to make sure the JWT is set
-  await sleep(500);
+// function must(val) {
+//   if (!val) {
+//     throw new Error("Expected value to be defined");
+//   }
+//   return val;
+// }
 
-  return c.redirect("/");
-});
+// async function sleep(ms) {
+//   await new Promise((resolve) => setTimeout(resolve, ms));
+// }
 
-app.get("/guest", async (c) => {
-  const guestID = await getLastGuest();
+// // --- JWT ---
 
-  setJWT({ c, sub: guestID });
+// async function setJWT({ c, sub }) {
+//   const jwtPayload = {
+//     sub,
+//     iat: Math.floor(Date.now() / 1000),
+//   };
 
-  await updatePlayerLastLogin(guestID);
+//   const jwt = await new SignJWT(jwtPayload)
+//     .setProtectedHeader({ alg: "HS256" })
+//     .setExpirationTime("30days")
+//     .sign(new TextEncoder().encode(must(process.env.ZERO_AUTH_SECRET || process.env.JWT_SECRET)));
 
-  // Sleep for a second to make sure the JWT is set
-  await sleep(500);
+//   setCookie(c, "jwt", jwt, {
+//     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+//   });
+// }
 
-  return c.redirect("/");
-});
+// // --- Convex Actions ---
 
-// --- Utils ---
+// async function updatePlayerLastLogin(playerID) {
+//   await convex.mutation(api.players.updatePlayerLastLogin, {
+//     playerId: playerID,
+//   });
+// }
 
-function must(val) {
-  if (!val) {
-    throw new Error("Expected value to be defined");
-  }
-  return val;
-}
+// async function getPlayerByDiscordId(discordID) {
+//   const player = await convex.query(api.players.getPlayerByDiscordId, {
+//     discordID,
+//   });
+//   return player;
+// }
 
-async function sleep(ms) {
-  await new Promise((resolve) => setTimeout(resolve, ms));
-}
+// async function getLastGuest() {
+//   const guestId = await convex.query(api.players.getLastGuest, {});
+//   return guestId;
+// }
 
-// --- JWT ---
+// async function createPlayer(player) {
+//   const playerId = await convex.mutation(api.players.createPlayer, {
+//     discordID: player.discordID,
+//     name: player.name,
+//     avatar: player.avatar,
+//     color: player.color,
+//   });
 
-async function setJWT({ c, sub }) {
-  const jwtPayload = {
-    sub,
-    iat: Math.floor(Date.now() / 1000),
-  };
+//   // Return a player object with the ID for compatibility
+//   const createdPlayer = await convex.query(api.players.getPlayer, {
+//     playerId,
+//   });
 
-  const jwt = await new SignJWT(jwtPayload)
-    .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime("30days")
-    .sign(new TextEncoder().encode(must(process.env.ZERO_AUTH_SECRET)));
+//   return createdPlayer;
+// }
 
-  setCookie(c, "jwt", jwt, {
-    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-  });
-}
+// // -- Exports ---
 
-// --- Database ---
+// const handler = handle(app);
 
-export const pool = new pg.Pool({
-  connectionString: process.env.ZERO_UPSTREAM_DB,
-});
-
-const COLORS = [
-  "#12C3E2",
-  "#5712E2",
-  "#99E212",
-  "#E21249",
-  "#E28B12",
-  "#E2CA12",
-];
-
-function randColor() {
-  return COLORS[Math.floor(Math.random() * COLORS.length)];
-}
-
-async function updatePlayerLastLogin(playerID) {
-  await pool.query('UPDATE player SET "lastLogin" = $1 WHERE id = $2', [
-    Date.now(),
-    playerID,
-  ]);
-}
-
-async function getPlayerByDiscordId(discordID) {
-  const result = await pool.query(
-    'SELECT * FROM player WHERE "discordID" = $1',
-    [discordID],
-  );
-
-  return result.rows[0] ?? null;
-}
-
-async function getLastGuest() {
-  const result = await pool.query(
-    'SELECT * FROM player WHERE "discordID" IS NULL ORDER BY "lastLogin" ASC LIMIT 1',
-  );
-
-  if (!result.rows[0]) {
-    return null;
-  }
-
-  const playerId = result.rows[0]?.id;
-
-  return playerId;
-}
-
-async function createPlayer(player) {
-  const result = await pool.query(
-    'INSERT INTO player (id, "discordID", name, color, avatar, "lastLogin") VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-    [
-      nanoid(),
-      player.discordID,
-      player.name,
-      randColor(),
-      player.avatar,
-      Date.now(),
-    ],
-  );
-  return result.rows[0];
-}
-
-// -- Exports ---
-
-const handler = handle(app);
-
-export const GET = handler;
-export const POST = handler;
-export const PATCH = handler;
-export const PUT = handler;
-export const OPTIONS = handler;
+// export const GET = handler;
+// export const POST = handler;
+// export const PATCH = handler;
+// export const PUT = handler;
+// export const OPTIONS = handler;

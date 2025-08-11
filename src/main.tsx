@@ -1,14 +1,12 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
 import { Route, Router } from "@solidjs/router";
-import { schema } from "./schema.ts";
 import "./index.css";
-import Cookies from "js-cookie";
-import { decodeJwt } from "jose";
-import { createZero } from "@rocicorp/zero/solid";
 import { JSX, lazy } from "solid-js";
 import Header from "./components/Header.tsx";
 import { Profile } from "./routes/analytics/Analytics.tsx";
+import { ConvexContext } from "./convex-solid.ts";
+import convex from "./convex.ts";
 
 const Home = lazy(() => import("./routes/home/Home.tsx"));
 const Race = lazy(() => import("./routes/race/Race.tsx"));

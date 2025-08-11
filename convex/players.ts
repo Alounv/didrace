@@ -38,6 +38,24 @@ export const getLastGuest = query({
   },
 });
 
+export const createGuest = mutation({
+  args: {},
+  handler: async (ctx, args) => {
+    const guestCount = await ctx.db
+      .query("players")
+      .withIndex("by_discord_id", (q) => q.eq("discordID", undefined))
+      .collect();
+    
+    const playerId = await ctx.db.insert("players", {
+      name: `Guest ${guestCount.length + 1}`,
+      color: randColor(),
+      lastLogin: Date.now(),
+    });
+    
+    return playerId;
+  },
+});
+
 export const createPlayer = mutation({
   args: {
     discordID: v.optional(v.string()),

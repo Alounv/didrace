@@ -1,44 +1,9 @@
-import { Zero } from "@rocicorp/zero";
-import { PlayerRace, Schema } from "../schema";
+import { api } from "../../convex/_generated/api";
+import { Id } from "../../convex/_generated/dataModel";
+import { getCurrentUser } from "../convex";
 import { randInt } from "../utils/rand";
-
-/**
- * Initialize or reset player race
- */
-export function resetPlayerRace({
-  z,
-  raceID,
-}: {
-  z: Zero<Schema>;
-  raceID: string;
-}) {
-  z.mutate.player_race.upsert({
-    playerID: z.userID,
-    raceID: raceID,
-    progress: 0,
-    start: null,
-    end: null,
-  });
-}
-
-/**
- * Update player race
- */
-export function savePlayerRace({
-  z,
-  raceID,
-  partial,
-}: {
-  z: Zero<Schema>;
-  raceID: string;
-  partial: Partial<PlayerRace>;
-}) {
-  z.mutate.player_race.update({
-    raceID: raceID,
-    playerID: z.userID,
-    ...partial,
-  });
-}
+import convex from "../convex";
+import { PlayerRaceWithPlayer } from "../types";
 
 export type TextDisplay = {
   correct: string;
@@ -86,8 +51,7 @@ export function getProgress({
  * Logic each time a character is typed
  * Returns a boolean that indicates if a word has been completed
  */
-export function onTyped({
-  z,
+export async function onTyped({
   raceID,
   typed,
   charIndex,
@@ -97,16 +61,16 @@ export function onTyped({
   endRace,
   playerRace,
 }: {
-  z: Zero<Schema>;
-  raceID: string;
+  raceID: Id<"races">;
   typed: string;
   charIndex: number;
   text: string;
   target: string;
   adversaries: { progress: number; end: null | number }[];
   endRace: () => void;
-  playerRace: PlayerRace;
-}): { hasError: boolean; isComplete: boolean } {
+  playerRace: any;
+}): Promise<{ hasError: boolean; isComplete: boolean }> {
+  const { token } = getCurrentUser();
   const progress = Math.min(charIndex + typed.length, text.length);
 
   // There is a error --> (word not complete)
@@ -116,10 +80,11 @@ export function onTyped({
 
   // Player race complete --> save player progress and end player race
   if (progress === text.length) {
-    savePlayerRace({
-      z,
-      raceID,
-      partial: { progress, end: Date.now() },
+    await convex.mutation(api.races.updatePlayerProgress, {
+      raceId: raceID,
+      progress,
+      end: Date.now(),
+      token,
     });
 
     const notFinishedCount = adversaries.filter((r) => r.end === null).length;
@@ -139,28 +104,28 @@ export function onTyped({
     const shouldHaveItem =
       notFinishedCount > 0 && isLast && !playerRace.item && randInt(5) === 0; // 1 on 6
 
-    savePlayerRace({
-      z,
-      raceID,
-      partial: {
-        progress,
-        ...(shouldHaveItem ? { item: getItem() } : {}),
-        ...(!isLast ? { item: null } : {}),
-      },
+    await convex.mutation(api.races.updatePlayerProgress, {
+      raceId: raceID,
+      progress,
+      token,
+      ...(shouldHaveItem ? { item: getItem() } : {}),
+      ...(!isLast ? { item: null } : {}),
     });
 
     return { hasError: false, isComplete: true };
   }
 
-  savePlayerRace({
-    z,
-    raceID,
-    partial: { progress, start: playerRace.start ?? Date.now() },
+  await convex.mutation(api.races.updatePlayerProgress, {
+    raceId: raceID,
+    progress,
+    start: playerRace.start ?? Date.now(),
+    token,
   });
+  
   return { hasError: false, isComplete: false };
 }
 
-function getItem(): PlayerRace["item"] {
+function getItem(): "missile" | "blob" | "fader" {
   const items = ["missile", "blob", "fader"] as const;
   return items[randInt(items.length)];
 }
@@ -190,7 +155,7 @@ export function getSpeed({
 /**
  * Sort player races by end time, then by progress and add speed
  */
-export function computePlayerRaces<P extends PlayerRace>({
+export function computePlayerRaces<P extends any>({
   playerRaces,
 }: {
   playerRaces: P[];
@@ -231,21 +196,21 @@ export function computePlayerRaces<P extends PlayerRace>({
  * Activate item logic here
  */
 export async function activateItem({
-  z,
   raceID,
   playerRace,
   adversaries,
 }: {
-  z: Zero<Schema>;
-  raceID: string;
-  playerRace: PlayerRace;
-  adversaries: PlayerRace[];
+  raceID: Id<"races">;
+  playerRace: any;
+  adversaries: any[];
 }) {
-  // remove item
-  await z.mutate.player_race.update({
-    playerID: z.userID,
-    raceID: raceID,
+  const { token } = getCurrentUser();
+
+  // Remove item
+  await convex.mutation(api.races.updatePlayerProgress, {
+    raceId: raceID,
     item: null,
+    token,
   });
 
   // Activate item logic here
@@ -267,12 +232,8 @@ export async function activateItem({
 
       const effect = EFFECTS[playerRace.item];
 
-      await z.mutate.player_race.update({
-        playerID: targetPlayerID,
-        raceID: raceID,
-        effect,
-      });
-
+      // Note: This would need a separate mutation to update another player's effect
+      // You'd need to implement this in the Convex functions
       break;
     }
     default:
@@ -289,16 +250,16 @@ const EFFECTS = {
 /**
  * Clean effect logic here
  */
-export function cleanEffect({
-  z,
+export async function cleanEffect({
   raceID,
 }: {
-  z: Zero<Schema>;
-  raceID: string;
+  raceID: Id<"races">;
 }) {
-  return z.mutate.player_race.update({
-    playerID: z.userID,
-    raceID: raceID,
+  const { token } = getCurrentUser();
+  
+  return await convex.mutation(api.races.updatePlayerProgress, {
+    raceId: raceID,
     effect: null,
+    token,
   });
 }

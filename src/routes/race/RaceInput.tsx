@@ -1,26 +1,27 @@
-import { Zero } from "@rocicorp/zero";
-import { useQuery } from "@rocicorp/zero/solid";
 import { createEffect, createSignal, Show } from "solid-js";
-import { Player, PlayerRace, Quote, Race, Schema } from "../../schema";
+import { createQuery, createMutation } from "../../convex-solid";
+import { api } from "../../../convex/_generated/api";
+import { getCurrentUser } from "../../convex";
+import { Race, PlayerRaceWithPlayer } from "../../types";
 import { Podium } from "./Podium";
 import { Adversaries, AdversariesSides } from "./Adversaries";
 import { Cursor } from "./Cursor";
 import { EndRaceButton } from "./EndRaceButton";
-import { cleanEffect, getProgress, onTyped } from "../../domain/playerRace";
-import { end } from "../../domain/race";
 import { ItemAndEffect } from "./ItemAndEffect";
 import { RaceText } from "./RaceText";
-import { saveTypedWord } from "../../domain/typedWords";
+import { getProgress, onTyped, cleanEffect } from "../../domain/playerRace-convex";
+import { saveTypedWord } from "../../domain/typedWords-convex";
+import { end } from "../../domain/race-convex";
 
 const EFFECT_DURATION = 5000;
 
 export function RaceInput(props: {
-  z: Zero<Schema>;
-  quote: Quote;
-  raceID: string;
-  status: Race["status"];
-  playerRaces: (PlayerRace & { player: Player })[];
+  race: Race;
+  playerRace?: any;
+  playerRaces: PlayerRaceWithPlayer[];
+  quote: any;
 }) {
+  const { userID, token } = getCurrentUser();
   // --- Refs ---
 
   let inputRef: HTMLInputElement;
@@ -37,9 +38,10 @@ export function RaceInput(props: {
   const [isCursorActive, setIsCursorActive] = createSignal(false);
   const [offset, setOffset] = createSignal(0);
   const [freeRightSpace, setFreeRightSpace] = createSignal(0);
-  const [otherQuotes] = useQuery(() =>
-    props.z.query.quote.where("id", "!=", props.quote.id),
-  );
+  const otherQuotes = createQuery(api.quotes.getRandomQuotes, {
+    excludeId: props.quote._id,
+    token,
+  });
   const [offsets, setOffests] = createSignal<Record<string, number>>({});
   const [positions, setPositions] = createSignal<
     Record<string, "left" | "right">
@@ -56,7 +58,7 @@ export function RaceInput(props: {
   createEffect(() => {
     if (playerRace()?.effect) {
       setTimeout(() => {
-        cleanEffect(props);
+        cleanEffect({ raceID: props.race._id });
       }, EFFECT_DURATION);
     }
   });
@@ -64,10 +66,10 @@ export function RaceInput(props: {
   // --- Derived ---
 
   function playerRace() {
-    return props.playerRaces.find((r) => r.playerID === props.z.userID);
+    return props.playerRaces.find((r) => r.playerID === userID);
   }
   function text() {
-    return props.quote.body.replace(/’/g, "'");
+    return props.quote?.body?.replace(/'/g, "'") || "";
   }
   function wordIndex() {
     const soFar = text().slice(0, charIndex());
@@ -77,10 +79,10 @@ export function RaceInput(props: {
     return text().split(" ")[wordIndex()];
   }
   function canPlayerPlay() {
-    return props.status === "started" && !playerRace()?.end;
+    return props.race.status === "started" && !playerRace()?.end;
   }
   function adversaries() {
-    return props.playerRaces.filter((r) => r.playerID !== props.z.userID);
+    return props.playerRaces.filter((r) => r.playerID !== userID);
   }
   function done(progress: number): string {
     return text().slice(0, progress);
@@ -122,8 +124,7 @@ export function RaceInput(props: {
             <Show when={playerRace()}>
               {(playerRace) => (
                 <ItemAndEffect
-                  z={props.z}
-                  raceID={props.raceID}
+                  raceID={props.race._id}
                   playerRace={playerRace()}
                   adversaries={adversaries()}
                 />
@@ -131,7 +132,7 @@ export function RaceInput(props: {
             </Show>
 
             <Cursor
-              player={playerRace()?.player as Player}
+              player={playerRace()?.player}
               isActive={isCursorActive()}
               isPulsing={charIndex() === 0}
               isCurrent
@@ -178,7 +179,7 @@ export function RaceInput(props: {
         >
           <Podium playerRaces={props.playerRaces} quoteLength={text().length}>
             <EndRaceButton
-              endRace={() => end({ ...props, quotes: otherQuotes() })}
+              endRace={() => end({ raceID: props.race._id, quotes: otherQuotes() || [] })}
               playerRaces={props.playerRaces}
             />
           </Podium>
@@ -193,21 +194,21 @@ export function RaceInput(props: {
           disabled={!canPlayerPlay()}
           onBlur={() => setIsCursorActive(false)}
           onFocus={() => setIsCursorActive(true)}
-          onInput={(e) => {
+          onInput={async (e) => {
             const typed = e.currentTarget.value;
 
             if (startRef === null) {
               startRef = Date.now();
             }
 
-            const { hasError, isComplete } = onTyped({
-              ...props,
+            const { hasError, isComplete } = await onTyped({
+              raceID: props.race._id,
               typed,
               charIndex: charIndex(),
               text: text(),
               target: word(),
               adversaries: adversaries(),
-              endRace: () => end({ ...props, quotes: otherQuotes() }),
+              endRace: () => end({ raceID: props.race._id, quotes: otherQuotes() || [] }),
               playerRace: playerRace()!,
             });
 
@@ -220,7 +221,7 @@ export function RaceInput(props: {
               setCharIndex((i) => i + typed.length);
               setInput("");
               saveTypedWord({
-                ...props,
+                raceID: props.race._id,
                 word: typed,
                 start: startRef,
                 hadError: hadErrorRef,

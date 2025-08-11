@@ -19,4 +19,12 @@ export default defineConfig({
     tailwindcss(),
     solid(),
   ],
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:3210",
+        changeOrigin: true,
+      },
+    },
+  },
 });
