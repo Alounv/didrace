@@ -5,7 +5,7 @@ import { createJWT } from "./jwt";
 // Discord OAuth configuration
 const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID || "1333908942090145865";
 const DISCORD_CLIENT_SECRET = import.meta.env.VITE_DISCORD_CLIENT_SECRET || "yWcIM_ZpRaU1dGSQFVgJBPcYWWNwU5EK";
-const DISCORD_REDIRECT_URI = `${window.location.origin}/auth/discord/callback`;
+const DISCORD_REDIRECT_URI = `${window.location.origin}/api/discord`;
 
 export function redirectToDiscordOAuth() {
   const state = Math.random().toString(36).substring(7);

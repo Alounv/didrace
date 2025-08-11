@@ -24,6 +24,13 @@ export default defineConfig({
       "/api": {
         target: "http://127.0.0.1:3210",
         changeOrigin: true,
+        bypass: (req, res, options) => {
+          // Don't proxy Discord OAuth callback - handle it in frontend
+          if (req.url?.startsWith('/api/discord')) {
+            return req.url;
+          }
+          return null;
+        },
       },
     },
   },

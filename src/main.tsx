@@ -30,7 +30,7 @@ render(
         <Route path="/" component={Home} />
         <Route path="/races/:id" component={Race} />
         <Route path="/profile" component={Profile} />
-        <Route path="/auth/discord/callback" component={DiscordCallback} />
+        <Route path="/api/discord" component={DiscordCallback} />
       </Router>
     </ConvexContext.Provider>
   ),
