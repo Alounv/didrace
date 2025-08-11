@@ -11,7 +11,7 @@ import { RaceArea } from "./RaceArea";
 function RacePage() {
   const params = useParams();
   const { userID, token } = getCurrentUser();
-  
+
   const race = createQuery(api.races.getRace, {
     raceId: params.id as any,
     token,
@@ -43,7 +43,7 @@ function RacePage() {
     // In this case we redirect him directly to the next race
     const raceData = race();
     const playerRacesData = playerRaces();
-    
+
     if (
       playerRacesData?.length &&
       !playerRace() &&
@@ -55,7 +55,7 @@ function RacePage() {
   });
 
   return (
-    <Show when={race()}>
+    <Show when={race()} fallback={" no race"}>
       <Switch>
         <Match when={race()?.status === "ready"}>
           <CountDown race={race()!} playerRace={playerRace()} />

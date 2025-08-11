@@ -15,8 +15,6 @@ import type {
 } from "convex/server";
 import type * as analytics from "../analytics.js";
 import type * as auth from "../auth.js";
-import type * as authentication from "../authentication.js";
-import type * as http from "../http.js";
 import type * as players from "../players.js";
 import type * as quotes from "../quotes.js";
 import type * as races from "../races.js";
@@ -32,8 +30,6 @@ import type * as races from "../races.js";
 declare const fullApi: ApiFromModules<{
   analytics: typeof analytics;
   auth: typeof auth;
-  authentication: typeof authentication;
-  http: typeof http;
   players: typeof players;
   quotes: typeof quotes;
   races: typeof races;

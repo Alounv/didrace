@@ -80,7 +80,7 @@ Core tables:
 VITE_CONVEX_URL=http://127.0.0.1:3210  # Local Convex development
 DISCORD_CLIENT_ID=                      # Discord app client ID
 DISCORD_CLIENT_SECRET=                  # Discord app client secret
-ZERO_AUTH_SECRET=                       # JWT signing secret (preserved)
+AUTH_SECRET=                       # JWT signing secret (preserved)
 CONVEX_DEPLOYMENT=                      # Set automatically by npx convex dev
 ```
 

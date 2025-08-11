@@ -118,7 +118,7 @@ bun run deploy:convex
 VITE_CONVEX_URL=http://127.0.0.1:3210  # Local development
 DISCORD_CLIENT_ID=your_discord_client_id
 DISCORD_CLIENT_SECRET=your_discord_client_secret
-ZERO_AUTH_SECRET=your_jwt_secret  # Preserved for JWT compatibility
+AUTH_SECRET=your_jwt_secret  # Preserved for JWT compatibility
 ```
 
 ## Authentication Preservation

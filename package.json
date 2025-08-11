@@ -6,10 +6,12 @@
   "scripts": {
     "dev:ui": "vite",
     "dev:convex": "npx convex dev",
-    "dev": "concurrently \"bun run dev:convex\" \"bun run dev:ui\"",
+    "dev": "concurrently \"npm run dev:convex\" \"npm run dev:ui\"",
     "build": "tsc -b && vite build",
+    "build:convex": "npx convex deploy",
     "lint": "eslint .",
-    "deploy:convex": "npx convex deploy"
+    "clean": "rm -rf dist .convex node_modules/.vite",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@fontsource/lato": "^5.1.1",

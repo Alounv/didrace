@@ -9,7 +9,11 @@ import { Cursor } from "./Cursor";
 import { EndRaceButton } from "./EndRaceButton";
 import { ItemAndEffect } from "./ItemAndEffect";
 import { RaceText } from "./RaceText";
-import { getProgress, onTyped, cleanEffect } from "../../domain/playerRace-convex";
+import {
+  getProgress,
+  onTyped,
+  cleanEffect,
+} from "../../domain/playerRace-convex";
 import { saveTypedWord } from "../../domain/typedWords-convex";
 import { end } from "../../domain/race-convex";
 
@@ -19,7 +23,7 @@ export function RaceInput(props: {
   race: Race;
   playerRace?: any;
   playerRaces: PlayerRaceWithPlayer[];
-  quote: any;
+  quote: string;
 }) {
   const { userID, token } = getCurrentUser();
   // --- Refs ---
@@ -38,10 +42,7 @@ export function RaceInput(props: {
   const [isCursorActive, setIsCursorActive] = createSignal(false);
   const [offset, setOffset] = createSignal(0);
   const [freeRightSpace, setFreeRightSpace] = createSignal(0);
-  const otherQuotes = createQuery(api.quotes.getRandomQuotes, {
-    excludeId: props.quote._id,
-    token,
-  });
+  const otherQuotes = createQuery(api.quotes.getRandomQuotes, { token });
   const [offsets, setOffests] = createSignal<Record<string, number>>({});
   const [positions, setPositions] = createSignal<
     Record<string, "left" | "right">
@@ -69,7 +70,7 @@ export function RaceInput(props: {
     return props.playerRaces.find((r) => r.playerID === userID);
   }
   function text() {
-    return props.quote?.body?.replace(/'/g, "'") || "";
+    return props.quote.replace(/'/g, "'") || "";
   }
   function wordIndex() {
     const soFar = text().slice(0, charIndex());
@@ -100,6 +101,7 @@ export function RaceInput(props: {
 
   return (
     <>
+      {JSON.stringify(props.quote)}
       <AdversariesSides
         side="left"
         players={adversaries()
@@ -179,7 +181,9 @@ export function RaceInput(props: {
         >
           <Podium playerRaces={props.playerRaces} quoteLength={text().length}>
             <EndRaceButton
-              endRace={() => end({ raceID: props.race._id, quotes: otherQuotes() || [] })}
+              endRace={() =>
+                end({ raceID: props.race._id, quotes: otherQuotes() || [] })
+              }
               playerRaces={props.playerRaces}
             />
           </Podium>
@@ -208,7 +212,8 @@ export function RaceInput(props: {
               text: text(),
               target: word(),
               adversaries: adversaries(),
-              endRace: () => end({ raceID: props.race._id, quotes: otherQuotes() || [] }),
+              endRace: () =>
+                end({ raceID: props.race._id, quotes: otherQuotes() || [] }),
               playerRace: playerRace()!,
             });
 

@@ -12,7 +12,7 @@ export function RaceArea(props: {
   quote: string;
 }) {
   const { userID } = getCurrentUser();
-  
+
   return (
     <Show
       when={props.playerRaces.some((r) => r.playerID === userID)}

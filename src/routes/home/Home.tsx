@@ -3,20 +3,22 @@ import { createQuery } from "../../convex-solid";
 import { api } from "../../../convex/_generated/api";
 import { getCurrentUser } from "../../convex";
 import { CreateRace } from "./CreateRace";
+import { InitializeQuotes } from "../../components/InitializeQuotes";
 import { A } from "@solidjs/router";
 import { Avatar } from "../../components/Avatar";
 import { formatDate } from "../../utils/date";
 
 function Home() {
   const { userID, token, isAuthenticated } = getCurrentUser();
-  
+
+  const quotes = createQuery(api.quotes.getAllQuotes, {});
   const readyRaces = createQuery(api.races.getRacesByStatus, {
     status: "ready",
     token,
   });
-  
+
   const startedRaces = createQuery(api.races.getRacesByStatus, {
-    status: "started", 
+    status: "started",
     token,
   });
 
@@ -27,33 +29,37 @@ function Home() {
           Please log in to see your races.
         </div>
       ) : (
-        <div class="flex flex-col items-start gap-4">
-          <RaceSection races={readyRaces()} title="Open races">
-            <CreateRace />
-          </RaceSection>
+        <Show
+          when={(quotes()?.length || 0) > 0}
+          fallback={
+            <div class="flex justify-center mt-12">
+              <InitializeQuotes />
+            </div>
+          }
+        >
+          {quotes().length}
+          <div class="flex flex-col items-start gap-4">
+            <RaceSection races={readyRaces()} title="Open races">
+              <CreateRace />
+            </RaceSection>
 
-          <Show when={(startedRaces()?.length || 0) > 0}>
-            <RaceSection races={startedRaces()} title="Ongoing races" />
-          </Show>
-        </div>
+            <Show when={(startedRaces()?.length || 0) > 0}>
+              <RaceSection races={startedRaces()} title="Ongoing races" />
+            </Show>
+          </div>
+        </Show>
       )}
     </>
   );
 }
 
-function RaceSection(props: {
-  races?: any[];
-  title: string;
-  children?: any;
-}) {
+function RaceSection(props: { races?: any[]; title: string; children?: any }) {
   return (
     <div class="flex flex-col gap-8 mt-20">
       <div class="text-lg">{props.title}</div>
       <ol class="flex flex-wrap gap-8">
         {props.children}
-        <For each={props.races || []}>
-          {(race) => <RaceCard race={race} />}
-        </For>
+        <For each={props.races || []}>{(race) => <RaceCard race={race} />}</For>
       </ol>
     </div>
   );
@@ -66,7 +72,7 @@ function RaceCard(props: { race: any }) {
     if (props.race.authorID === userID) {
       return "Your race";
     }
-    return `${props.race.author?.name || 'Unknown'}'s race`;
+    return `${props.race.author?.name || "Unknown"}'s race`;
   }
 
   return (

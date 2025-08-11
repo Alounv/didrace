@@ -30,9 +30,9 @@ export async function createJWT(sub: string) {
     iat: Math.floor(Date.now() / 1000),
   };
 
-  const secret = process.env.ZERO_AUTH_SECRET;
+  const secret = process.env.AUTH_SECRET;
   if (!secret) {
-    throw new ConvexError("ZERO_AUTH_SECRET not configured");
+    throw new ConvexError("AUTH_SECRET not configured");
   }
 
   const jwt = await new SignJWT(jwtPayload)
