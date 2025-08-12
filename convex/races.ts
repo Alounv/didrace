@@ -1,7 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { getUserFromToken, requireAuth } from "./auth";
-import { Player } from "../src/types";
 import { Id } from "./_generated/dataModel";
 
 export const getRace = query({
@@ -156,14 +155,24 @@ export const joinRace = mutation({
 export const updatePlayerProgress = mutation({
   args: {
     raceId: v.id("races"),
-    progress: v.number(),
+    progress: v.optional(v.number()),
     start: v.optional(v.number()),
     end: v.optional(v.number()),
     effect: v.optional(
-      v.union(v.literal("stuned"), v.literal("poisoned"), v.literal("faded")),
+      v.union(
+        v.literal("stuned"),
+        v.literal("poisoned"),
+        v.literal("faded"),
+        v.null(),
+      ),
     ),
     item: v.optional(
-      v.union(v.literal("missile"), v.literal("blob"), v.literal("fader")),
+      v.union(
+        v.literal("missile"),
+        v.literal("blob"),
+        v.literal("fader"),
+        v.null(),
+      ),
     ),
     token: v.optional(v.string()),
   },
@@ -183,11 +192,11 @@ export const updatePlayerProgress = mutation({
     }
 
     await ctx.db.patch(playerRace._id, {
-      progress: args.progress,
-      start: args.start,
-      end: args.end,
-      effect: args.effect,
-      item: args.item,
+      ...(args.progress ? { progress: args.progress } : {}),
+      ...(args.start ? { start: args.start } : {}),
+      ...(args.end ? { end: args.end } : {}),
+      ...(args.effect ? { effect: args.effect } : {}),
+      ...(args.item ? { item: args.item } : {}),
     });
   },
 });
@@ -204,12 +213,43 @@ export const leaveRace = mutation({
     const playerRace = await ctx.db
       .query("playerRaces")
       .withIndex("by_player_race", (q) =>
-        q.eq("playerID", userID as any).eq("raceID", args.raceId),
+        q.eq("playerID", userID as Id<"players">).eq("raceID", args.raceId),
       )
       .first();
 
     if (playerRace) {
       await ctx.db.delete(playerRace._id);
+    }
+  },
+});
+
+export const applyEffectToPlayer = mutation({
+  args: {
+    raceId: v.id("races"),
+    targetPlayerID: v.id("players"),
+    effect: v.union(
+      v.literal("stuned"),
+      v.literal("poisoned"),
+      v.literal("faded"),
+    ),
+    token: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userID = await getUserFromToken(args.token);
+    requireAuth(userID);
+
+    // Find the target player's race entry
+    const targetPlayerRace = await ctx.db
+      .query("playerRaces")
+      .withIndex("by_player_race", (q) =>
+        q.eq("playerID", args.targetPlayerID).eq("raceID", args.raceId),
+      )
+      .first();
+
+    if (targetPlayerRace) {
+      await ctx.db.patch(targetPlayerRace._id, {
+        effect: args.effect,
+      });
     }
   },
 });

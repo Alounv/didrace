@@ -17,13 +17,12 @@ export async function saveTypedWord({
   raceID: Id<"races">;
 }) {
   const { token } = getCurrentUser();
-  
-  await convex.mutation(api.analytics.saveTypedWord, {
+
+  await convex.mutation(api.analytics.addTypedWord, {
     raceId: raceID,
     word,
     duration: now - start,
     hadError,
-    timestamp: now,
-    token,
+    ...(token ? { token } : {}),
   });
 }

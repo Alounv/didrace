@@ -6,7 +6,6 @@ import { quotes } from "../data/quotes";
 export function InitializeQuotes() {
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
-  const [success, setSuccess] = createSignal(false);
 
   const initializeQuotes = createMutation(api.quotes.initializeQuotes);
 
@@ -15,12 +14,7 @@ export function InitializeQuotes() {
     setError(null);
 
     try {
-      const result = await initializeQuotes({ quotesData: quotes });
-
-      setSuccess(true);
-      setTimeout(() => {
-        window.location.reload(); // Refresh to show the quotes
-      }, 2000);
+      await initializeQuotes({ quotesData: quotes });
     } catch (err) {
       console.error("Failed to initialize quotes:", err);
       setError(
@@ -29,15 +23,6 @@ export function InitializeQuotes() {
     } finally {
       setLoading(false);
     }
-  }
-
-  if (success()) {
-    return (
-      <div class="card bg-success text-success-content p-6">
-        <h3 class="text-lg font-bold mb-2">✅ Quotes Initialized!</h3>
-        <p>Successfully loaded quotes. Refreshing page...</p>
-      </div>
-    );
   }
 
   return (

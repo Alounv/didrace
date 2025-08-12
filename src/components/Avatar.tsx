@@ -1,4 +1,4 @@
-import { Player } from "../schema";
+import { Player } from "../types";
 
 export function Avatar(props: { player: Player; class?: string }) {
   return (

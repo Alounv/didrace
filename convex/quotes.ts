@@ -3,7 +3,7 @@ import { v } from "convex/values";
 
 export const getAllQuotes = query({
   args: {},
-  handler: async (ctx, args) => {
+  handler: async (ctx) => {
     return await ctx.db.query("quotes").collect();
   },
 });
@@ -25,7 +25,7 @@ export const createQuote = mutation({
       body: args.body,
       source: args.source,
     });
-    
+
     return quoteId;
   },
 });
@@ -37,8 +37,8 @@ export const getRandomQuotes = query({
   },
   handler: async (ctx, args) => {
     const quotes = await ctx.db.query("quotes").collect();
-    const filtered = args.excludeId 
-      ? quotes.filter(q => q._id !== args.excludeId)
+    const filtered = args.excludeId
+      ? quotes.filter((q) => q._id !== args.excludeId)
       : quotes;
     return filtered.sort(() => Math.random() - 0.5);
   },
@@ -46,11 +46,13 @@ export const getRandomQuotes = query({
 
 export const initializeQuotes = mutation({
   args: {
-    quotesData: v.array(v.object({
-      text: v.string(),
-      source: v.string(),
-      id: v.number(),
-    })),
+    quotesData: v.array(
+      v.object({
+        text: v.string(),
+        source: v.string(),
+        id: v.number(),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
     // Check if quotes already exist
@@ -67,7 +69,7 @@ export const initializeQuotes = mutation({
         source: quote.source,
       });
       insertedCount++;
-      
+
       // Add a small batch limit to prevent timeouts
       if (insertedCount >= 100) {
         break;

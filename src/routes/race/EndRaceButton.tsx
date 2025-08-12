@@ -1,10 +1,10 @@
 import { createSignal, onCleanup } from "solid-js";
-import { PlayerRace } from "../../schema";
+import { PlayerRace } from "../../types";
 
 const TIME_TO_FINISH_IN_S = 20;
 
 export function EndRaceButton(props: {
-  endRace: () => Promise<void>;
+  endRace: () => void;
   playerRaces: PlayerRace[];
 }) {
   const [sinceFirstArrival, setSinceFirstArrival] = createSignal(0);

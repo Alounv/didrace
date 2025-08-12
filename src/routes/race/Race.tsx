@@ -7,19 +7,20 @@ import { PlayerRaceWithPlayer, RaceWithRelations } from "../../types";
 import { CountDown } from "./CountDown";
 import { End } from "./End";
 import { RaceArea } from "./RaceArea";
+import { Id } from "../../../convex/_generated/dataModel";
 
 function RacePage() {
   const params = useParams();
   const { userID, token } = getCurrentUser();
 
   const race = createQuery(api.races.getRace, {
-    raceId: params.id as any,
-    token,
+    raceId: params.id as Id<"races">,
+    ...(token ? [token] : []),
   }) as Accessor<RaceWithRelations | null>;
 
   const playerRaces = createQuery(api.races.getPlayerRaces, {
-    raceId: params.id as any,
-    token,
+    raceId: params.id as Id<"races">,
+    ...(token ? [token] : []),
   }) as Accessor<PlayerRaceWithPlayer[]>;
 
   function playerRace() {
@@ -55,26 +56,31 @@ function RacePage() {
   });
 
   return (
-    <Show when={race()} fallback={" no race"}>
-      <Switch>
-        <Match when={race()?.status === "ready"}>
-          <CountDown race={race()!} playerRace={playerRace()} />
-        </Match>
-        <Match when={race()?.status === "starting"}>
-          <CountDown race={race()!} playerRace={playerRace()} />
-        </Match>
-        <Match when={race()?.status === "started"}>
-          <RaceArea
-            race={race()!}
-            playerRace={playerRace()}
-            playerRaces={playerRaces()}
-            quote={quote()}
-          />
-        </Match>
-        <Match when={race()?.status === "finished"}>
-          <End race={race()!} playerRaces={playerRaces()} />
-        </Match>
-      </Switch>
+    <Show when={race()} fallback={"no race"}>
+      {(race) => (
+        <Show when={playerRace()} fallback={"no player race"}>
+          {(playerRace) => (
+            <Switch>
+              <Match when={race().status === "ready"}>
+                <CountDown race={race()} playerRace={playerRace()} />
+              </Match>
+              <Match when={race().status === "starting"}>
+                <CountDown race={race()} playerRace={playerRace()} />
+              </Match>
+              <Match when={race()?.status === "started"}>
+                <RaceArea
+                  race={race()}
+                  playerRaces={playerRaces()}
+                  quote={quote()}
+                />
+              </Match>
+              <Match when={race().status === "finished"}>
+                <End race={race()} playerRaces={playerRaces()} />
+              </Match>
+            </Switch>
+          )}
+        </Show>
+      )}
     </Show>
   );
 }

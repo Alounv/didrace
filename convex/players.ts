@@ -1,10 +1,9 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { nanoid } from "nanoid";
 
 const COLORS = [
   "#12C3E2",
-  "#5712E2", 
+  "#5712E2",
   "#99E212",
   "#E21249",
   "#E28B12",
@@ -27,40 +26,40 @@ export const getPlayerByDiscordId = query({
 
 export const getLastGuest = query({
   args: {},
-  handler: async (ctx, args) => {
+  handler: async (ctx) => {
     const guest = await ctx.db
       .query("players")
       .withIndex("by_discord_id", (q) => q.eq("discordID", undefined))
       .order("asc")
       .first();
-    
+
     return guest?._id;
   },
 });
 
 export const createGuest = mutation({
   args: {},
-  handler: async (ctx, args) => {
+  handler: async (ctx) => {
     const guestCount = await ctx.db
       .query("players")
       .withIndex("by_discord_id", (q) => q.eq("discordID", undefined))
       .collect();
-    
+
     const playerId = await ctx.db.insert("players", {
       name: `Guest ${guestCount.length + 1}`,
       color: randColor(),
       lastLogin: Date.now(),
     });
-    
+
     return playerId;
   },
 });
 
 export const createPlayer = mutation({
   args: {
-    discordID: v.optional(v.string()),
+    discordID: v.string(),
     name: v.string(),
-    avatar: v.optional(v.string()),
+    avatar: v.string(),
     color: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -71,7 +70,7 @@ export const createPlayer = mutation({
       color: args.color ?? randColor(),
       lastLogin: Date.now(),
     });
-    
+
     return playerId;
   },
 });

@@ -9,11 +9,11 @@ export function getCurrentUser() {
   const encodedJWT = Cookies.get("jwt");
   const decodedJWT = encodedJWT && decodeJwt(encodedJWT);
   const userID = decodedJWT?.sub ? (decodedJWT.sub as string) : "anon";
-  
+
   return {
     userID,
     token: encodedJWT,
-    isAuthenticated: userID !== "anon"
+    isAuthenticated: userID !== "anon",
   };
 }
 

@@ -1,6 +1,7 @@
+import { Id } from "../convex/_generated/dataModel";
+import { Player, PlayerRace, Quote, Race } from "./types";
 import { id } from "./utils/id";
 import { randBetween, randInt } from "./utils/rand";
-import type { Player, PlayerRace, Quote, Race } from "./schema";
 
 const PLAYER_NAMES = [
   "SpeedTyper",
@@ -25,7 +26,7 @@ const SAMPLE_QUOTES = [
 
 export function generateQuotes(count: number): Quote[] {
   return Array.from({ length: count }, (_, i) => ({
-    id: id(),
+    _id: id() as Id<"quotes">,
     source: `Quote ${i + 1}`,
     body: SAMPLE_QUOTES[i % SAMPLE_QUOTES.length],
   }));
@@ -33,11 +34,9 @@ export function generateQuotes(count: number): Quote[] {
 
 export function generatePlayers(count: number): Player[] {
   return Array.from({ length: count }, (_, i) => ({
-    id: id(),
+    _id: id() as Id<"players">,
     name: PLAYER_NAMES[i % PLAYER_NAMES.length],
     color: "",
-    discordID: null,
-    avatar: null,
     lastLogin: 0,
   }));
 }
@@ -48,12 +47,11 @@ export function generateRaces(
   players: Player[],
 ): Race[] {
   return Array.from({ length: count }, () => ({
-    id: id(),
-    quoteID: quotes[randInt(quotes.length - 1)].id,
-    authorID: players[randInt(players.length - 1)].id,
+    _id: id() as Id<"races">,
+    quoteID: quotes[randInt(quotes.length - 1)]._id,
+    authorID: players[randInt(players.length - 1)]._id,
     status: "ready" as const,
     timestamp: Date.now(),
-    nextRaceID: null,
   }));
 }
 
@@ -72,13 +70,12 @@ export function generatePlayerRaces(
         const hasFinished = hasStarted && Math.random() < 0.7;
 
         playerRaces.push({
-          playerID: player.id,
-          raceID: race.id,
+          _id: id() as Id<"playerRaces">,
+          playerID: player._id,
+          raceID: race._id,
           progress: hasFinished ? 100 : hasStarted ? randBetween(0, 99) : 0,
-          item: null,
-          effect: null,
-          start: hasStarted ? Date.now() - randBetween(0, 60000) : null,
-          end: hasFinished ? Date.now() : null,
+          ...(hasStarted ? { start: Date.now() - randBetween(0, 60000) } : {}),
+          ...(hasFinished ? { end: Date.now() } : {}),
         });
       }
     }

@@ -1,4 +1,4 @@
-import { Show, For } from "solid-js";
+import { Show, For, JSX } from "solid-js";
 import { createQuery } from "../../convex-solid";
 import { api } from "../../../convex/_generated/api";
 import { getCurrentUser } from "../../convex";
@@ -7,19 +7,20 @@ import { InitializeQuotes } from "../../components/InitializeQuotes";
 import { A } from "@solidjs/router";
 import { Avatar } from "../../components/Avatar";
 import { formatDate } from "../../utils/date";
+import { Player, RaceWithRelations } from "../../types";
 
 function Home() {
-  const { userID, token, isAuthenticated } = getCurrentUser();
+  const { token, isAuthenticated } = getCurrentUser();
 
   const quotes = createQuery(api.quotes.getAllQuotes, {});
   const readyRaces = createQuery(api.races.getRacesByStatus, {
-    status: "ready",
-    token,
+    status: "ready" as const,
+    ...(token ? [token] : []),
   });
 
   const startedRaces = createQuery(api.races.getRacesByStatus, {
-    status: "started",
-    token,
+    status: "started" as const,
+    ...(token ? [token] : []),
   });
 
   return (
@@ -37,7 +38,6 @@ function Home() {
             </div>
           }
         >
-          {quotes().length}
           <div class="flex flex-col items-start gap-4">
             <RaceSection races={readyRaces()} title="Open races">
               <CreateRace />
@@ -53,7 +53,11 @@ function Home() {
   );
 }
 
-function RaceSection(props: { races?: any[]; title: string; children?: any }) {
+function RaceSection(props: {
+  races: RaceWithRelations[] | undefined;
+  title: string;
+  children?: JSX.Element | JSX.Element[];
+}) {
   return (
     <div class="flex flex-col gap-8 mt-20">
       <div class="text-lg">{props.title}</div>
@@ -65,7 +69,7 @@ function RaceSection(props: { races?: any[]; title: string; children?: any }) {
   );
 }
 
-function RaceCard(props: { race: any }) {
+function RaceCard(props: { race: RaceWithRelations }) {
   const { userID } = getCurrentUser();
 
   function title() {
@@ -81,7 +85,9 @@ function RaceCard(props: { race: any }) {
       text-xs border border-transparent hover:border-primary group"
     >
       <div class="flex gap-2 items-center">
-        <Avatar player={props.race.author} class="w-8 h-8" />
+        {props.race.author && (
+          <Avatar player={props.race.author} class="w-8 h-8" />
+        )}
         <div class="text-base text-base-content">{title()}</div>
       </div>
 
@@ -94,13 +100,13 @@ function RaceCard(props: { race: any }) {
       </A>
 
       <div class="flex gap-2 justify-between items-center">
-        <div>{formatDate(props.race.createdAt)}</div>
+        <div>{formatDate(props.race.timestamp)}</div>
       </div>
     </li>
   );
 }
 
-function AvatarStack(props: { players: any[] }) {
+function AvatarStack(props: { players: Player[] }) {
   function avatarsFirst() {
     const sorted = [...props.players];
     sorted.sort((a, b) => {

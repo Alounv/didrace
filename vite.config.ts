@@ -15,18 +15,15 @@ export default defineConfig({
       "top-level-await": true,
     },
   },
-  plugins: [
-    tailwindcss(),
-    solid(),
-  ],
+  plugins: [tailwindcss(), solid()],
   server: {
     proxy: {
       "/api": {
         target: "http://127.0.0.1:3210",
         changeOrigin: true,
-        bypass: (req, res, options) => {
+        bypass: (req) => {
           // Don't proxy Discord OAuth callback - handle it in frontend
-          if (req.url?.startsWith('/api/discord')) {
+          if (req.url?.startsWith("/api/discord")) {
             return req.url;
           }
           return null;

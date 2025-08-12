@@ -2,8 +2,14 @@ import { createSignal, JSX, Show, For } from "solid-js";
 import { createQuery } from "../../convex-solid";
 import { api } from "../../../convex/_generated/api";
 import { getCurrentUser } from "../../convex";
-import { useNavigate } from "@solidjs/router";
-import { Race, PlayerRaceWithPlayer, TypedWord } from "../../types";
+import { useNavigate, useParams } from "@solidjs/router";
+import {
+  Race,
+  PlayerRaceWithPlayer,
+  TypedWord,
+  RaceWithRelations,
+  PlayerRace,
+} from "../../types";
 import { Podium } from "./Podium";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
 import { Button } from "../../components/Button";
@@ -13,32 +19,38 @@ import {
   chevronDoubleRight,
 } from "solid-heroicons/solid-mini";
 import { leave as leaveRace } from "../../domain/race-convex";
+import { Id } from "../../../convex/_generated/dataModel";
 
 export function End(props: {
   race: Race;
   playerRaces: PlayerRaceWithPlayer[];
 }) {
+  const params = useParams();
   const { userID, token } = getCurrentUser();
-  
+
   const typedWords = createQuery(api.analytics.getPlayerTypedWords, {
-    playerId: userID as any,
-    raceId: props.race._id,
-    token,
+    playerId: userID as Id<"players">,
+    raceId: params.id as Id<"races">,
+    ...(token ? [token] : []),
   });
 
   return (
-    <Show when={typedWords()?.length > 0}>
-      <EndInternal
-        race={props.race}
-        playerRaces={props.playerRaces}
-        words={typedWords()!}
-      />
+    <Show when={typedWords()}>
+      {(typedWords) => (
+        <Show when={typedWords()?.length > 0}>
+          <EndInternal
+            race={props.race}
+            playerRaces={props.playerRaces}
+            words={typedWords()!}
+          />
+        </Show>
+      )}
     </Show>
   );
 }
 
 function EndInternal(props: {
-  race: Race;
+  race: RaceWithRelations;
   playerRaces: PlayerRaceWithPlayer[];
   words: TypedWord[];
 }) {
@@ -68,10 +80,10 @@ function EndInternal(props: {
     },
   });
 
-  function firstStart() {
-    const starts = props.playerRaces.map((r) => r.start ?? Infinity);
-    return Math.min(...starts);
-  }
+  // function firstStart() {
+  //   const starts = props.playerRaces.map((r) => r.start ?? Infinity);
+  //   return Math.min(...starts);
+  // }
 
   function playerRace() {
     return props.playerRaces.find((r) => r.playerID === userID);
@@ -81,7 +93,10 @@ function EndInternal(props: {
     const race = playerRace();
     // TODO: Implement getSpeed function for Convex
     const duration = (race?.end ?? 0) - (race?.start ?? 0);
-    const wpm = duration > 0 ? Math.round((race?.progress ?? 0) / 5 / (duration / 60000)) : 0;
+    const wpm =
+      duration > 0
+        ? Math.round((race?.progress ?? 0) / 5 / (duration / 60000))
+        : 0;
     return { wpm };
   }
 
@@ -101,7 +116,9 @@ function EndInternal(props: {
             {props.race.quote?.body.slice(playerRace()?.progress)}
           </span>
         </div>
-        <div class="ml-auto text-secondary text-lg">{props.race.quote?.source}</div>
+        <div class="ml-auto text-secondary text-lg">
+          {props.race.quote?.source}
+        </div>
       </div>
 
       <div class="flex items-center justify-between gap-12">
@@ -160,13 +177,16 @@ function Word(word: TypedWord) {
 }
 
 function RaceBar(props: {
-  race: any;
+  race: PlayerRace;
   len: number;
   isCurrent?: boolean;
 }) {
   function speed() {
     const duration = (props.race.end ?? 0) - (props.race.start ?? 0);
-    const wpm = duration > 0 ? Math.round(props.race.progress / 5 / (duration / 60000)) : 0;
+    const wpm =
+      duration > 0
+        ? Math.round(props.race.progress / 5 / (duration / 60000))
+        : 0;
     return { wpm };
   }
 

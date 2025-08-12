@@ -1,11 +1,12 @@
 import { activateItem } from "../../domain/playerRace-convex";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
 import { Id } from "../../../convex/_generated/dataModel";
+import { PlayerRace } from "../../types";
 
 export function ItemAndEffect(props: {
   raceID: Id<"races">;
-  playerRace: any;
-  adversaries: any[];
+  playerRace: PlayerRace;
+  adversaries: PlayerRace[];
 }) {
   return (
     <div class="absolute -top-24 -translate-x-1/2 flex flex-col gap-2">
@@ -17,7 +18,9 @@ export function ItemAndEffect(props: {
 
 // === EFFECTS ===
 
-export function Effect(props: { effect: "stuned" | "poisoned" | "faded" | null }) {
+export function Effect(props: {
+  effect: "stuned" | "poisoned" | "faded" | null;
+}) {
   return (
     <div class={`flex gap-2 text-xl ${getEffectData(props.effect).class}`}>
       <span>{getEffectData(props.effect).icon}</span>
@@ -43,8 +46,8 @@ function getEffectData(effect: "stuned" | "poisoned" | "faded" | null) {
 
 function Item(props: {
   raceID: Id<"races">;
-  playerRace: any;
-  adversaries: any[];
+  playerRace: PlayerRace;
+  adversaries: PlayerRace[];
 }) {
   addKeyboardEventListener({
     keys: ["Enter"],
@@ -73,7 +76,7 @@ function Item(props: {
   );
 }
 
-function getItemsData(item: "missile" | "blob" | "fader" | null) {
+function getItemsData(item: "missile" | "blob" | "fader" | null | undefined) {
   switch (item) {
     case "missile":
       return { icon: "🚀", name: "MISSILE", class: "text-error" };

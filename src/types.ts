@@ -49,8 +49,9 @@ export type TypedWord = {
 export type RaceWithRelations = Race & {
   quote?: Quote;
   author?: Player;
+  players?: Player[];
 };
 
 export type PlayerRaceWithPlayer = PlayerRace & {
-  player?: Player;
+  player: Player;
 };

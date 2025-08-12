@@ -11,22 +11,23 @@ export function CreateRace() {
   const handleCreateRace = async () => {
     const quotesData = quotes();
     if (!quotesData || quotesData.length === 0) return;
-    
+
     // Pick a random quote
-    const randomQuote = quotesData[Math.floor(Math.random() * quotesData.length)];
-    
+    const randomQuote =
+      quotesData[Math.floor(Math.random() * quotesData.length)];
+
     try {
       const raceId = await createRace({
         quoteID: randomQuote._id,
-        token,
+        ...(token ? [token] : []),
       });
-      
+
       // Auto-join the created race
       await joinRace({
         raceId,
-        token,
+        ...(token ? [token] : []),
       });
-      
+
       // Navigate to the race
       window.location.href = `/races/${raceId}`;
     } catch (error) {

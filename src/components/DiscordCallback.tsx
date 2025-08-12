@@ -2,7 +2,6 @@ import { onMount, createSignal, Show } from "solid-js";
 import { handleDiscordCallback } from "../auth/discordAuth";
 
 export function DiscordCallback() {
-  const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal<string | null>(null);
 
   onMount(async () => {
@@ -12,14 +11,13 @@ export function DiscordCallback() {
     } catch (err) {
       console.error("Discord callback error:", err);
       setError(err instanceof Error ? err.message : "Authentication failed");
-      setLoading(false);
     }
   });
 
   return (
     <div class="flex flex-col items-center justify-center min-h-screen gap-4">
-      <Show 
-        when={!error()} 
+      <Show
+        when={!error()}
         fallback={
           <div class="flex flex-col items-center gap-4">
             <div class="text-error text-lg">Authentication Failed</div>
@@ -30,7 +28,7 @@ export function DiscordCallback() {
           </div>
         }
       >
-        <div class="loading loading-spinner loading-lg"></div>
+        <div class="loading loading-spinner loading-lg" />
         <div class="text-lg">Authenticating with Discord...</div>
       </Show>
     </div>

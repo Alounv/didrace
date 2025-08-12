@@ -1,6 +1,6 @@
 import { For, Switch, Match } from "solid-js";
-import { PlayerRace } from "../../schema";
 import { randInt } from "../../utils/rand";
+import { PlayerRace } from "../../types";
 
 const AFFECTED_LENGTH = 24;
 

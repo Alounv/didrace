@@ -12,6 +12,7 @@ import { createQuery } from "../convex-solid";
 import { api } from "../../convex/_generated/api";
 import { guestLogin as doGuestLogin } from "../auth/guestAuth";
 import { redirectToDiscordOAuth } from "../auth/discordAuth";
+import { Id } from "../../convex/_generated/dataModel";
 
 function Header() {
   const { isAuthenticated } = getCurrentUser();
@@ -40,6 +41,11 @@ function Header() {
     location.href = "/";
   }
 
+  function hasQuotes() {
+    const values = quotes();
+    return (values?.length ?? 0) > 0;
+  }
+
   return (
     <div class="bg-base-100 p-8 items-center h-22 card flex-row">
       <A href="/">
@@ -49,7 +55,7 @@ function Header() {
       <div class="ml-auto flex gap-4 items-center">
         {isAuthenticated && <ThemeController />}
 
-        {quotes()?.length > 0 ? (
+        {hasQuotes() ? (
           <Show
             when={!isAuthenticated}
             fallback={
@@ -81,7 +87,7 @@ function Header() {
 function CurrentUser() {
   const { userID } = getCurrentUser();
   const player = createQuery(api.players.getPlayer, {
-    playerId: userID as any,
+    playerId: userID as Id<"players">,
   });
 
   return (

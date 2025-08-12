@@ -3,7 +3,7 @@ import { Id } from "../../convex/_generated/dataModel";
 import { getCurrentUser } from "../convex";
 import { randInt } from "../utils/rand";
 import convex from "../convex";
-import { PlayerRaceWithPlayer } from "../types";
+import { PlayerRace } from "../types";
 
 export type TextDisplay = {
   correct: string;
@@ -66,9 +66,9 @@ export async function onTyped({
   charIndex: number;
   text: string;
   target: string;
-  adversaries: { progress: number; end: null | number }[];
+  adversaries: { progress: number; end?: number }[];
   endRace: () => void;
-  playerRace: any;
+  playerRace: PlayerRace;
 }): Promise<{ hasError: boolean; isComplete: boolean }> {
   const { token } = getCurrentUser();
   const progress = Math.min(charIndex + typed.length, text.length);
@@ -84,7 +84,7 @@ export async function onTyped({
       raceId: raceID,
       progress,
       end: Date.now(),
-      token,
+      ...(token ? [token] : []),
     });
 
     const notFinishedCount = adversaries.filter((r) => r.end === null).length;
@@ -107,9 +107,9 @@ export async function onTyped({
     await convex.mutation(api.races.updatePlayerProgress, {
       raceId: raceID,
       progress,
-      token,
       ...(shouldHaveItem ? { item: getItem() } : {}),
       ...(!isLast ? { item: null } : {}),
+      ...(token ? [token] : []),
     });
 
     return { hasError: false, isComplete: true };
@@ -119,9 +119,9 @@ export async function onTyped({
     raceId: raceID,
     progress,
     start: playerRace.start ?? Date.now(),
-    token,
+    ...(token ? [token] : []),
   });
-  
+
   return { hasError: false, isComplete: false };
 }
 
@@ -155,7 +155,7 @@ export function getSpeed({
 /**
  * Sort player races by end time, then by progress and add speed
  */
-export function computePlayerRaces<P extends any>({
+export function computePlayerRaces<P extends PlayerRace>({
   playerRaces,
 }: {
   playerRaces: P[];
@@ -201,8 +201,8 @@ export async function activateItem({
   adversaries,
 }: {
   raceID: Id<"races">;
-  playerRace: any;
-  adversaries: any[];
+  playerRace: PlayerRace;
+  adversaries: PlayerRace[];
 }) {
   const { token } = getCurrentUser();
 
@@ -210,7 +210,7 @@ export async function activateItem({
   await convex.mutation(api.races.updatePlayerProgress, {
     raceId: raceID,
     item: null,
-    token,
+    ...(token ? [token] : []),
   });
 
   // Activate item logic here
@@ -232,8 +232,15 @@ export async function activateItem({
 
       const effect = EFFECTS[playerRace.item];
 
-      // Note: This would need a separate mutation to update another player's effect
-      // You'd need to implement this in the Convex functions
+      // Apply effect to target player
+      if (targetPlayerID && potentialTargets.length > 0) {
+        await convex.mutation(api.races.applyEffectToPlayer, {
+          raceId: raceID,
+          targetPlayerID: targetPlayerID as Id<"players">,
+          effect,
+          ...(token ? { token } : {}),
+        });
+      }
       break;
     }
     default:
@@ -250,16 +257,12 @@ const EFFECTS = {
 /**
  * Clean effect logic here
  */
-export async function cleanEffect({
-  raceID,
-}: {
-  raceID: Id<"races">;
-}) {
+export async function cleanEffect({ raceID }: { raceID: Id<"races"> }) {
   const { token } = getCurrentUser();
-  
+
   return await convex.mutation(api.races.updatePlayerProgress, {
     raceId: raceID,
     effect: null,
-    token,
+    ...(token ? [token] : []),
   });
 }

@@ -1,7 +1,7 @@
 import { createEffect, For, Signal } from "solid-js";
-import { Player, PlayerRace } from "../../schema";
 import { Cursor } from "./Cursor";
 import { PlayerName } from "./PlayerName";
+import { Player, PlayerRace } from "../../types";
 
 export function Adversaries(props: {
   playerRaces: (PlayerRace & { player: Player })[];

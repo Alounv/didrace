@@ -13,10 +13,7 @@ import {
   clipboardDocumentCheck,
 } from "solid-heroicons/solid-mini";
 
-export function CountDown(props: {
-  race: Race;
-  playerRace?: PlayerRace;
-}) {
+export function CountDown(props: { race: Race; playerRace?: PlayerRace }) {
   const navigate = useNavigate();
   const [countdown, setCountdown] = createSignal(4);
   const { token } = getCurrentUser();
@@ -35,23 +32,23 @@ export function CountDown(props: {
     if (isAlone()) {
       await updateRaceStatus({
         raceId: props.race._id,
-        status: "started",
-        token,
+        status: "started" as const,
+        ...(token ? [token] : []),
       });
       return;
     }
 
     await updateRaceStatus({
       raceId: props.race._id,
-      status: "starting",
-      token,
+      status: "starting" as const,
+      ...(token ? [token] : []),
     });
 
     setTimeout(async () => {
       await updateRaceStatus({
         raceId: props.race._id,
         status: "started",
-        token,
+        ...(token ? [token] : []),
       });
     }, 4000);
   };

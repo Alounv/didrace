@@ -5,8 +5,7 @@ import { getCurrentUser } from "../../convex";
 import { Button } from "../../components/Button";
 import { Icon } from "solid-heroicons";
 import { clipboardDocumentCheck } from "solid-heroicons/outline";
-
-const LIMIT = 3000;
+import { Id } from "../../../convex/_generated/dataModel";
 
 type WordData = {
   count: number;
@@ -16,8 +15,8 @@ type WordData = {
 export function Profile() {
   const { userID, token } = getCurrentUser();
   const typed = createQuery(api.analytics.getPlayerTypedWords, {
-    playerId: userID as any,
-    token,
+    playerId: userID as Id<"players">,
+    ...(token ? { token } : {}),
   });
 
   function words() {

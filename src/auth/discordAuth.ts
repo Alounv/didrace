@@ -3,17 +3,20 @@ import convex from "../convex";
 import { createJWT } from "./jwt";
 
 // Discord OAuth configuration
-const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID || "1333908942090145865";
-const DISCORD_CLIENT_SECRET = import.meta.env.VITE_DISCORD_CLIENT_SECRET || "yWcIM_ZpRaU1dGSQFVgJBPcYWWNwU5EK";
+const DISCORD_CLIENT_ID =
+  import.meta.env.VITE_DISCORD_CLIENT_ID || "1333908942090145865";
+const DISCORD_CLIENT_SECRET =
+  import.meta.env.VITE_DISCORD_CLIENT_SECRET ||
+  "yWcIM_ZpRaU1dGSQFVgJBPcYWWNwU5EK";
 const DISCORD_REDIRECT_URI = `${window.location.origin}/api/discord`;
 
 export function redirectToDiscordOAuth() {
   const state = Math.random().toString(36).substring(7);
   const scope = "identify email";
-  
+
   // Store state in sessionStorage to verify later
-  sessionStorage.setItem('discord_oauth_state', state);
-  
+  sessionStorage.setItem("discord_oauth_state", state);
+
   const discordAuthUrl = new URL("https://discord.com/api/oauth2/authorize");
   discordAuthUrl.searchParams.set("client_id", DISCORD_CLIENT_ID);
   discordAuthUrl.searchParams.set("redirect_uri", DISCORD_REDIRECT_URI);
@@ -39,13 +42,13 @@ export async function handleDiscordCallback() {
   }
 
   // Verify state to prevent CSRF attacks
-  const storedState = sessionStorage.getItem('discord_oauth_state');
+  const storedState = sessionStorage.getItem("discord_oauth_state");
   if (state !== storedState) {
     throw new Error("Invalid state parameter");
   }
 
   // Clean up stored state
-  sessionStorage.removeItem('discord_oauth_state');
+  sessionStorage.removeItem("discord_oauth_state");
 
   try {
     // Exchange code for access token
@@ -95,10 +98,10 @@ export async function handleDiscordCallback() {
         name: discordUser.global_name || discordUser.username || "Discord User",
         avatar: discordUser.avatar
           ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
-          : undefined,
-        color: discordUser.accent_color 
-          ? `#${discordUser.accent_color.toString(16).padStart(6, '0')}` 
-          : undefined,
+          : "",
+        color: discordUser.accent_color
+          ? `#${discordUser.accent_color.toString(16).padStart(6, "0")}`
+          : "",
       });
 
       player = await convex.query(api.players.getPlayer, {
@@ -113,13 +116,13 @@ export async function handleDiscordCallback() {
 
     // Create JWT and store in cookie
     const jwt = await createJWT(player!._id);
-    
+
     // Set JWT cookie
     document.cookie = `jwt=${jwt}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax`;
-    
+
     // Redirect to home
     window.location.href = "/";
-    
+
     return player;
   } catch (error) {
     console.error("Discord authentication failed:", error);

@@ -7,7 +7,6 @@ import { RaceInput } from "./RaceInput";
 
 export function RaceArea(props: {
   race: Race;
-  playerRace?: any;
   playerRaces: PlayerRaceWithPlayer[];
   quote: string;
 }) {
@@ -15,15 +14,17 @@ export function RaceArea(props: {
 
   return (
     <Show
-      when={props.playerRaces.some((r) => r.playerID === userID)}
+      when={props.playerRaces.find((r) => r.playerID === userID)}
       fallback={<Initializer race={props.race} />}
     >
-      <RaceInput
-        race={props.race}
-        playerRace={props.playerRace}
-        playerRaces={props.playerRaces}
-        quote={props.quote}
-      />
+      {(playerRace) => (
+        <RaceInput
+          race={props.race}
+          playerRace={playerRace()}
+          playerRaces={props.playerRaces}
+          quote={props.quote}
+        />
+      )}
     </Show>
   );
 }
@@ -37,7 +38,7 @@ function Initializer(props: { race: Race }) {
     if (["ready", "started", "starting"].includes(props.race.status)) {
       await joinRace({
         raceId: props.race._id,
-        token,
+        ...(token ? [token] : []),
       });
     }
   });
