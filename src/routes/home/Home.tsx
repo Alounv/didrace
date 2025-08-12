@@ -15,12 +15,12 @@ function Home() {
   const quotes = createQuery(api.quotes.getAllQuotes, {});
   const readyRaces = createQuery(api.races.getRacesByStatus, {
     status: "ready" as const,
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 
   const startedRaces = createQuery(api.races.getRacesByStatus, {
     status: "started" as const,
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 
   return (

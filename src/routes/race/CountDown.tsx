@@ -33,7 +33,7 @@ export function CountDown(props: { race: Race; playerRace?: PlayerRace }) {
       await updateRaceStatus({
         raceId: props.race._id,
         status: "started" as const,
-        ...(token ? [token] : []),
+        ...(token ? { token } : {}),
       });
       return;
     }
@@ -41,14 +41,14 @@ export function CountDown(props: { race: Race; playerRace?: PlayerRace }) {
     await updateRaceStatus({
       raceId: props.race._id,
       status: "starting" as const,
-      ...(token ? [token] : []),
+      ...(token ? { token } : {}),
     });
 
     setTimeout(async () => {
       await updateRaceStatus({
         raceId: props.race._id,
         status: "started",
-        ...(token ? [token] : []),
+        ...(token ? { token } : {}),
       });
     }, 4000);
   };

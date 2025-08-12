@@ -19,13 +19,13 @@ export function CreateRace() {
     try {
       const raceId = await createRace({
         quoteID: randomQuote._id,
-        ...(token ? [token] : []),
+        ...(token ? { token } : {}),
       });
 
       // Auto-join the created race
       await joinRace({
         raceId,
-        ...(token ? [token] : []),
+        ...(token ? { token } : {}),
       });
 
       // Navigate to the race

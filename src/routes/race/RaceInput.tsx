@@ -45,7 +45,7 @@ export function RaceInput(props: {
   const [freeRightSpace, setFreeRightSpace] = createSignal(0);
   const otherQuotes = createQuery(api.quotes.getRandomQuotes, {
     excludeId: "" as Id<"quotes">,
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
   const [offsets, setOffests] = createSignal<Record<string, number>>({});
   const [positions, setPositions] = createSignal<
@@ -105,7 +105,6 @@ export function RaceInput(props: {
 
   return (
     <>
-      {JSON.stringify(props.quote)}
       <AdversariesSides
         side="left"
         players={adversaries()

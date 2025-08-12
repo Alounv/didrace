@@ -84,7 +84,7 @@ export async function onTyped({
       raceId: raceID,
       progress,
       end: Date.now(),
-      ...(token ? [token] : []),
+      ...(token ? { token } : {}),
     });
 
     const notFinishedCount = adversaries.filter((r) => r.end === null).length;
@@ -109,7 +109,7 @@ export async function onTyped({
       progress,
       ...(shouldHaveItem ? { item: getItem() } : {}),
       ...(!isLast ? { item: null } : {}),
-      ...(token ? [token] : []),
+      ...(token ? { token } : {}),
     });
 
     return { hasError: false, isComplete: true };
@@ -119,7 +119,7 @@ export async function onTyped({
     raceId: raceID,
     progress,
     start: playerRace.start ?? Date.now(),
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 
   return { hasError: false, isComplete: false };
@@ -210,7 +210,7 @@ export async function activateItem({
   await convex.mutation(api.races.updatePlayerProgress, {
     raceId: raceID,
     item: null,
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 
   // Activate item logic here
@@ -263,6 +263,6 @@ export async function cleanEffect({ raceID }: { raceID: Id<"races"> }) {
   return await convex.mutation(api.races.updatePlayerProgress, {
     raceId: raceID,
     effect: null,
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 }

@@ -38,7 +38,7 @@ function Initializer(props: { race: Race }) {
     if (["ready", "started", "starting"].includes(props.race.status)) {
       await joinRace({
         raceId: props.race._id,
-        ...(token ? [token] : []),
+        ...(token ? { token } : {}),
       });
     }
   });

@@ -31,7 +31,7 @@ export function End(props: {
   const typedWords = createQuery(api.analytics.getPlayerTypedWords, {
     playerId: userID as Id<"players">,
     raceId: params.id as Id<"races">,
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 
   return (

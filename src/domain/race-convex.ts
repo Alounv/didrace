@@ -14,13 +14,13 @@ export async function create({ quotes }: { quotes: { _id: Id<"quotes"> }[] }) {
 
   const raceId = await convex.mutation(api.races.createRace, {
     quoteID,
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 
   // Auto-join the created race
   await convex.mutation(api.races.joinRace, {
     raceId,
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 
   return raceId;
@@ -42,7 +42,7 @@ export async function start({
     await convex.mutation(api.races.updateRaceStatus, {
       raceId: raceID,
       status: "started",
-      ...(token ? [token] : []),
+      ...(token ? { token } : {}),
     });
     return;
   }
@@ -50,14 +50,14 @@ export async function start({
   await convex.mutation(api.races.updateRaceStatus, {
     raceId: raceID,
     status: "starting",
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 
   setTimeout(async () => {
     await convex.mutation(api.races.updateRaceStatus, {
       raceId: raceID,
       status: "started",
-      ...(token ? [token] : []),
+      ...(token ? { token } : {}),
     });
   }, 1000 * 4);
 }
@@ -77,20 +77,20 @@ export async function end({
   // Create new race
   const newRaceId = await convex.mutation(api.races.createRace, {
     quoteID: quotes[randInt(quotes.length)]._id,
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 
   // Update current race to finished with next race ID
   await convex.mutation(api.races.setNextRaceID, {
     raceId: raceID,
     nextRaceID: newRaceId,
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 
   await convex.mutation(api.races.updateRaceStatus, {
     raceId: raceID,
     status: "finished",
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 
   return newRaceId;
@@ -110,15 +110,15 @@ export async function leave({
 
   await convex.mutation(api.races.leaveRace, {
     raceId: raceID,
-    ...(token ? [token] : []),
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
+    ...(token ? { token } : {}),
   });
 
   if (isAlone) {
     await convex.mutation(api.races.updateRaceStatus, {
       raceId: raceID,
       status: "finished",
-      ...(token ? [token] : []),
+      ...(token ? { token } : {}),
     });
   }
 }
@@ -131,7 +131,7 @@ export async function join({ raceID }: { raceID: Id<"races"> }) {
 
   return await convex.mutation(api.races.joinRace, {
     raceId: raceID,
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 }
 
@@ -162,6 +162,6 @@ export async function updateProgress({
     ...(end ? [end] : []),
     ...(effect ? [effect] : []),
     ...(item ? [item] : []),
-    ...(token ? [token] : []),
+    ...(token ? { token } : {}),
   });
 }
