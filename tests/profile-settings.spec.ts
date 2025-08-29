@@ -17,8 +17,7 @@ test("guest login and edit profile settings", async ({ page }) => {
   await expect(dropdownContainer).toBeVisible();
 
   // Try multiple approaches to open the dropdown
-  const playerNameButton = dropdownContainer.locator('[role="button"]');
-  await playerNameButton.click();
+  await dropdownContainer.locator('[role="button"]').click();
 
   // Wait for settings dropdown to be visible
   const settingsDropdown = dropdownContainer.locator(".dropdown-content");
@@ -84,52 +83,3 @@ test("guest login and edit profile settings", async ({ page }) => {
   await page.getByRole("button", { name: "Logout" }).click();
   await expect(page.getByRole("button", { name: "Guest" })).toBeVisible();
 });
-
-// test("profile settings validation and error handling", async ({ page }) => {
-//   // Navigate and login as guest
-//   await page.goto("/");
-//   await page.getByRole("button", { name: "Guest" }).click();
-//   await page.waitForURL("/");
-
-//   // Open settings dropdown
-//   const playerNameButton = page.locator('button:has-text("Guest")');
-//   await playerNameButton.click();
-
-//   const settingsDropdown = page.locator(".dropdown-content");
-//   await expect(settingsDropdown).toBeVisible();
-
-//   // Test empty name handling
-//   const nameInput = settingsDropdown.locator('input[placeholder="Type here"]');
-//   await nameInput.fill("");
-//   await page.waitForTimeout(1000);
-
-//   // The name should revert to a default or maintain previous value
-//   // Since we don't have explicit validation, we just verify it doesn't crash
-//   await expect(settingsDropdown).toBeVisible();
-
-//   // Test invalid color format
-//   const colorInput = settingsDropdown.locator('input[placeholder="#ffffff"]');
-//   await colorInput.fill("invalid-color");
-//   await page.waitForTimeout(1000);
-
-//   // Verify the UI still works after invalid input
-//   await expect(settingsDropdown).toBeVisible();
-
-//   // Test valid hex color without #
-//   await colorInput.fill("00FF00");
-//   await page.waitForTimeout(1000);
-
-//   // Test invalid avatar URL
-//   const avatarInput = settingsDropdown.locator(
-//     'input[placeholder="https://..."]',
-//   );
-//   await avatarInput.fill("not-a-url");
-//   await page.waitForTimeout(1000);
-
-//   // Verify the UI doesn't crash with invalid URL
-//   await expect(settingsDropdown).toBeVisible();
-
-//   // Logout
-//   await page.locator("body").click(); // Close dropdown
-//   await page.getByRole("button", { name: "Logout" }).click();
-// });

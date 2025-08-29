@@ -119,11 +119,6 @@ convex/
 
 ###  TODO:
 
-- Add playwright tests to check profile page
-- Add playwright tests to edit name, color avatar
-
-- Add playwright tests for multi player races (including countdown and final order)
-
 - Move the logic in domain elsewhere (in convex functions if possible)
 - Try to move logic without state into convex functions if possible
 - Do no query all quotes only to check if there are quotes

@@ -136,14 +136,14 @@ function Count(props: { status: string; countdown: number }) {
 
   return (
     <>
-      <Dot color={colors()[0]} />
-      <Dot color={colors()[1]} />
-      <Dot color={colors()[2]} />
+      <Dot color={colors()[0]} id={1} />
+      <Dot color={colors()[1]} id={2} />
+      <Dot color={colors()[2]} id={3} />
     </>
   );
 }
 
-function Dot(props: { color: "r" | "g" | null }) {
+function Dot(props: { color: "r" | "g" | null; id: number }) {
   function colorClass() {
     switch (props.color) {
       case "r":
@@ -154,5 +154,10 @@ function Dot(props: { color: "r" | "g" | null }) {
         return "bg-base-content";
     }
   }
-  return <div class={`rounded-full h-7 w-7 ${colorClass()}`} />;
+  return (
+    <div
+      data-testId={`dot-${props.id}`}
+      class={`rounded-full h-7 w-7 ${colorClass()}`}
+    />
+  );
 }
