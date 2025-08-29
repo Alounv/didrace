@@ -121,7 +121,6 @@ convex/
 
 - Add playwright tests to check profile page
 - Add playwright tests to edit name, color avatar
-- Add playwright tests to check one can leave the race before starting
 
 - Add playwright tests for multi player races (including countdown and final order)
 

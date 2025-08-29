@@ -4,7 +4,7 @@ import { Route, Router } from "@solidjs/router";
 import "./index.css";
 import { JSX, lazy } from "solid-js";
 import Header from "./components/Header.tsx";
-import { Profile } from "./routes/analytics/Analytics.tsx";
+import { Analytics } from "./routes/analytics/Analytics.tsx";
 import { DiscordCallback } from "./components/DiscordCallback.tsx";
 import { ConvexContext } from "./convex-solid.ts";
 import convex from "./convex.ts";
@@ -29,7 +29,7 @@ render(
       <Router root={Layout}>
         <Route path="/" component={Home} />
         <Route path="/races/:id" component={Race} />
-        <Route path="/profile" component={Profile} />
+        <Route path="/analytics" component={Analytics} />
         <Route path="/api/discord" component={DiscordCallback} />
       </Router>
     </ConvexContext.Provider>

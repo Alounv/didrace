@@ -12,7 +12,7 @@ type WordData = {
   errors: number;
 };
 
-export function Profile() {
+export function Analytics() {
   const { userID, token } = getCurrentUser();
   const typed = createQuery(api.analytics.getPlayerTypedWords, () => ({
     playerId: userID as Id<"players">,
