@@ -188,7 +188,7 @@ export const updatePlayerProgress = mutation({
         v.literal("stuned"),
         v.literal("poisoned"),
         v.literal("faded"),
-        v.null(),
+        v.literal("none"),
       ),
     ),
     item: v.optional(
@@ -196,7 +196,7 @@ export const updatePlayerProgress = mutation({
         v.literal("missile"),
         v.literal("blob"),
         v.literal("fader"),
-        v.null(),
+        v.literal("none"),
       ),
     ),
     token: v.optional(v.string()),
@@ -220,8 +220,12 @@ export const updatePlayerProgress = mutation({
       ...(args.progress ? { progress: args.progress } : {}),
       ...(args.start ? { start: args.start } : {}),
       ...(args.end ? { end: args.end } : {}),
-      ...(args.effect ? { effect: args.effect } : {}),
-      ...(args.item ? { item: args.item } : {}),
+      ...(args.effect
+        ? { effect: args.effect === "none" ? undefined : args.effect }
+        : {}),
+      ...(args.item
+        ? { item: args.item === "none" ? undefined : args.item }
+        : {}),
     });
   },
 });

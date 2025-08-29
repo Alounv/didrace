@@ -99,15 +99,16 @@ export async function onTyped({
   // Word complete --> (save player progress and move to next word)
   if (target.length + 1 === typed.length) {
     const isLast = adversaries.every((a) => a.progress > progress);
-    const notFinishedCount = adversaries.filter((r) => r.end === null).length;
+    const notFinishedCount = adversaries.filter((r) => !r.end).length;
     const shouldHaveItem =
       notFinishedCount > 0 && isLast && !playerRace.item && randInt(5) === 0; // 1 on 6
+    console.log({ isLast, notFinishedCount, shouldHaveItem });
 
     await convex.mutation(api.races.updatePlayerProgress, {
       raceId: raceID,
       progress,
       ...(shouldHaveItem ? { item: getItem() } : {}),
-      ...(!isLast ? { item: null } : {}),
+      ...(!isLast ? { item: "none" } : {}),
       ...(token ? { token } : {}),
     });
 
@@ -208,7 +209,7 @@ export async function activateItem({
   // Remove item
   await convex.mutation(api.races.updatePlayerProgress, {
     raceId: raceID,
-    item: null,
+    item: "none",
     ...(token ? { token } : {}),
   });
 
@@ -261,7 +262,7 @@ export async function cleanEffect({ raceID }: { raceID: Id<"races"> }) {
 
   return await convex.mutation(api.races.updatePlayerProgress, {
     raceId: raceID,
-    effect: null,
+    effect: "none",
     ...(token ? { token } : {}),
   });
 }

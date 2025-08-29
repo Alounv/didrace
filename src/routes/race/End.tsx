@@ -137,6 +137,7 @@ function EndInternal(props: {
               isCurrent
               len={props.race.quote?.body.length ?? 0}
             />
+            {/* TODO other races should be saved and not deleted when leaving so that we can keep history */}
           </div>
         </div>
 
