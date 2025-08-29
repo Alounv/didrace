@@ -42,10 +42,25 @@ export const getRacesByStatus = query({
     const userID = await getUserFromToken(args.token);
     requireAuth(userID);
 
-    return await ctx.db
+    const races = await ctx.db
       .query("races")
       .withIndex("by_status", (q) => q.eq("status", args.status))
       .collect();
+
+    // Populate author and quote data for each race
+    const racesWithAuthors = [];
+    for (const race of races) {
+      const quote = await ctx.db.get(race.quoteID);
+      const author = await ctx.db.get(race.authorID);
+
+      racesWithAuthors.push({
+        ...race,
+        ...(quote && { quote }),
+        ...(author && { author }),
+      });
+    }
+
+    return racesWithAuthors;
   },
 });
 

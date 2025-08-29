@@ -62,22 +62,26 @@ function RacePage() {
           <Match
             when={race().status === "ready" || race().status === "starting"}
           >
-            <Layout>
-              <CountDown
-                race={race()}
-                playerRace={playerRace()!}
-                isAlone={playerRaces().length === 1}
-              />
-            </Layout>
+            <Layout
+              countdown={
+                <CountDown
+                  race={race()}
+                  playerRace={playerRace()!}
+                  isAlone={playerRaces().length === 1}
+                />
+              }
+            />
           </Match>
           <Match when={race().status === "started"}>
-            <Layout>
-              <RaceArea
-                race={race()}
-                playerRaces={playerRaces()}
-                quote={quote()}
-              />
-            </Layout>
+            <Layout
+              racearea={
+                <RaceArea
+                  race={race()}
+                  playerRaces={playerRaces()}
+                  quote={quote()}
+                />
+              }
+            />
           </Match>
           <Match when={race().status === "finished"}>
             <End race={race()} playerRaces={playerRaces()} />
@@ -88,10 +92,11 @@ function RacePage() {
   );
 }
 
-function Layout(props: { children: JSX.Element }) {
+function Layout(props: { countdown?: JSX.Element; racearea?: JSX.Element }) {
   return (
     <div class="flex gap-8 my-auto items-center w-full h-12 relative">
-      <div class="w-4/10 flex justify-end">{props.children}</div>
+      <div class="w-4/10 flex justify-end">{props.countdown}</div>
+      {props.racearea}
     </div>
   );
 }
