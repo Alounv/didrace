@@ -1,7 +1,7 @@
 import { createEffect, createSignal, Show } from "solid-js";
 import { createQuery } from "../../convex-solid";
 import { api } from "../../../convex/_generated/api";
-import { getCurrentUser } from "../../convex";
+import convex, { getCurrentUser } from "../../convex";
 import { Race, PlayerRaceWithPlayer, PlayerRace } from "../../types";
 import { Podium } from "./Podium";
 import { Adversaries, AdversariesSides } from "./Adversaries";
@@ -14,7 +14,6 @@ import {
   onTyped,
   cleanEffect,
 } from "../../domain/playerRace-convex";
-import { saveTypedWord } from "../../domain/typedWords-convex";
 import { end } from "../../domain/race-convex";
 
 const EFFECT_DURATION = 5000;
@@ -228,13 +227,15 @@ export function RaceInput(props: {
               const now = Date.now();
               setCharIndex((i) => i + typed.length);
               setInput("");
-              saveTypedWord({
-                raceID: props.race._id,
+
+              await convex.mutation(api.analytics.addTypedWord, {
+                raceId: props.race._id,
                 word: typed,
-                start: startRef,
                 hadError: hadErrorRef,
-                now,
+                duration: now - startRef,
+                ...(token ? { token } : {}),
               });
+
               hadErrorRef = false;
               startRef = null;
             } else {
