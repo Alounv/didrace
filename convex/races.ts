@@ -103,18 +103,20 @@ export const getPlayerRaces = query({
     const playerRaces = await ctx.db
       .query("playerRaces")
       .withIndex("by_race", (q) => q.eq("raceID", args.raceId))
+      .filter((q) => q.neq(q.field("playerID"), null))
       .collect();
 
-    // Get player info for each player race
-    const playerRacesWithPlayers = await Promise.all(
-      playerRaces.map(async (pr) => {
-        const player = await ctx.db.get(pr.playerID);
-        return {
-          ...pr,
+    // Populate player data at query level using map
+    const playerRacesWithPlayers = [];
+    for (const playerRace of playerRaces) {
+      const player = await ctx.db.get(playerRace.playerID);
+      if (player) {
+        playerRacesWithPlayers.push({
+          ...playerRace,
           player,
-        };
-      }),
-    );
+        });
+      }
+    }
 
     return playerRacesWithPlayers;
   },

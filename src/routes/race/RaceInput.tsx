@@ -16,7 +16,6 @@ import {
 } from "../../domain/playerRace-convex";
 import { saveTypedWord } from "../../domain/typedWords-convex";
 import { end } from "../../domain/race-convex";
-import { Id } from "../../../convex/_generated/dataModel";
 
 const EFFECT_DURATION = 5000;
 
@@ -44,7 +43,6 @@ export function RaceInput(props: {
   const [offset, setOffset] = createSignal(0);
   const [freeRightSpace, setFreeRightSpace] = createSignal(0);
   const otherQuotes = createQuery(api.quotes.getRandomQuotes, {
-    excludeId: "" as Id<"quotes">,
     ...(token ? { token } : {}),
   });
   const [offsets, setOffests] = createSignal<Record<string, number>>({});

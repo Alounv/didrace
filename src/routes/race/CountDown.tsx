@@ -12,6 +12,7 @@ import {
   chevronDoubleRight,
   clipboardDocumentCheck,
 } from "solid-heroicons/solid-mini";
+import { leave } from "../../domain/race-convex";
 
 export function CountDown(props: { race: Race; playerRace?: PlayerRace }) {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ export function CountDown(props: { race: Race; playerRace?: PlayerRace }) {
   };
 
   const handleLeave = async () => {
-    // TODO: Implement leave race mutation
+    await leave({ raceID: props.race._id, isAlone: false });
     navigate("/");
   };
 

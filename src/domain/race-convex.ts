@@ -111,7 +111,6 @@ export async function leave({
   await convex.mutation(api.races.leaveRace, {
     raceId: raceID,
     ...(token ? { token } : {}),
-    ...(token ? { token } : {}),
   });
 
   if (isAlone) {

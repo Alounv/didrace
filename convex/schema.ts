@@ -20,10 +20,10 @@ export default defineSchema({
     authorID: v.id("players"),
     status: v.union(
       v.literal("ready"),
-      v.literal("starting"), 
+      v.literal("starting"),
       v.literal("started"),
       v.literal("finished"),
-      v.literal("cancelled")
+      v.literal("cancelled"),
     ),
     nextRaceID: v.optional(v.id("races")),
     timestamp: v.number(),
@@ -37,16 +37,12 @@ export default defineSchema({
     progress: v.number(),
     start: v.optional(v.number()), // null means the player never started typing
     end: v.optional(v.number()), // null means the player did not finish the race
-    effect: v.optional(v.union(
-      v.literal("stuned"),
-      v.literal("poisoned"), 
-      v.literal("faded")
-    )),
-    item: v.optional(v.union(
-      v.literal("missile"),
-      v.literal("blob"),
-      v.literal("fader")
-    )),
+    effect: v.optional(
+      v.union(v.literal("stuned"), v.literal("poisoned"), v.literal("faded")),
+    ),
+    item: v.optional(
+      v.union(v.literal("missile"), v.literal("blob"), v.literal("fader")),
+    ),
   })
     .index("by_player", ["playerID"])
     .index("by_race", ["raceID"])

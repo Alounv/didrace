@@ -51,6 +51,7 @@ export const initializeQuotes = mutation({
         text: v.string(),
         source: v.string(),
         id: v.number(),
+        length: v.number(),
       }),
     ),
   },
