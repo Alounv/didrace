@@ -7,12 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": [
-      "**",
-      "!**/dist/",
-      "!**/node_modules/",
-      "!**/convex/_generated/"
-    ]
+    "includes": ["**", "!**/dist", "!**/node_modules", "!**/convex/_generated"]
   },
   "formatter": {
     "enabled": true,
@@ -32,11 +27,13 @@
       "correctness": {
         "useExhaustiveDependencies": "off",
         "noUnusedImports": "error",
-        "noUnusedVariables": "error"
+        "noUnusedVariables": "error",
+        "noUnknownProperty": "off"
       },
       "suspicious": {
         "noExplicitAny": "off",
-        "noDocumentCookie": "off"
+        "noDocumentCookie": "off",
+        "noUnknownAtRules": "off"
       }
     }
   },
