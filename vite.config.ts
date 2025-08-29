@@ -1,8 +1,6 @@
 import { defineConfig } from "vite";
 import solid from "vite-plugin-solid";
 import tailwindcss from "@tailwindcss/vite";
-import { getRequestListener } from "@hono/node-server";
-import { app } from "./api/index.js";
 
 export default defineConfig({
   optimizeDeps: {
@@ -17,21 +15,20 @@ export default defineConfig({
       "top-level-await": true,
     },
   },
-  plugins: [
-    tailwindcss(),
-    solid(),
-    {
-      name: "api-server",
-      configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-          if (!req.url?.startsWith("/api")) {
-            return next();
+  plugins: [tailwindcss(), solid()],
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:3210",
+        changeOrigin: true,
+        bypass: (req) => {
+          // Don't proxy Discord OAuth callback - handle it in frontend
+          if (req.url?.startsWith("/api/discord")) {
+            return req.url;
           }
-          getRequestListener(async (request) => {
-            return await app.fetch(request, {});
-          })(req, res);
-        });
+          return null;
+        },
       },
     },
-  ],
+  },
 });

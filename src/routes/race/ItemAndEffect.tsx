@@ -1,11 +1,10 @@
-import { Zero } from "@rocicorp/zero";
-import { activateItem } from "../../domain/playerRace";
-import { PlayerRace, Schema } from "../../schema";
+import { activateItem } from "../../domain/playerRace-convex";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
+import { Id } from "../../../convex/_generated/dataModel";
+import { PlayerRace } from "../../types";
 
 export function ItemAndEffect(props: {
-  z: Zero<Schema>;
-  raceID: string;
+  raceID: Id<"races">;
   playerRace: PlayerRace;
   adversaries: PlayerRace[];
 }) {
@@ -19,7 +18,9 @@ export function ItemAndEffect(props: {
 
 // === EFFECTS ===
 
-export function Effect(props: { effect: PlayerRace["effect"] }) {
+export function Effect(props: {
+  effect: "stuned" | "poisoned" | "faded" | null;
+}) {
   return (
     <div class={`flex gap-2 text-xl ${getEffectData(props.effect).class}`}>
       <span>{getEffectData(props.effect).icon}</span>
@@ -28,7 +29,7 @@ export function Effect(props: { effect: PlayerRace["effect"] }) {
   );
 }
 
-function getEffectData(effect: PlayerRace["effect"]) {
+function getEffectData(effect: "stuned" | "poisoned" | "faded" | null) {
   switch (effect) {
     case "stuned":
       return { icon: "💥", name: "STUNED", class: "text-error" };
@@ -44,8 +45,7 @@ function getEffectData(effect: PlayerRace["effect"]) {
 // === ITEMS ===
 
 function Item(props: {
-  z: Zero<Schema>;
-  raceID: string;
+  raceID: Id<"races">;
   playerRace: PlayerRace;
   adversaries: PlayerRace[];
 }) {
@@ -55,7 +55,11 @@ function Item(props: {
       if (!e) return;
 
       if (e.code === "Enter") {
-        activateItem(props);
+        activateItem({
+          raceID: props.raceID,
+          playerRace: props.playerRace,
+          adversaries: props.adversaries,
+        });
         return;
       }
     },
@@ -72,7 +76,7 @@ function Item(props: {
   );
 }
 
-function getItemsData(item: PlayerRace["item"]) {
+function getItemsData(item: "missile" | "blob" | "fader" | null | undefined) {
   switch (item) {
     case "missile":
       return { icon: "🚀", name: "MISSILE", class: "text-error" };

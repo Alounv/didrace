@@ -1,30 +1,29 @@
 import { For } from "solid-js";
-import { Zero } from "@rocicorp/zero";
-import { Schema } from "../../schema";
-import { useQuery } from "@rocicorp/zero/solid";
+import { createQuery } from "../../convex-solid";
+import { api } from "../../../convex/_generated/api";
+import { getCurrentUser } from "../../convex";
 import { Button } from "../../components/Button";
 import { Icon } from "solid-heroicons";
 import { clipboardDocumentCheck } from "solid-heroicons/outline";
-
-const LIMIT = 3000;
+import { Id } from "../../../convex/_generated/dataModel";
 
 type WordData = {
   count: number;
   errors: number;
 };
 
-export function Profile(props: { z: Zero<Schema> }) {
-  const [typed] = useQuery(() =>
-    props.z.query.typed_word
-      .where("playerID", "=", props.z.userID)
-      .orderBy("timestamp", "desc")
-      .limit(LIMIT),
-  );
+export function Analytics() {
+  const { userID, token } = getCurrentUser();
+  const typed = createQuery(api.analytics.getPlayerTypedWords, () => ({
+    playerId: userID as Id<"players">,
+    ...(token ? { token } : {}),
+  }));
 
   function words() {
     const grouped: Record<string, WordData> = {};
+    const typedWords = typed() || [];
 
-    for (const { word, hadError } of typed()) {
+    for (const { word, hadError } of typedWords) {
       const existing = grouped[word];
       grouped[word] = {
         count: (existing?.count || 0) + 1,
@@ -46,7 +45,7 @@ export function Profile(props: { z: Zero<Schema> }) {
     <div class="border border-base-200 rounded p-4 mx-auto">
       <div class="text-secondary mb-4 max-w-2xl">
         <div class="mb-2">
-          {`On the last ${LIMIT} words typed, the ones with at least 2 errors.`}
+          {`On your typed words, the ones with at least 2 errors.`}
         </div>
         <div class="mb-4">
           {`Words are sorted by total number of errors which is a good indicator of how much those words slow you down (since it combines frequency and error rate).`}

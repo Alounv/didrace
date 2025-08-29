@@ -1,7 +1,7 @@
 import { For } from "solid-js";
-import { Zero } from "@rocicorp/zero";
-import { Player, Schema } from "../schema";
-import { updatePlayer } from "../domain/player";
+import { Player } from "../types";
+import { createMutation } from "../convex-solid";
+import { api } from "../../convex/_generated/api";
 
 const COLORS = [
   "#12C3E2",
@@ -13,10 +13,22 @@ const COLORS = [
 ];
 
 export function Settings(props: {
-  z: Zero<Schema>;
   player: Player;
   class: string;
 }) {
+  const updatePlayerMutation = createMutation(api.players.updatePlayer);
+
+  const handleUpdatePlayer = async (updates: { name?: string; color?: string; avatar?: string }) => {
+    try {
+      await updatePlayerMutation({
+        playerId: props.player._id,
+        ...updates,
+      });
+    } catch (error) {
+      console.error("Failed to update player:", error);
+    }
+  };
+
   return (
     <div
       tabindex="0"
@@ -29,7 +41,7 @@ export function Settings(props: {
             type="text"
             placeholder="Type here"
             value={props.player.name}
-            onInput={(e) => updatePlayer({ z: props.z, name: e.target.value })}
+            onInput={(e) => handleUpdatePlayer({ name: e.target.value })}
           />
         </label>
 
@@ -39,7 +51,7 @@ export function Settings(props: {
               {(color) => (
                 <button
                   value={color}
-                  onClick={() => updatePlayer({ z: props.z, color })}
+                  onClick={() => handleUpdatePlayer({ color })}
                   class="badge btn"
                   style={{ "background-color": color }}
                 />
@@ -55,7 +67,7 @@ export function Settings(props: {
                 placeholder="#ffffff"
                 value={props.player.color}
                 onInput={(e) =>
-                  updatePlayer({ z: props.z, color: e.target.value })
+                  handleUpdatePlayer({ color: e.target.value })
                 }
               />
             </label>
@@ -74,7 +86,7 @@ export function Settings(props: {
               placeholder="https://..."
               value={props.player.avatar ?? ""}
               onInput={(e) =>
-                updatePlayer({ z: props.z, avatar: e.target.value })
+                handleUpdatePlayer({ avatar: e.target.value })
               }
             />
           </label>

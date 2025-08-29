@@ -1,6 +1,8 @@
-import { Zero } from "@rocicorp/zero";
 import { createEffect, createSignal } from "solid-js";
-import { Race, Schema } from "../../schema";
+import { createMutation } from "../../convex-solid";
+import { api } from "../../../convex/_generated/api";
+import { getCurrentUser } from "../../convex";
+import { Race, PlayerRace } from "../../types";
 import { useNavigate } from "@solidjs/router";
 import { Button } from "../../components/Button";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
@@ -10,40 +12,71 @@ import {
   chevronDoubleRight,
   clipboardDocumentCheck,
 } from "solid-heroicons/solid-mini";
-import { leave, start } from "../../domain/race";
+import { leave } from "../../domain/race-convex";
 
 export function CountDown(props: {
-  raceID: string;
-  status: Race["status"];
-  hasStartedTyping: boolean;
-  z: Zero<Schema>;
+  race: Race;
+  playerRace?: PlayerRace;
   isAlone: boolean;
 }) {
   const navigate = useNavigate();
   const [countdown, setCountdown] = createSignal(4);
+  const { token } = getCurrentUser();
+  const updateRaceStatus = createMutation(api.races.updateRaceStatus);
+
+  const hasStartedTyping = () => (props.playerRace?.progress ?? 0) > 0;
 
   createEffect(() => {
-    if (props.status === "starting" && countdown() > 0) {
+    if (props.race.status === "starting" && countdown() > 0) {
       setTimeout(() => setCountdown(countdown() - 1), 1000);
     }
   });
 
+  const handleStart = async () => {
+    if (props.isAlone) {
+      await updateRaceStatus({
+        raceId: props.race._id,
+        status: "started" as const,
+        ...(token ? { token } : {}),
+      });
+      return;
+    }
+
+    await updateRaceStatus({
+      raceId: props.race._id,
+      status: "starting" as const,
+      ...(token ? { token } : {}),
+    });
+
+    setTimeout(async () => {
+      await updateRaceStatus({
+        raceId: props.race._id,
+        status: "started",
+        ...(token ? { token } : {}),
+      });
+    }, 4000);
+  };
+
+  const handleLeave = async () => {
+    await leave({ raceID: props.race._id });
+    navigate("/");
+  };
+
   addKeyboardEventListener({
     keys: ["Space", "Escape"],
     callback: (e) => {
-      if (props.status !== "ready" || !e) {
+      if (props.race.status !== "ready" || !e) {
         return;
       }
 
       if (e.code === "Escape") {
-        leave({ ...props, isAlone: props.isAlone });
-        navigate("/");
+        handleLeave();
         return;
       }
 
       if (e.code === "Space") {
         e.preventDefault();
-        start({ ...props, isAlone: props.isAlone });
+        handleStart();
         return;
       }
     },
@@ -51,9 +84,9 @@ export function CountDown(props: {
 
   return (
     <div
-      class={`flex flex-col gap-4 items-stretch flex-1 ${props.hasStartedTyping ? "opacity-0" : ""} transition-opacity`}
+      class={`flex flex-col gap-4 items-stretch flex-1 ${hasStartedTyping() ? "opacity-0" : ""} transition-opacity`}
     >
-      {props.status === "ready" ? (
+      {props.race.status === "ready" ? (
         <div class="flex flex-col gap-2 items-start">
           <Button
             onClick={() => navigator.clipboard.writeText(window.location.href)}
@@ -61,24 +94,19 @@ export function CountDown(props: {
             <Icon path={clipboardDocumentCheck} class="size-5" />
             Copy URL
           </Button>
-          <Button onClick={() => start({ ...props, isAlone: props.isAlone })}>
+          <Button onClick={handleStart}>
             <Icon path={chevronDoubleRight} class="size-5" />
             Start Race [SPACE]
           </Button>
-          <Button
-            onClick={() => {
-              leave({ ...props, isAlone: props.isAlone });
-              navigate("/");
-            }}
-          >
+          <Button onClick={handleLeave}>
             <Icon path={arrowLeftOnRectangle} class="size-5" />
             Leave Race [ESC]
           </Button>
         </div>
       ) : (
         <div class="flex items-center gap-2">
-          {["ready", "starting", "started"].includes(props.status) && (
-            <Count status={props.status} countdown={countdown()} />
+          {["ready", "starting", "started"].includes(props.race.status) && (
+            <Count status={props.race.status} countdown={countdown()} />
           )}
         </div>
       )}
@@ -93,7 +121,7 @@ const colorMap = {
   3: ["r", null, null],
 } as const;
 
-function Count(props: { status: Race["status"]; countdown: number }) {
+function Count(props: { status: string; countdown: number }) {
   const colors = () => {
     if (props.status === "started") {
       return ["g", "g", "g"] as const;
@@ -108,14 +136,14 @@ function Count(props: { status: Race["status"]; countdown: number }) {
 
   return (
     <>
-      <Dot color={colors()[0]} />
-      <Dot color={colors()[1]} />
-      <Dot color={colors()[2]} />
+      <Dot color={colors()[0]} id={1} />
+      <Dot color={colors()[1]} id={2} />
+      <Dot color={colors()[2]} id={3} />
     </>
   );
 }
 
-function Dot(props: { color: "r" | "g" | null }) {
+function Dot(props: { color: "r" | "g" | null; id: number }) {
   function colorClass() {
     switch (props.color) {
       case "r":
@@ -126,5 +154,10 @@ function Dot(props: { color: "r" | "g" | null }) {
         return "bg-base-content";
     }
   }
-  return <div class={`rounded-full h-7 w-7 ${colorClass()}`} />;
+  return (
+    <div
+      data-testId={`dot-${props.id}`}
+      class={`rounded-full h-7 w-7 ${colorClass()}`}
+    />
+  );
 }

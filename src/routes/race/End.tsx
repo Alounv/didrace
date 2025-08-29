@@ -1,7 +1,15 @@
-import { Zero } from "@rocicorp/zero";
-import { Player, PlayerRace, Quote, Schema, TypedWord } from "../../schema";
 import { createSignal, JSX, Show, For } from "solid-js";
-import { useNavigate } from "@solidjs/router";
+import { createQuery } from "../../convex-solid";
+import { api } from "../../../convex/_generated/api";
+import { getCurrentUser } from "../../convex";
+import { useNavigate, useParams } from "@solidjs/router";
+import {
+  Race,
+  PlayerRaceWithPlayer,
+  TypedWord,
+  RaceWithRelations,
+  PlayerRace,
+} from "../../types";
 import { Podium } from "./Podium";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
 import { Button } from "../../components/Button";
@@ -10,67 +18,49 @@ import {
   arrowLeftOnRectangle,
   chevronDoubleRight,
 } from "solid-heroicons/solid-mini";
-import { getSpeed } from "../../domain/playerRace";
-import { useQuery } from "@rocicorp/zero/solid";
+import { leave as leaveRace } from "../../domain/race-convex";
+import { Id } from "../../../convex/_generated/dataModel";
 
 export function End(props: {
-  z: Zero<Schema>;
-  raceID: string;
-  quote: Quote;
-  nextRaceID: string | null;
-  playerRaces: (PlayerRace & { player: Player })[];
+  race: Race;
+  playerRaces: PlayerRaceWithPlayer[];
 }) {
-  const [words] = useQuery(() =>
-    props.z.query.typed_word
-      .where("playerID", "=", props.z.userID)
-      .where("raceID", "=", props.raceID)
-      .orderBy("timestamp", "asc"),
-  );
+  const params = useParams();
+  const { userID, token } = getCurrentUser();
+
+  const typedWords = createQuery(api.analytics.getPlayerTypedWords, () => ({
+    playerId: userID as Id<"players">,
+    raceId: params.id as Id<"races">,
+    ...(token ? { token } : {}),
+  }));
+
   return (
-    <Show when={words().length > 0}>
-      <EndInternal
-        z={props.z}
-        raceID={props.raceID}
-        quote={props.quote}
-        nextRaceID={props.nextRaceID}
-        playerRaces={props.playerRaces}
-        words={words()}
-      />
+    <Show when={typedWords()}>
+      {(typedWords) => (
+        <Show when={typedWords()?.length > 0}>
+          <EndInternal
+            race={props.race}
+            playerRaces={props.playerRaces}
+            words={typedWords()!}
+          />
+        </Show>
+      )}
     </Show>
   );
 }
 
 function EndInternal(props: {
-  z: Zero<Schema>;
-  raceID: string;
-  quote: Quote;
-  nextRaceID: string | null;
-  playerRaces: (PlayerRace & { player: Player })[];
+  race: RaceWithRelations;
+  playerRaces: PlayerRaceWithPlayer[];
   words: TypedWord[];
 }) {
   const [rendered] = createSignal(Date.now());
   const navigate = useNavigate();
+  const { userID } = getCurrentUser();
 
-  const [oldPlayerRaces] = useQuery(() => {
-    return (
-      props.z.query.player_race
-        .where("playerID", "=", props.z.userID)
-        .where("end", "IS NOT", null)
-        .where("raceID", "IS NOT", props.raceID)
-        // eslint-disable-next-line solid/reactivity
-        .whereExists("quote", (q) => q.where("id", "=", props.quote.id))
-        .orderBy("start", "asc")
-        .limit(10)
-    );
-  });
-
-  function leave() {
-    props.z.mutate.player_race
-      .delete({
-        playerID: props.z.userID,
-        raceID: props.raceID,
-      })
-      .then(() => navigate("/"));
+  async function leave() {
+    await leaveRace({ raceID: props.race._id });
+    navigate("/");
   }
 
   addKeyboardEventListener({
@@ -81,7 +71,7 @@ function EndInternal(props: {
       }
 
       if (e.code === "Space") {
-        navigate(`/races/${props.nextRaceID}`);
+        navigate(`/races/${props.race.nextRaceID}`);
       }
 
       if (e.code === "Escape") {
@@ -90,22 +80,24 @@ function EndInternal(props: {
     },
   });
 
-  function firstStart() {
-    const starts = props.playerRaces.map((r) => r.start ?? Infinity);
-    return Math.min(...starts);
-  }
+  // function firstStart() {
+  //   const starts = props.playerRaces.map((r) => r.start ?? Infinity);
+  //   return Math.min(...starts);
+  // }
 
   function playerRace() {
-    return props.playerRaces.find((r) => r.playerID === props.z.userID);
+    return props.playerRaces.find((r) => r.playerID === userID);
   }
 
   function speed() {
     const race = playerRace();
-    return getSpeed({
-      end: race?.end,
-      start: firstStart(),
-      len: race?.progress ?? 0,
-    });
+    // TODO: Implement getSpeed function for Convex
+    const duration = (race?.end ?? 0) - (race?.start ?? 0);
+    const wpm =
+      duration > 0
+        ? Math.round((race?.progress ?? 0) / 5 / (duration / 60000))
+        : 0;
+    return { wpm };
   }
 
   function accuracy() {
@@ -121,10 +113,12 @@ function EndInternal(props: {
           <For each={props.words}>{(w) => <Word {...w} />}</For>
 
           <span class="opacity-50">
-            {props.quote.body.slice(playerRace()?.progress)}
+            {props.race.quote?.body.slice(playerRace()?.progress)}
           </span>
         </div>
-        <div class="ml-auto text-secondary text-lg">{props.quote.source}</div>
+        <div class="ml-auto text-secondary text-lg">
+          {props.race.quote?.source}
+        </div>
       </div>
 
       <div class="flex items-center justify-between gap-12">
@@ -138,14 +132,10 @@ function EndInternal(props: {
         <div class="flex-1 border border-base-100 p-2">
           <div class="text-base-100">History for this quote</div>
           <div class="flex gap-1 items-end h-40">
-            <For each={oldPlayerRaces()}>
-              {(r) => <RaceBar race={r} len={props.quote.body.length} />}
-            </For>
-
             <RaceBar
-              race={playerRace()!}
+              race={playerRace()}
               isCurrent
-              len={props.quote.body.length}
+              len={props.race.quote?.body.length ?? 0}
             />
           </div>
         </div>
@@ -153,7 +143,7 @@ function EndInternal(props: {
         <Show when={props.playerRaces.length > 1}>
           <Podium
             playerRaces={props.playerRaces}
-            quoteLength={props.quote.body.length}
+            quoteLength={props.race.quote?.body.length ?? 0}
           />
         </Show>
       </div>
@@ -163,8 +153,8 @@ function EndInternal(props: {
           <Icon path={arrowLeftOnRectangle} class="size-5" />
           Leave [ESC]
         </Button>
-        {props.nextRaceID && (
-          <Button href={`/races/${props.nextRaceID}`} class="self-center">
+        {props.race.nextRaceID && (
+          <Button href={`/races/${props.race.nextRaceID}`} class="self-center">
             <Icon path={chevronDoubleRight} class="size-5" />
             Next Race [SPACE]
           </Button>
@@ -187,16 +177,19 @@ function Word(word: TypedWord) {
 }
 
 function RaceBar(props: {
-  race: PlayerRace;
+  race?: PlayerRace | undefined;
   len: number;
   isCurrent?: boolean;
 }) {
   function speed() {
-    return getSpeed({
-      end: props.race.end,
-      start: props.race.start as number,
-      len: props.len,
-    });
+    if (!props.race) return { wpm: 0 };
+
+    const duration = (props.race.end ?? 0) - (props.race.start ?? 0);
+    const wpm =
+      duration > 0
+        ? Math.round(props.race.progress / 5 / (duration / 60000))
+        : 0;
+    return { wpm };
   }
 
   return (

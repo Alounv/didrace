@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(grep:*)",
+      "Bash(npx tsc:*)",
+      "Bash(rm:*)",
+      "Bash(npx convex deploy:*)",
+      "Bash(npx convex login)"
+    ],
+    "deny": []
+  }
+}

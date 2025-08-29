@@ -1,35 +1,128 @@
 # Didrace
 
-Didace is a typing race app using zero-cache to synchronize players progress.
+A real-time typing race application built with SolidJS and Convex.
 
-## Upstream BD
+## Architecture
 
-You need a main database to store the data. The db uri must be in the .env ZERO_UPSTREAM_DB. You can initialize this database with `seed.sql` file (include the quotes table). Replication must be enabled.
+- **Frontend**: SolidJS + Vite + TailwindCSS + DaisyUI
+- **Backend**: Convex (serverless backend with real-time sync)
+- **Authentication**: Discord OAuth + JWT
+- **Styling**: TailwindCSS with DaisyUI components
 
-## Zero cache
+## Features
 
-Zero cache must be deployed, a simple way to do this is to deploy on fly.io using a `fly.toml`. It is described [here](https://zero.rocicorp.dev/docs/deployment).
+- 🏃‍♂️ Real-time multiplayer typing races
+- 🔐 Discord OAuth authentication + Guest mode
+- 📊 Typing analytics and performance tracking
+- ⚡ Real-time synchronization between players
+- 🎨 Modern UI with dark/light themes
+- 📱 Responsive design
 
-## Permissions
+## Getting Started
 
-You can launch the `bun run permissions`. It will populate a `permissions.sql` from the `src/schema.ts` permission section. You can then use the sql to modify the permissions.
+### Prerequisites
 
-## Front
+- Node.js 20.11.1+
+- npm or bun package manager
 
-The front app is Vite + Hono + SolidJS and necessitate the following env variables (consistent with the ones used in `fly.toml`):
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repo-url>
+   cd didrace
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+
+   Create a `.env` file with:
+   ```bash
+   # Convex Configuration
+   VITE_CONVEX_URL=http://127.0.0.1:3210
+
+   # Authentication
+   AUTH_SECRET="secretkey"
+
+   # Discord OAuth (optional)
+   DISCORD_CLIENT_ID="your_discord_client_id"
+   DISCORD_CLIENT_SECRET="your_discord_client_secret"
+   ```
+
+   Create a `.env.local` file for frontend Discord credentials:
+   ```bash
+   VITE_DISCORD_CLIENT_ID=your_discord_client_id
+   VITE_DISCORD_CLIENT_SECRET=your_discord_client_secret
+   ```
+
+4. **Start the development servers**
+   ```bash
+   npm run dev
+   ```
+
+   This starts both Convex backend (port 3210) and Vite frontend (port 5173).
+
+5. **Initialize the database**
+
+   Visit `http://localhost:5173` and log in as guest. If no quotes are found, click "Initialize Quotes Database" to populate sample quotes.
+
+## Development Scripts
+
+- `npm run dev` - Start both Convex and Vite dev servers
+- `npm run dev:ui` - Start only the frontend dev server
+- `npm run dev:convex` - Start only the Convex backend
+- `npm run build` - Build the frontend for production
+- `npm run build:convex` - Deploy Convex functions
+- `npm run lint` - Run ESLint
+- `npm run typecheck` - Run TypeScript type checking
+
+## Discord OAuth Setup
+
+1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
+2. Create a new application or use existing one
+3. In OAuth2 settings, add redirect URI: `http://localhost:5173/api/discord`
+4. Copy Client ID and Client Secret to your `.env` and `.env.local` files
+
+## Project Structure
 
 ```
-ZERO_UPSTREAM_DB=
-ZERO_AUTH_SECRET=
-VITE_PUBLIC_SERVER=
-DISCORD_CLIENT_ID=
-DISCORD_CLIENT_SECRET=
+src/
+├── components/         # Reusable UI components
+├── routes/            # Page components and routing
+├── auth/              # Authentication utilities
+├── data/              # Static data (quotes)
+├── domain/            # Business logic (Convex-based)
+├── utils/             # Utility functions
+└── convex-solid.ts    # SolidJS-Convex integration
+
+convex/
+├── schema.ts          # Database schema
+├── auth.ts            # Authentication helpers
+├── players.ts         # Player management
+├── races.ts           # Race management
+├── quotes.ts          # Quotes management
+└── analytics.ts       # Analytics queries
 ```
 
-The Discords ones are needed for the auth-provider.
+## Contributing
 
-## Local development
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and linting
+5. Submit a pull request
 
-Add `.env` with the environment variables:
-Run `bun install` the first time.
-Run `bun run vite` to start the development server (linked to production zero-cache and database)
+
+###  TODO:
+
+- Move the logic in domain elsewhere (in convex functions if possible)
+- Try to move logic without state into convex functions if possible
+- Do no query all quotes only to check if there are quotes
+- Try to improves how convex functions are done
+- See if naming can be improved
+
+- Add special charac backs

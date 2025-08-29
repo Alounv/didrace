@@ -20,5 +20,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["vite.config.ts", "./api"]
+  "include": ["vite.config.ts", "./api", "convex/init-quotes.ts"]
 }

@@ -4,47 +4,55 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev:ui": "VITE_PUBLIC_SERVER='http://localhost:4848' vite",
-    "dev:zero-cache": "zero-cache-dev -p src/schema.ts",
-    "dev:db-up": "docker compose --env-file .env -f ./docker/docker-compose.yml up",
-    "dev:db-down": "docker compose --env-file .env -f ./docker/docker-compose.yml down",
-    "dev:clean": "source .env && docker volume rm -f docker_zstart_solid_pgdata && rm -rf \"${ZERO_REPLICA_FILE}\"*",
+    "dev:ui": "vite",
+    "dev:convex": "npx convex dev",
+    "dev": "concurrently \"npm run dev:convex\" \"npm run dev:ui\"",
     "build": "tsc -b && vite build",
+    "build:convex": "npx convex deploy",
     "lint": "eslint .",
-    "permissions": "npx zero-deploy-permissions --schema-path='./src/schema.ts'  --output-file='./permissions.sql'"
+    "clean": "rm -rf dist .convex node_modules/.vite",
+    "typecheck": "tsc --noEmit",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "prepare": "husky"
   },
   "dependencies": {
     "@fontsource/lato": "^5.1.1",
     "@fontsource/poppins": "^5.1.1",
-    "@hono/oauth-providers": "^0.6.2",
-    "@rocicorp/zero": "^0.16.2025022501",
     "@solidjs/router": "^0.15.3",
     "@tailwindcss/vite": "^4.0.9",
+    "convex": "^1.25.4",
     "eslint-plugin-solid": "^0.14.5",
     "jose": "^5.10.0",
     "js-cookie": "^3.0.5",
     "nanoid": "^5.1.2",
-    "pg": "^8.13.3",
     "solid-heroicons": "^3.2.4",
     "solid-js": "^1.9.5",
     "tailwindcss": "^4.0.9",
-    "theme-change": "^2.5.0"
+    "theme-change": "^2.5.0",
+    "vite-template-solid": "https://github.com/jamwt/solid-convex.git"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
-    "@hono/node-server": "^1.13.8",
+    "@playwright/test": "^1.55.0",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.13.5",
-    "@types/pg": "^8.11.11",
+    "concurrently": "^9.2.0",
     "daisyui": "^5.0.0-beta.8",
-    "dotenv": "^16.4.7",
     "eslint": "^9.21.0",
     "globals": "^15.15.0",
-    "hono": "^4.7.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.25.0",
     "vite": "^5.4.14",
     "vite-plugin-solid": "^2.11.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   },
   "engines": {
     "node": "20.11.1"

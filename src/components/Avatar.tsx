@@ -1,4 +1,5 @@
-import { Player } from "../schema";
+import { Player } from "../types";
+import { getContrastColor } from "../utils/color";
 
 export function Avatar(props: { player: Player; class?: string }) {
   return (
@@ -16,7 +17,15 @@ export function Avatar(props: { player: Player; class?: string }) {
           }}
         />
       ) : (
-        <div class="text-base-content text-base font-bold font-quote w-full h-full" />
+        <div
+          class="font-bold w-full h-full flex items-center justify-center rounded-full"
+          style={{
+            "background-color": props.player.color,
+            color: getContrastColor(props.player.color),
+          }}
+        >
+          <div>{props.player.name.slice(0, 2).toUpperCase()}</div>
+        </div>
       )}
     </div>
   );
