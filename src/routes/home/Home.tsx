@@ -1,5 +1,5 @@
-import { Show, For, JSX } from "solid-js";
-import { createQuery } from "../../convex-solid";
+import { Show, For, JSX, onMount } from "solid-js";
+import { createQuery, createMutation } from "../../convex-solid";
 import { api } from "../../../convex/_generated/api";
 import { getCurrentUser } from "../../convex";
 import { CreateRace } from "./CreateRace";
@@ -11,6 +11,13 @@ import { Player, RaceWithRelations } from "../../types";
 
 function Home() {
   const { token, isAuthenticated } = getCurrentUser();
+  const leaveAllRaces = createMutation(api.races.leaveAllRaces);
+
+  onMount(() => {
+    if (isAuthenticated && token) {
+      leaveAllRaces({ token });
+    }
+  });
 
   const quotes = createQuery(api.quotes.getAllQuotes, () => ({}));
   const readyRaces = createQuery(api.races.getRacesByStatus, () => ({

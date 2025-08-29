@@ -257,6 +257,45 @@ export const leaveRace = mutation({
   },
 });
 
+export const leaveAllRaces = mutation({
+  args: {
+    token: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const userID = await getUserFromToken(args.token);
+    requireAuth(userID);
+
+    // Get all player races for this user
+    const playerRaces = await ctx.db
+      .query("playerRaces")
+      .withIndex("by_player", (q) => q.eq("playerID", userID as Id<"players">))
+      .collect();
+
+    // Delete each player race entry
+    for (const playerRace of playerRaces) {
+      await ctx.db.delete(playerRace._id);
+
+      // Check if race should be finished (no players left)
+      const remainingPlayerRaces = await ctx.db
+        .query("playerRaces")
+        .withIndex("by_race", (q) => q.eq("raceID", playerRace.raceID))
+        .collect();
+
+      if (!remainingPlayerRaces.length) {
+        await ctx.db.patch(playerRace.raceID, { status: "finished" });
+        const race = await ctx.db
+          .query("races")
+          .withIndex("by_id", (q) => q.eq("_id", playerRace.raceID))
+          .first();
+
+        if (race?.nextRaceID) {
+          await ctx.db.delete(race?.nextRaceID);
+        }
+      }
+    }
+  },
+});
+
 export const applyEffectToPlayer = mutation({
   args: {
     raceId: v.id("races"),
