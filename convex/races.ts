@@ -133,8 +133,6 @@ export const getPlayerRaces = query({
       }
     }
 
-    console.log({ len: playerRacesWithPlayers.length });
-
     return playerRacesWithPlayers;
   },
 });
@@ -147,8 +145,6 @@ export const joinRace = mutation({
   handler: async (ctx, args) => {
     const userID = await getUserFromToken(args.token);
     requireAuth(userID);
-
-    console.log({ userID });
 
     // Check if player is already in this race
     const existing = await ctx.db
