@@ -13,7 +13,8 @@
     "clean": "rm -rf dist .convex node_modules/.vite",
     "typecheck": "tsc --noEmit",
     "test": "playwright test",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "prepare": "husky"
   },
   "dependencies": {
     "@fontsource/lato": "^5.1.1",
@@ -40,10 +41,18 @@
     "daisyui": "^5.0.0-beta.8",
     "eslint": "^9.21.0",
     "globals": "^15.15.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.25.0",
     "vite": "^5.4.14",
     "vite-plugin-solid": "^2.11.2"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   },
   "engines": {
     "node": "20.11.1"

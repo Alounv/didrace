@@ -39,7 +39,7 @@ A real-time typing race application built with SolidJS and Convex.
    ```
 
 3. **Set up environment variables**
-   
+
    Create a `.env` file with:
    ```bash
    # Convex Configuration
@@ -63,11 +63,11 @@ A real-time typing race application built with SolidJS and Convex.
    ```bash
    npm run dev
    ```
-   
+
    This starts both Convex backend (port 3210) and Vite frontend (port 5173).
 
 5. **Initialize the database**
-   
+
    Visit `http://localhost:5173` and log in as guest. If no quotes are found, click "Initialize Quotes Database" to populate sample quotes.
 
 ## Development Scripts
@@ -115,3 +115,20 @@ convex/
 3. Make your changes
 4. Run tests and linting
 5. Submit a pull request
+
+
+###  TODO:
+
+- Add playwright tests to check profile page
+- Add playwright tests to edit name, color avatar
+- Add playwright tests to check one can leave the race before starting
+
+- Add playwright tests for multi player races (including countdown and final order)
+
+- Move the logic in domain elsewhere (in convex functions if possible)
+- Try to move logic without state into convex functions if possible
+- Do no query all quotes only to check if there are quotes
+- Try to improves how convex functions are done
+- See if naming can be improved
+
+- Add special charac backs
