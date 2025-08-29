@@ -2,7 +2,7 @@ import { createQuery } from "../../convex-solid";
 import { useNavigate, useParams } from "@solidjs/router";
 import { api } from "../../../convex/_generated/api";
 import { getCurrentUser } from "../../convex";
-import { Accessor, createEffect, Match, Show, Switch } from "solid-js";
+import { Accessor, createEffect, JSX, Match, Show, Switch } from "solid-js";
 import { PlayerRaceWithPlayer, RaceWithRelations } from "../../types";
 import { CountDown } from "./CountDown";
 import { End } from "./End";
@@ -59,18 +59,25 @@ function RacePage() {
     <Show when={race()} fallback={"no race"}>
       {(race) => (
         <Switch>
-          <Match when={race().status === "ready"}>
-            <CountDown race={race()} playerRace={playerRace()!} />
-          </Match>
-          <Match when={race().status === "starting"}>
-            <CountDown race={race()} playerRace={playerRace()!} />
+          <Match
+            when={race().status === "ready" || race().status === "starting"}
+          >
+            <Layout>
+              <CountDown
+                race={race()}
+                playerRace={playerRace()!}
+                isAlone={playerRaces().length === 1}
+              />
+            </Layout>
           </Match>
           <Match when={race().status === "started"}>
-            <RaceArea
-              race={race()}
-              playerRaces={playerRaces()}
-              quote={quote()}
-            />
+            <Layout>
+              <RaceArea
+                race={race()}
+                playerRaces={playerRaces()}
+                quote={quote()}
+              />
+            </Layout>
           </Match>
           <Match when={race().status === "finished"}>
             <End race={race()} playerRaces={playerRaces()} />
@@ -78,6 +85,14 @@ function RacePage() {
         </Switch>
       )}
     </Show>
+  );
+}
+
+function Layout(props: { children: JSX.Element }) {
+  return (
+    <div class="flex gap-8 my-auto items-center w-full h-12 relative">
+      <div class="w-4/10 flex justify-end">{props.children}</div>
+    </div>
   );
 }
 

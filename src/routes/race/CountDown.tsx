@@ -14,14 +14,17 @@ import {
 } from "solid-heroicons/solid-mini";
 import { leave } from "../../domain/race-convex";
 
-export function CountDown(props: { race: Race; playerRace?: PlayerRace }) {
+export function CountDown(props: {
+  race: Race;
+  playerRace?: PlayerRace;
+  isAlone: boolean;
+}) {
   const navigate = useNavigate();
   const [countdown, setCountdown] = createSignal(4);
   const { token } = getCurrentUser();
   const updateRaceStatus = createMutation(api.races.updateRaceStatus);
 
   const hasStartedTyping = () => (props.playerRace?.progress ?? 0) > 0;
-  const isAlone = () => true; // Will need to calculate this from playerRaces
 
   createEffect(() => {
     if (props.race.status === "starting" && countdown() > 0) {
@@ -30,7 +33,7 @@ export function CountDown(props: { race: Race; playerRace?: PlayerRace }) {
   });
 
   const handleStart = async () => {
-    if (isAlone()) {
+    if (props.isAlone) {
       await updateRaceStatus({
         raceId: props.race._id,
         status: "started" as const,
