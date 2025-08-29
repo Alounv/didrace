@@ -1,13 +1,21 @@
-import { createQuery } from "../../convex-solid";
+import { createMutation, createQuery } from "../../convex-solid";
 import { useNavigate, useParams } from "@solidjs/router";
 import { api } from "../../../convex/_generated/api";
 import { getCurrentUser } from "../../convex";
-import { Accessor, createEffect, JSX, Match, Show, Switch } from "solid-js";
-import { PlayerRaceWithPlayer, RaceWithRelations } from "../../types";
+import {
+  Accessor,
+  createEffect,
+  JSX,
+  Match,
+  onMount,
+  Show,
+  Switch,
+} from "solid-js";
+import { PlayerRaceWithPlayer, Race, RaceWithRelations } from "../../types";
 import { CountDown } from "./CountDown";
 import { End } from "./End";
-import { RaceArea } from "./RaceArea";
 import { Id } from "../../../convex/_generated/dataModel";
+import { RaceInput } from "./RaceInput";
 
 function RacePage() {
   const params = useParams();
@@ -58,35 +66,40 @@ function RacePage() {
   return (
     <Show when={race()} fallback={"no race"}>
       {(race) => (
-        <Switch>
-          <Match
-            when={race().status === "ready" || race().status === "starting"}
-          >
-            <Layout
-              countdown={
-                <CountDown
-                  race={race()}
-                  playerRace={playerRace()!}
-                  isAlone={playerRaces().length === 1}
+        <Show when={playerRace()} fallback={<Initializer race={race()} />}>
+          {(playerRace) => (
+            <Switch>
+              <Match
+                when={
+                  race().status === "ready" ||
+                  race().status === "starting" ||
+                  race().status === "started"
+                }
+              >
+                <Layout
+                  countdown={
+                    <CountDown
+                      race={race()}
+                      playerRace={playerRace()!}
+                      isAlone={playerRaces().length === 1}
+                    />
+                  }
+                  racearea={
+                    <RaceInput
+                      race={race()}
+                      playerRace={playerRace()}
+                      playerRaces={playerRaces()}
+                      quote={quote()}
+                    />
+                  }
                 />
-              }
-            />
-          </Match>
-          <Match when={race().status === "started"}>
-            <Layout
-              racearea={
-                <RaceArea
-                  race={race()}
-                  playerRaces={playerRaces()}
-                  quote={quote()}
-                />
-              }
-            />
-          </Match>
-          <Match when={race().status === "finished"}>
-            <End race={race()} playerRaces={playerRaces()} />
-          </Match>
-        </Switch>
+              </Match>
+              <Match when={race().status === "finished"}>
+                <End race={race()} playerRaces={playerRaces()} />
+              </Match>
+            </Switch>
+          )}
+        </Show>
       )}
     </Show>
   );
@@ -99,6 +112,22 @@ function Layout(props: { countdown?: JSX.Element; racearea?: JSX.Element }) {
       {props.racearea}
     </div>
   );
+}
+
+function Initializer(props: { race: Race }) {
+  const { token } = getCurrentUser();
+  const joinRace = createMutation(api.races.joinRace);
+
+  // Initialize player race on mount
+  onMount(async () => {
+    if (["ready", "started", "starting"].includes(props.race.status)) {
+      await joinRace({
+        raceId: props.race._id,
+        ...(token ? { token } : {}),
+      });
+    }
+  });
+  return <div />;
 }
 
 export default RacePage;
