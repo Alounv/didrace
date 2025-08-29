@@ -1,5 +1,4 @@
 import { v } from "convex/values";
-import type { TypedWord } from "../src/types";
 import type { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { getUserFromToken, requireAuth } from "./auth";
@@ -56,53 +55,5 @@ export const addTypedWord = mutation({
     });
 
     return typedWordId;
-  },
-});
-
-export const getRaceAnalytics = query({
-  args: {
-    raceId: v.id("races"),
-    token: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const userID = await getUserFromToken(args.token);
-    requireAuth(userID);
-
-    const typedWords = await ctx.db
-      .query("typedWords")
-      .withIndex("by_race", (q) => q.eq("raceID", args.raceId))
-      .collect();
-
-    // Group by player
-    const playerStats = typedWords.reduce(
-      (acc, word) => {
-        if (!acc[word.playerID]) {
-          acc[word.playerID] = {
-            totalWords: 0,
-            totalDuration: 0,
-            totalErrors: 0,
-            words: [],
-          };
-        }
-
-        acc[word.playerID].totalWords++;
-        acc[word.playerID].totalDuration += word.duration;
-        if (word.hadError) acc[word.playerID].totalErrors++;
-        acc[word.playerID].words.push(word);
-
-        return acc;
-      },
-      {} as Record<
-        string,
-        {
-          totalWords: number;
-          totalDuration: number;
-          totalErrors: number;
-          words: TypedWord[];
-        }
-      >,
-    );
-
-    return playerStats;
   },
 });

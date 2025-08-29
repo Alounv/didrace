@@ -110,7 +110,7 @@ function CurrentUser() {
             <Settings player={playerData()} class="dropdown-content" />
           </div>
 
-          <A href="/profile">
+          <A href="/analytics">
             <Avatar player={playerData()} class="w-10 h-10" />
           </A>
         </div>
