@@ -28,11 +28,11 @@ export function End(props: {
   const params = useParams();
   const { userID, token } = getCurrentUser();
 
-  const typedWords = createQuery(api.analytics.getPlayerTypedWords, {
+  const typedWords = createQuery(api.analytics.getPlayerTypedWords, () => ({
     playerId: userID as Id<"players">,
     raceId: params.id as Id<"races">,
     ...(token ? { token } : {}),
-  });
+  }));
 
   return (
     <Show when={typedWords()}>

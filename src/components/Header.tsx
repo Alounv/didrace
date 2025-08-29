@@ -16,7 +16,7 @@ import { Id } from "../../convex/_generated/dataModel";
 
 function Header() {
   const { isAuthenticated } = getCurrentUser();
-  const quotes = createQuery(api.quotes.getAllQuotes, {});
+  const quotes = createQuery(api.quotes.getAllQuotes, () => ({}));
 
   function discordLogin() {
     try {
@@ -86,9 +86,9 @@ function Header() {
 
 function CurrentUser() {
   const { userID } = getCurrentUser();
-  const player = createQuery(api.players.getPlayer, {
+  const player = createQuery(api.players.getPlayer, () => ({
     playerId: userID as Id<"players">,
-  });
+  }));
 
   return (
     <Show when={player()}>

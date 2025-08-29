@@ -42,9 +42,9 @@ export function RaceInput(props: {
   const [isCursorActive, setIsCursorActive] = createSignal(false);
   const [offset, setOffset] = createSignal(0);
   const [freeRightSpace, setFreeRightSpace] = createSignal(0);
-  const otherQuotes = createQuery(api.quotes.getRandomQuotes, {
+  const otherQuotes = createQuery(api.quotes.getRandomQuotes, () => ({
     ...(token ? { token } : {}),
-  });
+  }));
   const [offsets, setOffests] = createSignal<Record<string, number>>({});
   const [positions, setPositions] = createSignal<
     Record<string, "left" | "right">

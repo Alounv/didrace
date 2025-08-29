@@ -4,7 +4,7 @@ import { getCurrentUser } from "../../convex";
 
 export function CreateRace() {
   const { token } = getCurrentUser();
-  const quotes = createQuery(api.quotes.getAllQuotes, {});
+  const quotes = createQuery(api.quotes.getAllQuotes, () => ({}));
   const createRace = createMutation(api.races.createRace);
   const joinRace = createMutation(api.races.joinRace);
 

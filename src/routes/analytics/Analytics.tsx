@@ -14,10 +14,10 @@ type WordData = {
 
 export function Profile() {
   const { userID, token } = getCurrentUser();
-  const typed = createQuery(api.analytics.getPlayerTypedWords, {
+  const typed = createQuery(api.analytics.getPlayerTypedWords, () => ({
     playerId: userID as Id<"players">,
     ...(token ? { token } : {}),
-  });
+  }));
 
   function words() {
     const grouped: Record<string, WordData> = {};

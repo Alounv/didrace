@@ -12,16 +12,16 @@ import { Player, RaceWithRelations } from "../../types";
 function Home() {
   const { token, isAuthenticated } = getCurrentUser();
 
-  const quotes = createQuery(api.quotes.getAllQuotes, {});
-  const readyRaces = createQuery(api.races.getRacesByStatus, {
+  const quotes = createQuery(api.quotes.getAllQuotes, () => ({}));
+  const readyRaces = createQuery(api.races.getRacesByStatus, () => ({
     status: "ready" as const,
     ...(token ? { token } : {}),
-  });
+  }));
 
-  const startedRaces = createQuery(api.races.getRacesByStatus, {
+  const startedRaces = createQuery(api.races.getRacesByStatus, () => ({
     status: "started" as const,
     ...(token ? { token } : {}),
-  });
+  }));
 
   return (
     <>

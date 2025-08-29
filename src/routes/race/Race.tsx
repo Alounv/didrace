@@ -13,15 +13,15 @@ function RacePage() {
   const params = useParams();
   const { userID, token } = getCurrentUser();
 
-  const race = createQuery(api.races.getRace, {
+  const race = createQuery(api.races.getRace, () => ({
     raceId: params.id as Id<"races">,
     ...(token ? { token } : {}),
-  }) as Accessor<RaceWithRelations | null>;
+  })) as Accessor<RaceWithRelations | null>;
 
-  const playerRaces = createQuery(api.races.getPlayerRaces, {
+  const playerRaces = createQuery(api.races.getPlayerRaces, () => ({
     raceId: params.id as Id<"races">,
     ...(token ? { token } : {}),
-  }) as Accessor<PlayerRaceWithPlayer[]>;
+  })) as Accessor<PlayerRaceWithPlayer[]>;
 
   function playerRace() {
     return playerRaces()?.find((r) => r.playerID === userID);
