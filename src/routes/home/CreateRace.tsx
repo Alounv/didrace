@@ -10,6 +10,7 @@ export function CreateRace() {
   const handleCreateRace = async () => {
     try {
       const raceId = await createRace({
+        withShortQuotes: import.meta.env.VITE_TEST_MODE === "true",
         ...(token ? { token } : {}),
       });
 

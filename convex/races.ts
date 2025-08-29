@@ -66,13 +66,17 @@ export const getRacesByStatus = query({
 
 export const createRace = mutation({
   args: {
+    withShortQuotes: v.optional(v.boolean()),
     token: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userID = await getUserFromToken(args.token);
     requireAuth(userID);
 
-    const quotes = await ctx.db.query("quotes").collect();
+    let quotes = await ctx.db.query("quotes").collect();
+    if (args.withShortQuotes) {
+      quotes = quotes.filter((quote) => quote.body.length <= 60);
+    }
 
     if (quotes.length === 0) {
       throw new Error("No quotes available");
