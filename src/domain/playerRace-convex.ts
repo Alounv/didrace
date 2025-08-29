@@ -87,7 +87,7 @@ export async function onTyped({
       ...(token ? { token } : {}),
     });
 
-    const notFinishedCount = adversaries.filter((r) => r.end === null).length;
+    const notFinishedCount = adversaries.filter((r) => !r.end).length;
 
     // Race complete
     if (notFinishedCount === 0) {

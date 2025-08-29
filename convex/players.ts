@@ -90,3 +90,20 @@ export const getPlayer = query({
     return await ctx.db.get(args.playerId);
   },
 });
+
+export const updatePlayer = mutation({
+  args: {
+    playerId: v.id("players"),
+    name: v.optional(v.string()),
+    color: v.optional(v.string()),
+    avatar: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const { playerId, ...updates } = args;
+    const filteredUpdates = Object.fromEntries(
+      Object.entries(updates).filter(([, value]) => value !== undefined),
+    );
+
+    await ctx.db.patch(playerId, filteredUpdates);
+  },
+});

@@ -13,6 +13,7 @@ import { api } from "../../convex/_generated/api";
 import { guestLogin as doGuestLogin } from "../auth/guestAuth";
 import { redirectToDiscordOAuth } from "../auth/discordAuth";
 import { Id } from "../../convex/_generated/dataModel";
+import { Settings } from "./Settings";
 
 function Header() {
   const { isAuthenticated } = getCurrentUser();
@@ -94,9 +95,17 @@ function CurrentUser() {
     <Show when={player()}>
       {(playerData) => (
         <div class="flex gap-4 items-center">
-          <PlayerName color={playerData().color} class="text-lg py-4">
-            {playerData().name}
-          </PlayerName>
+          <div class="dropdown">
+            <PlayerName
+              color={playerData().color}
+              class="text-lg py-4"
+              isButton
+            >
+              {playerData().name}
+            </PlayerName>
+
+            <Settings player={playerData()} class="dropdown-content" />
+          </div>
 
           <A href="/profile">
             <Avatar player={playerData()} class="w-10 h-10" />
