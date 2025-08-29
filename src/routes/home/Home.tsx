@@ -1,23 +1,16 @@
 import { A } from "@solidjs/router";
-import { For, type JSX, onMount, Show } from "solid-js";
+import { For, type JSX, Show } from "solid-js";
 import { api } from "../../../convex/_generated/api";
 import { Avatar } from "../../components/Avatar";
 import { InitializeQuotes } from "../../components/InitializeQuotes";
 import { getCurrentUser } from "../../convex";
-import { createMutation, createQuery } from "../../convex-solid";
+import { createQuery } from "../../convex-solid";
 import type { Player, RaceWithRelations } from "../../types";
 import { formatDate } from "../../utils/date";
 import { CreateRace } from "./CreateRace";
 
 function Home() {
   const { token, isAuthenticated } = getCurrentUser();
-  const leaveAllRaces = createMutation(api.races.leaveAllRaces);
-
-  onMount(() => {
-    if (isAuthenticated && token) {
-      leaveAllRaces({ token });
-    }
-  });
 
   const hasQuotes = createQuery(api.quotes.getHasQuotes);
   const readyRaces = createQuery(api.races.getRacesByStatus, () => ({

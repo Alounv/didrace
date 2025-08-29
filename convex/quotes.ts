@@ -34,19 +34,24 @@ export const initializeQuotes = mutation({
       throw new Error("Quotes already initialized");
     }
 
-    // Insert all quotes from the provided data
+    // Insert quotes in batches to improve performance
+    const BATCH_SIZE = 10;
     let insertedCount = 0;
-    for (const quote of args.quotesData) {
-      await ctx.db.insert("quotes", {
-        body: quote.text,
-        source: quote.source,
-      });
-      insertedCount++;
 
-      // Add a small batch limit to prevent timeouts
-      if (insertedCount >= 100) {
-        break;
-      }
+    for (let i = 0; i < args.quotesData.length; i += BATCH_SIZE) {
+      const batch = args.quotesData.slice(i, i + BATCH_SIZE);
+
+      // Process batch in parallel
+      await Promise.all(
+        batch.map((quote) =>
+          ctx.db.insert("quotes", {
+            body: quote.text,
+            source: quote.source,
+          }),
+        ),
+      );
+
+      insertedCount += batch.length;
     }
 
     return { success: true, count: insertedCount };

@@ -4,6 +4,7 @@ import {
   createEffect,
   type JSX,
   Match,
+  onCleanup,
   onMount,
   Show,
   Switch,
@@ -44,11 +45,40 @@ function RacePage() {
   }
 
   const navigate = useNavigate();
+  const leaveRace = createMutation(api.races.leaveRace);
 
   createEffect(() => {
     if (userID === "anon") {
       navigate("/");
     }
+  });
+
+  // Leave race when component unmounts or page is closed
+  onCleanup(() => {
+    if (playerRace() && token) {
+      leaveRace({
+        raceId: params.id as Id<"races">,
+        token,
+      });
+    }
+  });
+
+  // Leave race when page is closed/refreshed
+  onMount(() => {
+    const handleBeforeUnload = () => {
+      if (playerRace() && token) {
+        leaveRace({
+          raceId: params.id as Id<"races">,
+          token,
+        });
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    onCleanup(() => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    });
   });
 
   createEffect(() => {
