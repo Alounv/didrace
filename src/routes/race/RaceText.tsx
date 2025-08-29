@@ -54,13 +54,17 @@ function Letter(props: {
     <Switch>
       <Match when={props.effect === "stuned"}>
         <div class={getStunedClass()}>
-          <div class={getStunedClass()}>{props.letter}</div>
+          <div id="letter" class={getStunedClass()}>
+            {props.letter}
+          </div>
         </div>
       </Match>
 
       <Match when={props.effect !== "stuned"}>
         <div>
-          <div class={getAnimationClass(props.effect)}>{props.letter}</div>
+          <div id="letter" class={getAnimationClass(props.effect)}>
+            {props.letter}
+          </div>
         </div>
       </Match>
     </Switch>
