@@ -22,7 +22,7 @@ export function CountDown(props: {
   const navigate = useNavigate();
   const [countdown, setCountdown] = createSignal(4);
   const { token } = getCurrentUser();
-  const updateRaceStatus = createMutation(api.races.updateRaceStatus);
+  const updateRace = createMutation(api.races.updateRace);
 
   const hasStartedTyping = () => (props.playerRace?.progress ?? 0) > 0;
 
@@ -34,7 +34,7 @@ export function CountDown(props: {
 
   const handleStart = async () => {
     if (props.isAlone) {
-      await updateRaceStatus({
+      await updateRace({
         raceId: props.race._id,
         status: "started" as const,
         ...(token ? { token } : {}),
@@ -42,14 +42,14 @@ export function CountDown(props: {
       return;
     }
 
-    await updateRaceStatus({
+    await updateRace({
       raceId: props.race._id,
       status: "starting" as const,
       ...(token ? { token } : {}),
     });
 
     setTimeout(async () => {
-      await updateRaceStatus({
+      await updateRace({
         raceId: props.race._id,
         status: "started",
         ...(token ? { token } : {}),

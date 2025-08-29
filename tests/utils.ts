@@ -44,7 +44,6 @@ export async function loginAsGuest({
   const nameInput = settingsDropdown.locator('input[placeholder="Type here"]');
   await expect(nameInput).toBeVisible();
   await nameInput.fill(guestName);
-  // await page.waitForTimeout(500);
 
   // Close dropdown
   await page.locator("body").click();

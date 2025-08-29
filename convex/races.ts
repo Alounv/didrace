@@ -92,16 +92,19 @@ export const createRace = mutation({
   },
 });
 
-export const updateRaceStatus = mutation({
+export const updateRace = mutation({
   args: {
     raceId: v.id("races"),
-    status: v.union(
-      v.literal("ready"),
-      v.literal("starting"),
-      v.literal("started"),
-      v.literal("finished"),
-      v.literal("cancelled"),
+    status: v.optional(
+      v.union(
+        v.literal("ready"),
+        v.literal("starting"),
+        v.literal("started"),
+        v.literal("finished"),
+        v.literal("cancelled"),
+      ),
     ),
+    nextRaceID: v.optional(v.id("races")),
     token: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -109,7 +112,8 @@ export const updateRaceStatus = mutation({
     requireAuth(userID);
 
     await ctx.db.patch(args.raceId, {
-      status: args.status,
+      ...(args.status && { status: args.status }),
+      ...(args.nextRaceID && { nextRaceID: args.nextRaceID }),
     });
   },
 });
@@ -336,21 +340,5 @@ export const applyEffectToPlayer = mutation({
         effect: args.effect,
       });
     }
-  },
-});
-
-export const setNextRaceID = mutation({
-  args: {
-    raceId: v.id("races"),
-    nextRaceID: v.id("races"),
-    token: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const userID = await getUserFromToken(args.token);
-    requireAuth(userID);
-
-    await ctx.db.patch(args.raceId, {
-      nextRaceID: args.nextRaceID,
-    });
   },
 });

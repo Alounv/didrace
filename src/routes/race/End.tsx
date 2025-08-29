@@ -80,11 +80,6 @@ function EndInternal(props: {
     },
   });
 
-  // function firstStart() {
-  //   const starts = props.playerRaces.map((r) => r.start ?? Infinity);
-  //   return Math.min(...starts);
-  // }
-
   function playerRace() {
     return props.playerRaces.find((r) => r.playerID === userID);
   }

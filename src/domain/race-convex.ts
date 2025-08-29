@@ -16,14 +16,9 @@ export async function end({ raceID }: { raceID: Id<"races"> }) {
   });
 
   // Update current race to finished with next race ID
-  await convex.mutation(api.races.setNextRaceID, {
+  await convex.mutation(api.races.updateRace, {
     raceId: raceID,
     nextRaceID: newRaceId,
-    ...(token ? { token } : {}),
-  });
-
-  await convex.mutation(api.races.updateRaceStatus, {
-    raceId: raceID,
     status: "finished",
     ...(token ? { token } : {}),
   });

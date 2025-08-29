@@ -102,7 +102,6 @@ export async function onTyped({
     const notFinishedCount = adversaries.filter((r) => !r.end).length;
     const shouldHaveItem =
       notFinishedCount > 0 && isLast && !playerRace.item && randInt(5) === 0; // 1 on 6
-    console.log({ isLast, notFinishedCount, shouldHaveItem });
 
     await convex.mutation(api.races.updatePlayerProgress, {
       raceId: raceID,
