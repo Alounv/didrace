@@ -17,7 +17,7 @@ import { ThemeController } from "./Theme";
 
 function Header() {
   const { isAuthenticated } = getCurrentUser();
-  const quotes = createQuery(api.quotes.getAllQuotes, () => ({}));
+  const hasQuotes = createQuery(api.quotes.getHasQuotes);
 
   function discordLogin() {
     try {
@@ -40,11 +40,6 @@ function Header() {
   function logout() {
     Cookies.remove("jwt");
     location.href = "/";
-  }
-
-  function hasQuotes() {
-    const values = quotes();
-    return (values?.length ?? 0) > 0;
   }
 
   return (

@@ -66,15 +66,23 @@ export const getRacesByStatus = query({
 
 export const createRace = mutation({
   args: {
-    quoteID: v.id("quotes"),
     token: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userID = await getUserFromToken(args.token);
     requireAuth(userID);
 
+    const quotes = await ctx.db.query("quotes").collect();
+
+    if (quotes.length === 0) {
+      throw new Error("No quotes available");
+    }
+
+    const randomIndex = Math.floor(Math.random() * quotes.length);
+    const quoteID = quotes[randomIndex]._id;
+
     const raceId = await ctx.db.insert("races", {
-      quoteID: args.quoteID,
+      quoteID,
       authorID: userID as Id<"players">,
       status: "ready",
       timestamp: Date.now(),

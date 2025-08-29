@@ -1,24 +1,15 @@
 import { api } from "../../../convex/_generated/api";
 import { getCurrentUser } from "../../convex";
-import { createMutation, createQuery } from "../../convex-solid";
+import { createMutation } from "../../convex-solid";
 
 export function CreateRace() {
   const { token } = getCurrentUser();
-  const quotes = createQuery(api.quotes.getAllQuotes, () => ({}));
   const createRace = createMutation(api.races.createRace);
   const joinRace = createMutation(api.races.joinRace);
 
   const handleCreateRace = async () => {
-    const quotesData = quotes();
-    if (!quotesData || quotesData.length === 0) return;
-
-    // Pick a random quote
-    const randomQuote =
-      quotesData[Math.floor(Math.random() * quotesData.length)];
-
     try {
       const raceId = await createRace({
-        quoteID: randomQuote._id,
         ...(token ? { token } : {}),
       });
 

@@ -1,11 +1,11 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
-export const getAllQuotes = query({
+export const getHasQuotes = query({
   args: {},
   handler: async (ctx) => {
-    const quotes = await ctx.db.query("quotes").collect();
-    return quotes.filter((quote) => quote.body.length < 50);
+    const first = await ctx.db.query("quotes").first();
+    return !!first;
   },
 });
 
@@ -13,36 +13,6 @@ export const getQuote = query({
   args: { quoteId: v.id("quotes") },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.quoteId);
-  },
-});
-
-export const createQuote = mutation({
-  args: {
-    body: v.string(),
-    source: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const quoteId = await ctx.db.insert("quotes", {
-      body: args.body,
-      source: args.source,
-    });
-
-    return quoteId;
-  },
-});
-
-export const getRandomQuotes = query({
-  args: {
-    excludeId: v.optional(v.id("quotes")),
-    token: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const testquotes = await ctx.db.query("quotes").collect();
-    const quotes = testquotes.filter((quote) => quote.body.length < 50);
-    const filtered = args.excludeId
-      ? quotes.filter((q) => q._id !== args.excludeId)
-      : quotes;
-    return filtered.sort(() => Math.random() - 0.5);
   },
 });
 

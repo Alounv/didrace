@@ -19,7 +19,7 @@ function Home() {
     }
   });
 
-  const quotes = createQuery(api.quotes.getAllQuotes, () => ({}));
+  const hasQuotes = createQuery(api.quotes.getHasQuotes);
   const readyRaces = createQuery(api.races.getRacesByStatus, () => ({
     status: "ready" as const,
     ...(token ? { token } : {}),
@@ -38,7 +38,7 @@ function Home() {
         </div>
       ) : (
         <Show
-          when={(quotes()?.length || 0) > 0}
+          when={hasQuotes()}
           fallback={
             <div class="flex justify-center mt-12">
               <InitializeQuotes />

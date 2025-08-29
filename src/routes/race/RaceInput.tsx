@@ -1,7 +1,6 @@
 import { createEffect, createSignal, Show } from "solid-js";
 import { api } from "../../../convex/_generated/api";
 import convex, { getCurrentUser } from "../../convex";
-import { createQuery } from "../../convex-solid";
 import {
   cleanEffect,
   getProgress,
@@ -41,9 +40,6 @@ export function RaceInput(props: {
   const [isCursorActive, setIsCursorActive] = createSignal(false);
   const [offset, setOffset] = createSignal(0);
   const [freeRightSpace, setFreeRightSpace] = createSignal(0);
-  const otherQuotes = createQuery(api.quotes.getRandomQuotes, () => ({
-    ...(token ? { token } : {}),
-  }));
   const [offsets, setOffests] = createSignal<Record<string, number>>({});
   const [positions, setPositions] = createSignal<
     Record<string, "left" | "right">
@@ -181,10 +177,7 @@ export function RaceInput(props: {
           <Podium playerRaces={props.playerRaces} quoteLength={text().length}>
             <EndRaceButton
               endRace={() => {
-                void end({
-                  raceID: props.race._id,
-                  quotes: otherQuotes() || [],
-                });
+                void end({ raceID: props.race._id });
               }}
               playerRaces={props.playerRaces}
             />
@@ -214,8 +207,7 @@ export function RaceInput(props: {
               text: text(),
               target: word(),
               adversaries: adversaries(),
-              endRace: () =>
-                end({ raceID: props.race._id, quotes: otherQuotes() || [] }),
+              endRace: () => end({ raceID: props.race._id }),
               playerRace: playerRace()!,
             });
 

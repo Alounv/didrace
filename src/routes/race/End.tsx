@@ -10,7 +10,7 @@ import type { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "../../components/Button";
 import { getCurrentUser } from "../../convex";
 import { createQuery } from "../../convex-solid";
-import { leave as leaveRace } from "../../domain/race-convex";
+import { leave } from "../../domain/race-convex";
 import type {
   PlayerRace,
   PlayerRaceWithPlayer,
@@ -58,8 +58,8 @@ function EndInternal(props: {
   const navigate = useNavigate();
   const { userID } = getCurrentUser();
 
-  async function leave() {
-    await leaveRace({ raceID: props.race._id });
+  async function leaveRace() {
+    await leave({ raceID: props.race._id });
     navigate("/");
   }
 
@@ -75,7 +75,7 @@ function EndInternal(props: {
       }
 
       if (e.code === "Escape") {
-        leave();
+        leaveRace();
       }
     },
   });
@@ -149,7 +149,7 @@ function EndInternal(props: {
       </div>
 
       <div class="flex gap-4 justify-center">
-        <Button onClick={leave}>
+        <Button onClick={leaveRace}>
           <Icon path={arrowLeftOnRectangle} class="size-5" />
           Leave [ESC]
         </Button>
