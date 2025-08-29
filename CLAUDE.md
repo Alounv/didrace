@@ -1,127 +1,126 @@
-# CLAUDE.md
+# Warp Terminal Configuration
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides Warp terminal-specific configurations and workflows for the Didrace project.
 
-## Project Overview
+## Quick Start Commands
 
-Didrace is a real-time multiplayer typing race application built with:
-- **Frontend**: Vite + SolidJS + TailwindCSS + DaisyUI
-- **Backend**: Convex functions (replaces Hono API)
-- **Database**: Convex (real-time database with built-in subscriptions)
-- **Authentication**: Discord OAuth with JWT cookies (preserved from Zero migration)
-- **Development**: Bun package manager
-
-## Development Commands
-
-### Setup
+### Setup & Development
 ```bash
+# Install dependencies
 bun install
-```
 
-### Development Server
-```bash
-# Start both Convex backend and UI (recommended)
+# Start development servers
 bun run dev
 
-# Start Convex functions only
-bun run dev:convex
-
-# Start UI only
-bun run dev:ui
+# View Convex dashboard
+open http://127.0.0.1:6790
 ```
 
-### Build & Deployment
+### Code Quality
 ```bash
-# Build for production
+# Lint and format
+bun run lint:fix && bun run format
+
+# Run tests
+bun run test
+```
+
+### Build & Deploy
+```bash
+# Build frontend
 bun run build
 
-# Lint code
-bun run lint
-
-# Deploy Convex functions
-bun run deploy:convex
+# Deploy Convex functions  
+bun run build:convex
 ```
 
-## Architecture
+## Warp Workflows
 
-### Real-time Data Layer
-The app uses **Convex** for real-time synchronization:
-- Schema defined in `convex/schema.ts` with tables: players, races, quotes, playerRaces, typedWords
-- Built-in real-time subscriptions - no manual WebSocket management needed
-- Convex client configured in `src/convex.ts`
+### Development Workflow
+1. **Start Development**
+   ```bash
+   bun run dev
+   ```
+   - Starts Convex backend (port 3210)
+   - Starts Vite frontend (port 5173)
+   - Opens Convex dashboard (port 6790)
 
-### Frontend Structure
-- **Routes**: Home (`/`), Race (`/races/:id`), Profile (`/profile`)
-- **Components**: Reusable UI components in `src/components/`
-- **Race Logic**: Complex race management in `src/routes/race/` with real-time progress tracking
-- **Domain Models**: Business logic in `src/domain/` (both Zero and Convex versions exist)
-- **Types**: TypeScript definitions in `src/types.ts`
+2. **Code Quality Check**
+   ```bash
+   bun run lint && bun run test
+   ```
 
-### Backend Functions (`convex/`)
-- **Authentication**: `authentication.ts` - Discord OAuth and guest login endpoints
-- **Players**: `players.ts` - User management queries and mutations
-- **Races**: `races.ts` - Race operations (create, join, update status, progress)
-- **Quotes**: `quotes.ts` - Quote management
-- **Analytics**: `analytics.ts` - Typed words tracking for performance metrics
-- **HTTP Routes**: `http.ts` - HTTP endpoint configuration
+3. **Pre-commit Hook**
+   - Husky automatically runs linting/formatting on commit
+   - Files are auto-formatted with Biome
 
-### Database Schema (Convex)
-Core tables:
-- `players`: User accounts with Discord integration
-- `races`: Race instances with status tracking  
-- `quotes`: Text content for typing races
-- `playerRaces`: Join table with progress and game effects
-- `typedWords`: Analytics data for performance tracking
-
-## Environment Variables Required
-
+### Debugging Commands
 ```bash
-# .env.local
-VITE_CONVEX_URL=http://127.0.0.1:3210  # Local Convex development
-DISCORD_CLIENT_ID=                      # Discord app client ID
-DISCORD_CLIENT_SECRET=                  # Discord app client secret
-AUTH_SECRET=                       # JWT signing secret (preserved)
-CONVEX_DEPLOYMENT=                      # Set automatically by npx convex dev
+# Check Convex connection
+curl http://127.0.0.1:3210
+
+# View logs
+bun run dev:convex --verbose
+
+# TypeScript check
+bun run build
 ```
 
-## Key Development Patterns
+## Environment Setup
 
-### Data Fetching (Convex)
-```typescript
-import { useQuery, useMutation } from "convex/solid";
-import { api } from "../convex/_generated/api";
-import { getCurrentUser } from "./convex";
-
-const { token } = getCurrentUser();
-const races = useQuery(api.races.getRacesByStatus, { status: "ready", token });
-const createRace = useMutation(api.races.createRace);
+### Required Variables (.env.local)
+```bash
+VITE_CONVEX_URL=http://127.0.0.1:3210
+AUTH_SECRET=your_jwt_secret
+DISCORD_CLIENT_ID=your_discord_client_id
+DISCORD_CLIENT_SECRET=your_discord_client_secret
+CONVEX_DEPLOYMENT=dev:project-name-123
 ```
 
-### Real-time Updates
-Components automatically re-render when Convex data changes. All race updates propagate instantly to participants via built-in subscriptions.
+## Common Tasks
 
-### Authentication Flow (Preserved from Zero)
-1. Discord OAuth or guest login sets JWT cookie via HTTP actions
-2. JWT decoded in components using `getCurrentUser()` helper
-3. Token passed to Convex functions for authorization
-4. Functions validate JWT and extract user ID for permissions
+### Database Operations
+- **View Schema**: Check `convex/schema.ts`
+- **Dashboard**: http://127.0.0.1:6790
+- **Reset Data**: Clear tables in Convex dashboard
 
-### Race State Management
-Race status flows: `ready` → `starting` → `started` → `finished`/`cancelled`
-Player progress tracked in `playerRaces.progress` (0-100)
+### Testing
+- **E2E Tests**: `bun run test`
+- **Interactive**: `bun run test:ui`
+- **Debug**: Add `--headed` flag to see browser
 
-## Migration Status
+### Deployment
+- **Frontend**: Any static host (Vercel, Netlify)
+- **Backend**: `bun run build:convex` (automatic via Convex)
 
-The codebase contains both Zero and Convex implementations:
-- **Current**: Zero-based components (existing)
-- **New**: Convex-based examples (`*-convex.tsx` files)
-- **Main entry**: Updated to use Convex (`src/main.tsx`)
+## Project Structure Quick Reference
 
-To complete migration: Replace remaining Zero components with Convex equivalents using the example files as templates.
+```
+├── src/
+│   ├── routes/home/     # Home page & race creation
+│   ├── routes/race/     # Race gameplay & components  
+│   ├── routes/analytics/# Performance analytics
+│   ├── components/      # Reusable UI components
+│   ├── auth/           # JWT & Discord auth
+│   └── domain/         # Business logic (Convex)
+├── convex/
+│   ├── schema.ts       # Database schema
+│   ├── auth.ts         # JWT validation
+│   ├── players.ts      # User management
+│   ├── races.ts        # Race operations
+│   ├── quotes.ts       # Quote management
+│   └── analytics.ts    # Performance tracking
+```
 
-## Testing & Deployment
+## Troubleshooting
 
-- Uses TypeScript strict mode with ESLint
-- Convex provides built-in dashboard at http://127.0.0.1:6790 for local development
-- Deploy Convex functions with `bun run deploy:convex`
-- Frontend can be deployed to any static hosting (Vercel, Netlify, etc.)
+### Common Issues
+- **Port 3210 in use**: Kill Convex process and restart
+- **JWT errors**: Check AUTH_SECRET in .env.local
+- **Discord OAuth**: Verify redirect URI in Discord app settings
+- **Build fails**: Run `bun run lint:fix` first
+
+### Logs & Debugging
+- **Convex logs**: Available in dashboard at http://127.0.0.1:6790
+- **Frontend logs**: Browser dev tools console
+- **Network requests**: Dev tools Network tab

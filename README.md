@@ -4,10 +4,12 @@ A real-time typing race application built with SolidJS and Convex.
 
 ## Architecture
 
-- **Frontend**: SolidJS + Vite + TailwindCSS + DaisyUI
+- **Frontend**: SolidJS + Vite + TailwindCSS v4 + DaisyUI
 - **Backend**: Convex (serverless backend with real-time sync)
-- **Authentication**: Discord OAuth + JWT
-- **Styling**: TailwindCSS with DaisyUI components
+- **Authentication**: Discord OAuth + JWT + Guest login
+- **Database**: Convex real-time database
+- **Code Quality**: Biome (linting + formatting) + Husky pre-commit hooks
+- **Testing**: Playwright for E2E testing
 
 ## Features
 
@@ -22,8 +24,8 @@ A real-time typing race application built with SolidJS and Convex.
 
 ### Prerequisites
 
-- Node.js 20.11.1+
-- npm or bun package manager
+- Node.js 22.19.0 (see `package.json` engines)
+- Bun package manager (recommended) or npm
 
 ### Installation
 
@@ -35,36 +37,36 @@ A real-time typing race application built with SolidJS and Convex.
 
 2. **Install dependencies**
    ```bash
+   bun install
+   # or
    npm install
    ```
 
 3. **Set up environment variables**
 
-   Create a `.env` file with:
+   Create a `.env.local` file:
    ```bash
    # Convex Configuration
    VITE_CONVEX_URL=http://127.0.0.1:3210
+   CONVEX_DEPLOYMENT=                      # Set automatically by npx convex dev
 
    # Authentication
-   AUTH_SECRET="secretkey"
+   AUTH_SECRET=your_jwt_secret_key
 
    # Discord OAuth (optional)
-   DISCORD_CLIENT_ID="your_discord_client_id"
-   DISCORD_CLIENT_SECRET="your_discord_client_secret"
-   ```
-
-   Create a `.env.local` file for frontend Discord credentials:
-   ```bash
-   VITE_DISCORD_CLIENT_ID=your_discord_client_id
-   VITE_DISCORD_CLIENT_SECRET=your_discord_client_secret
+   DISCORD_CLIENT_ID=your_discord_client_id
+   DISCORD_CLIENT_SECRET=your_discord_client_secret
    ```
 
 4. **Start the development servers**
    ```bash
+   bun run dev
+   # or
    npm run dev
    ```
 
    This starts both Convex backend (port 3210) and Vite frontend (port 5173).
+   Convex dashboard will be available at http://127.0.0.1:6790
 
 5. **Initialize the database**
 
@@ -72,13 +74,23 @@ A real-time typing race application built with SolidJS and Convex.
 
 ## Development Scripts
 
-- `npm run dev` - Start both Convex and Vite dev servers
-- `npm run dev:ui` - Start only the frontend dev server
-- `npm run dev:convex` - Start only the Convex backend
-- `npm run build` - Build the frontend for production
-- `npm run build:convex` - Deploy Convex functions
-- `npm run lint` - Run ESLint
-- `npm run typecheck` - Run TypeScript type checking
+### Development
+- `bun run dev` - Start both Convex and Vite dev servers
+- `bun run dev:ui` - Start only the frontend dev server  
+- `bun run dev:convex` - Start only the Convex backend
+
+### Code Quality
+- `bun run lint` - Run Biome linting
+- `bun run lint:fix` - Run Biome linting with auto-fix
+- `bun run format` - Format code with Biome
+
+### Testing
+- `bun run test` - Run Playwright tests
+- `bun run test:ui` - Run Playwright tests with UI
+
+### Build & Deploy
+- `bun run build` - Build the frontend for production
+- `bun run build:convex` - Deploy Convex functions
 
 ## Discord OAuth Setup
 
@@ -115,14 +127,3 @@ convex/
 3. Make your changes
 4. Run tests and linting
 5. Submit a pull request
-
-
-###  TODO:
-
-- Move the logic in domain elsewhere (in convex functions if possible)
-- Try to move logic without state into convex functions if possible
-- Do no query all quotes only to check if there are quotes
-- Try to improves how convex functions are done
-- See if naming can be improved
-
-- Add special charac backs

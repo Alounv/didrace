@@ -13,8 +13,7 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "clean": "rm -rf dist .convex node_modules/.vite",
-    "typecheck": "tsc --noEmit",
-    "test": "playwright test",
+    "test": "playwright test --reporter=list",
     "test:ui": "playwright test --ui",
     "prepare": "husky"
   },
