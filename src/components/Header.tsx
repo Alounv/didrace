@@ -17,7 +17,6 @@ import { ThemeController } from "./Theme";
 
 function Header() {
   const { isAuthenticated } = getCurrentUser();
-  const hasQuotes = createQuery(api.quotes.getHasQuotes);
 
   function discordLogin() {
     try {
@@ -51,36 +50,32 @@ function Header() {
       <div class="ml-auto flex gap-4 items-center">
         {isAuthenticated && <ThemeController />}
 
-        {hasQuotes() ? (
-          <Show
-            when={!isAuthenticated}
-            fallback={
-              <button type="button" class="btn" onClick={logout}>
-                <Icon path={arrowLeftOnRectangle} class="size-5" />
-                Logout
-              </button>
-            }
-          >
-            <div class="flex gap-2 items-center">
-              <button
-                type="button"
-                class="btn btn-primary"
-                onClick={discordLogin}
-              >
-                Discord
-              </button>
-              <button
-                type="button"
-                class="btn btn-secondary"
-                onClick={guestLogin}
-              >
-                Guest
-              </button>
-            </div>
-          </Show>
-        ) : (
-          <div class="text-error">db connection issue</div>
-        )}
+        <Show
+          when={!isAuthenticated}
+          fallback={
+            <button type="button" class="btn" onClick={logout}>
+              <Icon path={arrowLeftOnRectangle} class="size-5" />
+              Logout
+            </button>
+          }
+        >
+          <div class="flex gap-2 items-center">
+            <button
+              type="button"
+              class="btn btn-primary"
+              onClick={discordLogin}
+            >
+              Discord
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onClick={guestLogin}
+            >
+              Guest
+            </button>
+          </div>
+        </Show>
 
         {isAuthenticated && <CurrentUser />}
       </div>
