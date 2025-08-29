@@ -55,7 +55,7 @@ export function CountDown(props: { race: Race; playerRace?: PlayerRace }) {
   };
 
   const handleLeave = async () => {
-    await leave({ raceID: props.race._id, isAlone: false });
+    await leave({ raceID: props.race._id });
     navigate("/");
   };
 

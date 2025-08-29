@@ -99,27 +99,13 @@ export async function end({
 /*
  * Logic each time a player leaves the race
  */
-export async function leave({
-  raceID,
-  isAlone,
-}: {
-  raceID: Id<"races">;
-  isAlone: boolean;
-}) {
+export async function leave({ raceID }: { raceID: Id<"races"> }) {
   const { token } = getCurrentUser();
 
   await convex.mutation(api.races.leaveRace, {
     raceId: raceID,
     ...(token ? { token } : {}),
   });
-
-  if (isAlone) {
-    await convex.mutation(api.races.updateRaceStatus, {
-      raceId: raceID,
-      status: "finished",
-      ...(token ? { token } : {}),
-    });
-  }
 }
 
 /**

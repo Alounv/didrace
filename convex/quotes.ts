@@ -4,7 +4,8 @@ import { v } from "convex/values";
 export const getAllQuotes = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("quotes").collect();
+    const quotes = await ctx.db.query("quotes").collect();
+    return quotes.filter((quote) => quote.body.length < 50);
   },
 });
 
@@ -36,7 +37,8 @@ export const getRandomQuotes = query({
     token: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const quotes = await ctx.db.query("quotes").collect();
+    const testquotes = await ctx.db.query("quotes").collect();
+    const quotes = testquotes.filter((quote) => quote.body.length < 50);
     const filtered = args.excludeId
       ? quotes.filter((q) => q._id !== args.excludeId)
       : quotes;

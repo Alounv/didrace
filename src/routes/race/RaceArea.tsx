@@ -12,11 +12,12 @@ export function RaceArea(props: {
 }) {
   const { userID } = getCurrentUser();
 
+  function playerRace() {
+    return (props.playerRaces ?? []).find((r) => r.playerID === userID);
+  }
+
   return (
-    <Show
-      when={props.playerRaces.find((r) => r.playerID === userID)}
-      fallback={<Initializer race={props.race} />}
-    >
+    <Show when={playerRace()} fallback={<Initializer race={props.race} />}>
       {(playerRace) => (
         <RaceInput
           race={props.race}

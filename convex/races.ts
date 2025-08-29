@@ -222,6 +222,23 @@ export const leaveRace = mutation({
     if (playerRace) {
       await ctx.db.delete(playerRace._id);
     }
+
+    const playerRaces = await ctx.db
+      .query("playerRaces")
+      .withIndex("by_race", (q) => q.eq("raceID", args.raceId))
+      .collect();
+
+    if (!playerRaces.length) {
+      await ctx.db.patch(args.raceId, { status: "finished" });
+      const race = await ctx.db
+        .query("races")
+        .withIndex("by_id", (q) => q.eq("_id", args.raceId))
+        .first();
+
+      if (race?.nextRaceID) {
+        await ctx.db.delete(race?.nextRaceID);
+      }
+    }
   },
 });
 

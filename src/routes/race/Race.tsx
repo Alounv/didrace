@@ -2,7 +2,7 @@ import { createQuery } from "../../convex-solid";
 import { useNavigate, useParams } from "@solidjs/router";
 import { api } from "../../../convex/_generated/api";
 import { getCurrentUser } from "../../convex";
-import { Accessor, createEffect, Match, Show, Switch, createMemo } from "solid-js";
+import { Accessor, createEffect, Match, Show, Switch } from "solid-js";
 import { PlayerRaceWithPlayer, RaceWithRelations } from "../../types";
 import { CountDown } from "./CountDown";
 import { End } from "./End";
@@ -65,7 +65,7 @@ function RacePage() {
           <Match when={race().status === "starting"}>
             <CountDown race={race()} playerRace={playerRace()!} />
           </Match>
-          <Match when={race()?.status === "started"}>
+          <Match when={race().status === "started"}>
             <RaceArea
               race={race()}
               playerRaces={playerRaces()}

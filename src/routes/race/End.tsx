@@ -59,7 +59,7 @@ function EndInternal(props: {
   const { userID } = getCurrentUser();
 
   async function leave() {
-    await leaveRace({ raceID: props.race._id, isAlone: false });
+    await leaveRace({ raceID: props.race._id });
     navigate("/");
   }
 
@@ -133,7 +133,7 @@ function EndInternal(props: {
           <div class="text-base-100">History for this quote</div>
           <div class="flex gap-1 items-end h-40">
             <RaceBar
-              race={playerRace()!}
+              race={playerRace()}
               isCurrent
               len={props.race.quote?.body.length ?? 0}
             />
@@ -177,11 +177,13 @@ function Word(word: TypedWord) {
 }
 
 function RaceBar(props: {
-  race: PlayerRace;
+  race?: PlayerRace | undefined;
   len: number;
   isCurrent?: boolean;
 }) {
   function speed() {
+    if (!props.race) return { wpm: 0 };
+
     const duration = (props.race.end ?? 0) - (props.race.start ?? 0);
     const wpm =
       duration > 0
