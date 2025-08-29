@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test("guest login and edit profile settings", async ({ page }) => {
   // Navigate to the home page

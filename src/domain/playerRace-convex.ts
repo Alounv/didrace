@@ -1,9 +1,8 @@
 import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
-import { getCurrentUser } from "../convex";
+import type { Id } from "../../convex/_generated/dataModel";
+import convex, { getCurrentUser } from "../convex";
+import type { PlayerRace } from "../types";
 import { randInt } from "../utils/rand";
-import convex from "../convex";
-import { PlayerRace } from "../types";
 
 export type TextDisplay = {
   correct: string;

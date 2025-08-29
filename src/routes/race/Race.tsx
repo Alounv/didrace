@@ -1,20 +1,24 @@
-import { createMutation, createQuery } from "../../convex-solid";
 import { useNavigate, useParams } from "@solidjs/router";
-import { api } from "../../../convex/_generated/api";
-import { getCurrentUser } from "../../convex";
 import {
-  Accessor,
+  type Accessor,
   createEffect,
-  JSX,
+  type JSX,
   Match,
   onMount,
   Show,
   Switch,
 } from "solid-js";
-import { PlayerRaceWithPlayer, Race, RaceWithRelations } from "../../types";
+import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
+import { getCurrentUser } from "../../convex";
+import { createMutation, createQuery } from "../../convex-solid";
+import type {
+  PlayerRaceWithPlayer,
+  Race,
+  RaceWithRelations,
+} from "../../types";
 import { CountDown } from "./CountDown";
 import { End } from "./End";
-import { Id } from "../../../convex/_generated/dataModel";
 import { RaceInput } from "./RaceInput";
 
 function RacePage() {

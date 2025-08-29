@@ -1,4 +1,4 @@
-import { Player } from "../types";
+import type { Player } from "../types";
 import { getContrastColor } from "../utils/color";
 
 export function Avatar(props: { player: Player; class?: string }) {
@@ -11,6 +11,7 @@ export function Avatar(props: { player: Player; class?: string }) {
         <img
           src={props.player.avatar ?? ""}
           class="rounded-full"
+          alt={props.player?.name ?? "player avatar"}
           title={props.player?.name}
           style={{
             "background-color": props.player.color,

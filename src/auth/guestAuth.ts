@@ -1,5 +1,6 @@
 import { api } from "../../convex/_generated/api";
 import convex from "../convex";
+import { setCookie } from "../utils/cookies";
 import { createJWT } from "./jwt";
 
 export async function guestLogin() {
@@ -11,7 +12,7 @@ export async function guestLogin() {
     const jwt = await createJWT(guestId);
 
     // Set JWT cookie
-    document.cookie = `jwt=${jwt}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax`;
+    setCookie("jwt", jwt, { maxAge: 30 * 24 * 60 * 60, sameSite: "lax" });
 
     // Reload to refresh authentication state
     window.location.href = "/";

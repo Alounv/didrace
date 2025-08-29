@@ -1,6 +1,6 @@
 import { ConvexClient } from "convex/browser";
-import Cookies from "js-cookie";
 import { decodeJwt } from "jose";
+import Cookies from "js-cookie";
 
 const convex = new ConvexClient(import.meta.env.VITE_CONVEX_URL!);
 

@@ -1,5 +1,5 @@
 import { A } from "@solidjs/router";
-import { JSX } from "solid-js";
+import type { JSX } from "solid-js";
 
 export function Button(props: {
   children: JSX.Element;
@@ -15,7 +15,7 @@ export function Button(props: {
           {props.children}
         </A>
       ) : (
-        <button class={cls()} onClick={() => props?.onClick?.()}>
+        <button type="button" class={cls()} onClick={() => props?.onClick?.()}>
           {props.children}
         </button>
       )}

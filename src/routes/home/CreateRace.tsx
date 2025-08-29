@@ -1,6 +1,6 @@
-import { createQuery, createMutation } from "../../convex-solid";
 import { api } from "../../../convex/_generated/api";
 import { getCurrentUser } from "../../convex";
+import { createMutation, createQuery } from "../../convex-solid";
 
 export function CreateRace() {
   const { token } = getCurrentUser();
@@ -37,6 +37,7 @@ export function CreateRace() {
 
   return (
     <button
+      type="button"
       class="card w-50 h-50 bg-base-100 hover:bg-primary hover:text-primary-content justify-center"
       onClick={handleCreateRace}
     >

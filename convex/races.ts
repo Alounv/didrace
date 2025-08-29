@@ -1,7 +1,7 @@
-import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
+import { mutation, query } from "./_generated/server";
 import { getUserFromToken, requireAuth } from "./auth";
-import { Id } from "./_generated/dataModel";
 
 export const getRace = query({
   args: {

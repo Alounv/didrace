@@ -1,11 +1,11 @@
-import { For } from "solid-js";
-import { createQuery } from "../../convex-solid";
-import { api } from "../../../convex/_generated/api";
-import { getCurrentUser } from "../../convex";
-import { Button } from "../../components/Button";
 import { Icon } from "solid-heroicons";
 import { clipboardDocumentCheck } from "solid-heroicons/outline";
-import { Id } from "../../../convex/_generated/dataModel";
+import { For } from "solid-js";
+import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
+import { Button } from "../../components/Button";
+import { getCurrentUser } from "../../convex";
+import { createQuery } from "../../convex-solid";
 
 type WordData = {
   count: number;

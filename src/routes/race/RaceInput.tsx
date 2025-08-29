@@ -1,20 +1,20 @@
 import { createEffect, createSignal, Show } from "solid-js";
-import { createQuery } from "../../convex-solid";
 import { api } from "../../../convex/_generated/api";
 import convex, { getCurrentUser } from "../../convex";
-import { Race, PlayerRaceWithPlayer, PlayerRace } from "../../types";
-import { Podium } from "./Podium";
+import { createQuery } from "../../convex-solid";
+import {
+  cleanEffect,
+  getProgress,
+  onTyped,
+} from "../../domain/playerRace-convex";
+import { end } from "../../domain/race-convex";
+import type { PlayerRace, PlayerRaceWithPlayer, Race } from "../../types";
 import { Adversaries, AdversariesSides } from "./Adversaries";
 import { Cursor } from "./Cursor";
 import { EndRaceButton } from "./EndRaceButton";
 import { ItemAndEffect } from "./ItemAndEffect";
+import { Podium } from "./Podium";
 import { RaceText } from "./RaceText";
-import {
-  getProgress,
-  onTyped,
-  cleanEffect,
-} from "../../domain/playerRace-convex";
-import { end } from "../../domain/race-convex";
 
 const EFFECT_DURATION = 5000;
 

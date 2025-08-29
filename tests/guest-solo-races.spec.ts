@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { completeRace, loginAsGuest } from "./utils";
 
 test("guest login and perform two solo races then return home", async ({

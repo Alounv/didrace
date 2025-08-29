@@ -2,13 +2,13 @@
 @import "@fontsource/lato";
 @import "@fontsource/poppins";
 @plugin "daisyui" {
-    themes: all;
+  themes: all;
 }
 
 body {
-    font-family: "Poppins";
+  font-family: "Poppins", sans-serif;
 }
 
-@theme {
-    --font-lato: "Lato";
+:root {
+  --font-lato: "Lato", sans-serif;
 }

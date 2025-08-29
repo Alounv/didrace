@@ -1,8 +1,8 @@
-import { For, JSX } from "solid-js";
-import { PlayerName } from "./PlayerName";
+import { For, type JSX } from "solid-js";
 import { Avatar } from "../../components/Avatar";
 import { computePlayerRaces } from "../../domain/playerRace-convex";
-import { PlayerRaceWithPlayer } from "../../types";
+import type { PlayerRaceWithPlayer } from "../../types";
+import { PlayerName } from "./PlayerName";
 
 export function Podium(props: {
   children?: JSX.Element;

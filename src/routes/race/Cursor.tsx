@@ -1,8 +1,8 @@
-import { JSX } from "solid-js";
-import { PlayerName } from "./PlayerName";
+import type { JSX } from "solid-js";
 import { Avatar } from "../../components/Avatar";
+import type { Player, PlayerRace } from "../../types";
 import { Effect } from "./ItemAndEffect";
-import { Player, PlayerRace } from "../../types";
+import { PlayerName } from "./PlayerName";
 
 export function Cursor(props: {
   children: JSX.Element;

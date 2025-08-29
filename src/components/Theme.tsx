@@ -1,7 +1,6 @@
 import { Icon } from "solid-heroicons";
 import { swatch } from "solid-heroicons/outline";
-import { For } from "solid-js";
-import { onMount } from "solid-js";
+import { For, onMount } from "solid-js";
 import { themeChange } from "theme-change";
 
 const THEMES = [
@@ -46,9 +45,9 @@ export function ThemeController() {
 
   return (
     <div class="dropdown">
-      <div tabindex="0" role="button" class="btn m-1">
+      <button type="button" class="btn m-1">
         <Icon path={swatch} class="size-5" />
-      </div>
+      </button>
       <div
         tabindex="0"
         class="dropdown-content bg-base-300 rounded-box z-[1] w-52 p-2 shadow-2xl h-96 overflow-y-auto"

@@ -1,18 +1,18 @@
-import { createEffect, createSignal } from "solid-js";
-import { createMutation } from "../../convex-solid";
-import { api } from "../../../convex/_generated/api";
-import { getCurrentUser } from "../../convex";
-import { Race, PlayerRace } from "../../types";
 import { useNavigate } from "@solidjs/router";
-import { Button } from "../../components/Button";
-import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
 import { Icon } from "solid-heroicons";
 import {
   arrowLeftOnRectangle,
   chevronDoubleRight,
   clipboardDocumentCheck,
 } from "solid-heroicons/solid-mini";
+import { createEffect, createSignal } from "solid-js";
+import { api } from "../../../convex/_generated/api";
+import { Button } from "../../components/Button";
+import { getCurrentUser } from "../../convex";
+import { createMutation } from "../../convex-solid";
 import { leave } from "../../domain/race-convex";
+import type { PlayerRace, Race } from "../../types";
+import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
 
 export function CountDown(props: {
   race: Race;

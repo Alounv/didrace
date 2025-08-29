@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
-import { createMutation } from "../convex-solid";
 import { api } from "../../convex/_generated/api";
+import { createMutation } from "../convex-solid";
 import { quotes } from "../data/quotes";
 
 export function InitializeQuotes() {
@@ -40,6 +40,7 @@ export function InitializeQuotes() {
       )}
 
       <button
+        type="button"
         class={`btn btn-primary ${loading() ? "loading" : ""}`}
         onClick={handleInitialize}
         disabled={loading()}

@@ -1,4 +1,4 @@
-import { JSX } from "solid-js";
+import type { JSX } from "solid-js";
 import { getContrastColor } from "../../utils/color";
 
 export function PlayerName(props: {

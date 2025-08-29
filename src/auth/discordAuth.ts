@@ -1,5 +1,6 @@
 import { api } from "../../convex/_generated/api";
 import convex from "../convex";
+import { setCookie } from "../utils/cookies";
 import { createJWT } from "./jwt";
 
 // Discord OAuth configuration
@@ -118,7 +119,7 @@ export async function handleDiscordCallback() {
     const jwt = await createJWT(player!._id);
 
     // Set JWT cookie
-    document.cookie = `jwt=${jwt}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=lax`;
+    setCookie("jwt", jwt, { maxAge: 30 * 24 * 60 * 60, sameSite: "lax" });
 
     // Redirect to home
     window.location.href = "/";

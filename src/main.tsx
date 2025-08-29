@@ -1,13 +1,14 @@
 /* @refresh reload */
-import { render } from "solid-js/web";
+
 import { Route, Router } from "@solidjs/router";
+import { render } from "solid-js/web";
 import "./index.css";
-import { JSX, lazy } from "solid-js";
-import Header from "./components/Header.tsx";
-import { Analytics } from "./routes/analytics/Analytics.tsx";
+import { type JSX, lazy } from "solid-js";
 import { DiscordCallback } from "./components/DiscordCallback.tsx";
-import { ConvexContext } from "./convex-solid.ts";
+import Header from "./components/Header.tsx";
 import convex from "./convex.ts";
+import { ConvexContext } from "./convex-solid.ts";
+import { Analytics } from "./routes/analytics/Analytics.tsx";
 
 const Home = lazy(() => import("./routes/home/Home.tsx"));
 const Race = lazy(() => import("./routes/race/Race.tsx"));

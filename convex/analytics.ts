@@ -1,8 +1,8 @@
-import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import type { TypedWord } from "../src/types";
+import type { Id } from "./_generated/dataModel";
+import { mutation, query } from "./_generated/server";
 import { getUserFromToken, requireAuth } from "./auth";
-import { Id } from "./_generated/dataModel";
-import { TypedWord } from "../src/types";
 
 export const getPlayerTypedWords = query({
   args: {
@@ -48,7 +48,7 @@ export const addTypedWord = mutation({
 
     const typedWordId = await ctx.db.insert("typedWords", {
       playerID: userID as Id<"players">,
-      raceID: args.raceId!,
+      raceID: args.raceId,
       word: args.word,
       duration: args.duration,
       hadError: args.hadError,

@@ -1,7 +1,7 @@
+import type { Id } from "../../../convex/_generated/dataModel";
 import { activateItem } from "../../domain/playerRace-convex";
+import type { PlayerRace } from "../../types";
 import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
-import { Id } from "../../../convex/_generated/dataModel";
-import { PlayerRace } from "../../types";
 
 export function ItemAndEffect(props: {
   raceID: Id<"races">;

@@ -1,19 +1,19 @@
-import { Show } from "solid-js";
 import { A } from "@solidjs/router";
-import { Avatar } from "./Avatar";
-import { ThemeController } from "./Theme";
-import { Logo } from "./Logo";
-import { PlayerName } from "../routes/race/PlayerName";
 import Cookies from "js-cookie";
 import { Icon } from "solid-heroicons";
 import { arrowLeftOnRectangle } from "solid-heroicons/outline";
+import { Show } from "solid-js";
+import { api } from "../../convex/_generated/api";
+import type { Id } from "../../convex/_generated/dataModel";
+import { redirectToDiscordOAuth } from "../auth/discordAuth";
+import { guestLogin as doGuestLogin } from "../auth/guestAuth";
 import { getCurrentUser } from "../convex";
 import { createQuery } from "../convex-solid";
-import { api } from "../../convex/_generated/api";
-import { guestLogin as doGuestLogin } from "../auth/guestAuth";
-import { redirectToDiscordOAuth } from "../auth/discordAuth";
-import { Id } from "../../convex/_generated/dataModel";
+import { PlayerName } from "../routes/race/PlayerName";
+import { Avatar } from "./Avatar";
+import { Logo } from "./Logo";
 import { Settings } from "./Settings";
+import { ThemeController } from "./Theme";
 
 function Header() {
   const { isAuthenticated } = getCurrentUser();
@@ -60,17 +60,25 @@ function Header() {
           <Show
             when={!isAuthenticated}
             fallback={
-              <button class="btn" onClick={logout}>
+              <button type="button" class="btn" onClick={logout}>
                 <Icon path={arrowLeftOnRectangle} class="size-5" />
                 Logout
               </button>
             }
           >
             <div class="flex gap-2 items-center">
-              <button class="btn btn-primary" onClick={discordLogin}>
+              <button
+                type="button"
+                class="btn btn-primary"
+                onClick={discordLogin}
+              >
                 Discord
               </button>
-              <button class="btn btn-secondary" onClick={guestLogin}>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                onClick={guestLogin}
+              >
                 Guest
               </button>
             </div>

@@ -1,4 +1,4 @@
-import { onMount, createSignal, Show } from "solid-js";
+import { createSignal, onMount, Show } from "solid-js";
 import { handleDiscordCallback } from "../auth/discordAuth";
 
 export function DiscordCallback() {

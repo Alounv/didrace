@@ -1,7 +1,7 @@
 import { For } from "solid-js";
-import { Player } from "../types";
-import { createMutation } from "../convex-solid";
 import { api } from "../../convex/_generated/api";
+import { createMutation } from "../convex-solid";
+import type { Player } from "../types";
 
 const COLORS = [
   "#12C3E2",
@@ -12,13 +12,14 @@ const COLORS = [
   "#E2CA12",
 ];
 
-export function Settings(props: {
-  player: Player;
-  class: string;
-}) {
+export function Settings(props: { player: Player; class: string }) {
   const updatePlayerMutation = createMutation(api.players.updatePlayer);
 
-  const handleUpdatePlayer = async (updates: { name?: string; color?: string; avatar?: string }) => {
+  const handleUpdatePlayer = async (updates: {
+    name?: string;
+    color?: string;
+    avatar?: string;
+  }) => {
     try {
       await updatePlayerMutation({
         playerId: props.player._id,
@@ -50,6 +51,7 @@ export function Settings(props: {
             <For each={COLORS}>
               {(color) => (
                 <button
+                  type="button"
                   value={color}
                   onClick={() => handleUpdatePlayer({ color })}
                   class="badge btn"
@@ -66,9 +68,7 @@ export function Settings(props: {
                 type="text"
                 placeholder="#ffffff"
                 value={props.player.color}
-                onInput={(e) =>
-                  handleUpdatePlayer({ color: e.target.value })
-                }
+                onInput={(e) => handleUpdatePlayer({ color: e.target.value })}
               />
             </label>
             <div
@@ -85,9 +85,7 @@ export function Settings(props: {
               type="text"
               placeholder="https://..."
               value={props.player.avatar ?? ""}
-              onInput={(e) =>
-                handleUpdatePlayer({ avatar: e.target.value })
-              }
+              onInput={(e) => handleUpdatePlayer({ avatar: e.target.value })}
             />
           </label>
         </li>

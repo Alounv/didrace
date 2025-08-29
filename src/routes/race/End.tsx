@@ -1,25 +1,25 @@
-import { createSignal, JSX, Show, For } from "solid-js";
-import { createQuery } from "../../convex-solid";
-import { api } from "../../../convex/_generated/api";
-import { getCurrentUser } from "../../convex";
 import { useNavigate, useParams } from "@solidjs/router";
-import {
-  Race,
-  PlayerRaceWithPlayer,
-  TypedWord,
-  RaceWithRelations,
-  PlayerRace,
-} from "../../types";
-import { Podium } from "./Podium";
-import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
-import { Button } from "../../components/Button";
 import { Icon } from "solid-heroicons";
 import {
   arrowLeftOnRectangle,
   chevronDoubleRight,
 } from "solid-heroicons/solid-mini";
+import { createSignal, For, type JSX, Show } from "solid-js";
+import { api } from "../../../convex/_generated/api";
+import type { Id } from "../../../convex/_generated/dataModel";
+import { Button } from "../../components/Button";
+import { getCurrentUser } from "../../convex";
+import { createQuery } from "../../convex-solid";
 import { leave as leaveRace } from "../../domain/race-convex";
-import { Id } from "../../../convex/_generated/dataModel";
+import type {
+  PlayerRace,
+  PlayerRaceWithPlayer,
+  Race,
+  RaceWithRelations,
+  TypedWord,
+} from "../../types";
+import { addKeyboardEventListener } from "../../utils/addKeyboardEventListener";
+import { Podium } from "./Podium";
 
 export function End(props: {
   race: Race;

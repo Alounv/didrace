@@ -1,13 +1,13 @@
-import { Show, For, JSX, onMount } from "solid-js";
-import { createQuery, createMutation } from "../../convex-solid";
-import { api } from "../../../convex/_generated/api";
-import { getCurrentUser } from "../../convex";
-import { CreateRace } from "./CreateRace";
-import { InitializeQuotes } from "../../components/InitializeQuotes";
 import { A } from "@solidjs/router";
+import { For, type JSX, onMount, Show } from "solid-js";
+import { api } from "../../../convex/_generated/api";
 import { Avatar } from "../../components/Avatar";
+import { InitializeQuotes } from "../../components/InitializeQuotes";
+import { getCurrentUser } from "../../convex";
+import { createMutation, createQuery } from "../../convex-solid";
+import type { Player, RaceWithRelations } from "../../types";
 import { formatDate } from "../../utils/date";
-import { Player, RaceWithRelations } from "../../types";
+import { CreateRace } from "./CreateRace";
 
 function Home() {
   const { token, isAuthenticated } = getCurrentUser();
