@@ -17,7 +17,6 @@ export async function completeRace({ page }: { page: Page }) {
     if (!firstLetter) break;
 
     await input.type(firstLetter);
-    await page.waitForTimeout(50); // Small delay between keystrokes
   }
 }
 
