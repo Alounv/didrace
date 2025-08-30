@@ -200,7 +200,7 @@ export function RaceInput(props: {
               startRef = Date.now();
             }
 
-            const { hasError, isComplete } = await onTyped({
+            const { hasError, isComplete } = onTyped({
               raceID: props.race._id,
               typed,
               charIndex: charIndex(),
@@ -220,7 +220,7 @@ export function RaceInput(props: {
               setCharIndex((i) => i + typed.length);
               setInput("");
 
-              await convex.mutation(api.analytics.addTypedWord, {
+              void convex.mutation(api.analytics.addTypedWord, {
                 raceId: props.race._id,
                 word: typed,
                 hadError: hadErrorRef,

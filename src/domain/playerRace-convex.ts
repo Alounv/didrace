@@ -50,7 +50,7 @@ export function getProgress({
  * Logic each time a character is typed
  * Returns a boolean that indicates if a word has been completed
  */
-export async function onTyped({
+export function onTyped({
   raceID,
   typed,
   charIndex,
@@ -68,7 +68,7 @@ export async function onTyped({
   adversaries: { progress: number; end?: number }[];
   endRace: () => void;
   playerRace: PlayerRace;
-}): Promise<{ hasError: boolean; isComplete: boolean }> {
+}): { hasError: boolean; isComplete: boolean } {
   const { token } = getCurrentUser();
   const progress = Math.min(charIndex + typed.length, text.length);
 
@@ -79,7 +79,7 @@ export async function onTyped({
 
   // Player race complete --> save player progress and end player race
   if (progress === text.length) {
-    await convex.mutation(api.races.updatePlayerProgress, {
+    void convex.mutation(api.races.updatePlayerProgress, {
       raceId: raceID,
       progress,
       end: Date.now(),
@@ -103,7 +103,7 @@ export async function onTyped({
     const shouldHaveItem =
       notFinishedCount > 0 && isLast && !playerRace.item && randInt(5) === 0; // 1 on 6
 
-    await convex.mutation(api.races.updatePlayerProgress, {
+    void convex.mutation(api.races.updatePlayerProgress, {
       raceId: raceID,
       progress,
       ...(shouldHaveItem ? { item: getItem() } : {}),
@@ -114,7 +114,7 @@ export async function onTyped({
     return { hasError: false, isComplete: true };
   }
 
-  await convex.mutation(api.races.updatePlayerProgress, {
+  void convex.mutation(api.races.updatePlayerProgress, {
     raceId: raceID,
     progress,
     start: playerRace.start ?? Date.now(),
@@ -206,7 +206,7 @@ export async function activateItem({
   const { token } = getCurrentUser();
 
   // Remove item
-  await convex.mutation(api.races.updatePlayerProgress, {
+  void convex.mutation(api.races.updatePlayerProgress, {
     raceId: raceID,
     item: "none",
     ...(token ? { token } : {}),
@@ -233,7 +233,7 @@ export async function activateItem({
 
       // Apply effect to target player
       if (targetPlayerID && potentialTargets.length > 0) {
-        await convex.mutation(api.races.applyEffectToPlayer, {
+        void convex.mutation(api.races.applyEffectToPlayer, {
           raceId: raceID,
           targetPlayerID: targetPlayerID as Id<"players">,
           effect,
@@ -259,7 +259,7 @@ const EFFECTS = {
 export async function cleanEffect({ raceID }: { raceID: Id<"races"> }) {
   const { token } = getCurrentUser();
 
-  return await convex.mutation(api.races.updatePlayerProgress, {
+  return void convex.mutation(api.races.updatePlayerProgress, {
     raceId: raceID,
     effect: "none",
     ...(token ? { token } : {}),
