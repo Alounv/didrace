@@ -55,7 +55,7 @@ export function Adversaries(props: {
             </div>
 
             <div
-              class="absolute transition-all h-full"
+              class="absolute transition-all h-full duration-500"
               style={{
                 translate: `${props.offsetsSignal[0]()[race.playerID]}px`,
                 opacity: props.positionsSignal[0]()[race.playerID] ? 0 : 1,

@@ -9,7 +9,7 @@ export function PlayerName(props: {
 }) {
   return (
     <div
-      class={`badge font-quote ${props.isButton ? "btn" : ""} ${props.class}`}
+      class={`badge font-quote ${props.isButton ? "btn" : ""} ${props.class ?? ""} truncate`}
       style={{
         "background-color": props.color,
         color: getContrastColor(props.color),

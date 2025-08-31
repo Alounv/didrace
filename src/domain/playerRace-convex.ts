@@ -114,12 +114,15 @@ export function onTyped({
     return { hasError: false, isComplete: true };
   }
 
-  void convex.mutation(api.races.updatePlayerProgress, {
-    raceId: raceID,
-    progress,
-    start: playerRace.start ?? Date.now(),
-    ...(token ? { token } : {}),
-  });
+  // Update on start if the date is not set
+  if (!playerRace.start) {
+    void convex.mutation(api.races.updatePlayerProgress, {
+      raceId: raceID,
+      progress,
+      start: Date.now(),
+      ...(token ? { token } : {}),
+    });
+  }
 
   return { hasError: false, isComplete: false };
 }
