@@ -20,6 +20,88 @@ export async function completeRace({ page }: { page: Page }) {
   }
 }
 
+export async function completeRaceAlternatingMultiple({
+  players,
+}: {
+  players: Page[];
+}) {
+  if (players.length < 2) {
+    throw new Error(
+      "At least 2 players are required for alternating race completion",
+    );
+  }
+
+  // Wait for all players' races to be ready and focus their inputs
+  const inputs: Array<{ page: Page; input: any }> = [];
+
+  for (const player of players) {
+    const input = player.locator('input[id="input-id"]');
+    await expect(input).toBeVisible();
+    await input.focus();
+    inputs.push({ page: player, input });
+  }
+
+  let currentPlayerIndex = 0;
+  let lettersTyped = 0;
+
+  // Continue until any player finishes
+  while (true) {
+    // Check if any player has finished (no more letters to type)
+    let anyPlayerFinished = false;
+    const playerLetters = [];
+
+    for (const { page } of inputs) {
+      const letters = await page.locator('div[id="letter"]').all();
+      playerLetters.push(letters);
+      if (letters.length === 0) {
+        anyPlayerFinished = true;
+      }
+    }
+
+    if (anyPlayerFinished) {
+      break;
+    }
+
+    // Current player types a letter
+    const currentPlayer = inputs[currentPlayerIndex];
+    const currentLetters = playerLetters[currentPlayerIndex];
+
+    if (currentLetters.length > 0) {
+      const firstLetter = await currentLetters[0].textContent();
+      if (firstLetter) {
+        await currentPlayer.input.type(firstLetter);
+      }
+    }
+
+    // Move to next player
+    currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+    lettersTyped++;
+
+    // Safety check to prevent infinite loops
+    if (lettersTyped > 2000) {
+      break;
+    }
+  }
+
+  // Allow all remaining players to finish
+  let allPlayersFinished = false;
+  while (!allPlayersFinished) {
+    allPlayersFinished = true;
+
+    for (const { page, input } of inputs) {
+      const letters = await page.locator('div[id="letter"]').all();
+
+      if (letters.length > 0) {
+        allPlayersFinished = false;
+        const firstLetter = await letters[0].textContent();
+        if (firstLetter) {
+          await input.type(firstLetter);
+        }
+      }
+    }
+  }
+}
+
 export async function loginAsGuest({
   page,
   guestName,
