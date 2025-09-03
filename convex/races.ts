@@ -208,6 +208,13 @@ export const updatePlayerProgress = mutation({
       ),
     ),
     token: v.optional(v.string()),
+    word: v.optional(
+      v.object({
+        text: v.string(),
+        duration: v.number(),
+        hadError: v.boolean(),
+      }),
+    ),
   },
   handler: async (ctx, args) => {
     const userID = await getUserFromToken(args.token);
@@ -235,6 +242,17 @@ export const updatePlayerProgress = mutation({
         ? { item: args.item === "none" ? undefined : args.item }
         : {}),
     });
+
+    if (args.word) {
+      await ctx.db.insert("typedWords", {
+        playerID: userID as Id<"players">,
+        raceID: args.raceId,
+        word: args.word.text,
+        duration: args.word.duration,
+        hadError: args.word.hadError,
+        timestamp: Date.now(),
+      });
+    }
   },
 });
 

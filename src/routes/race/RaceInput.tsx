@@ -1,6 +1,5 @@
 import { createEffect, createSignal, Show } from "solid-js";
-import { api } from "../../../convex/_generated/api";
-import convex, { getCurrentUser } from "../../convex";
+import { getCurrentUser } from "../../convex";
 import {
   cleanEffect,
   getProgress,
@@ -23,7 +22,7 @@ export function RaceInput(props: {
   playerRaces: PlayerRaceWithPlayer[];
   quote: string;
 }) {
-  const { userID, token } = getCurrentUser();
+  const { userID } = getCurrentUser();
   // --- Refs ---
 
   let inputRef: HTMLInputElement;
@@ -209,6 +208,11 @@ export function RaceInput(props: {
               adversaries: adversaries(),
               endRace: () => end({ raceID: props.race._id }),
               playerRace: playerRace()!,
+              word: {
+                hadError: hadErrorRef,
+                text: typed,
+                duration: Date.now() - startRef,
+              },
             });
 
             if (hasError) {
@@ -216,31 +220,23 @@ export function RaceInput(props: {
             }
 
             if (isComplete) {
-              const now = Date.now();
               setCharIndex((i) => i + typed.length);
               setInput("");
-
-              void convex.mutation(api.analytics.addTypedWord, {
-                raceId: props.race._id,
-                word: typed,
-                hadError: hadErrorRef,
-                duration: now - startRef,
-                ...(token ? { token } : {}),
-              });
-
               hadErrorRef = false;
               startRef = null;
             } else {
               setInput(typed);
             }
 
-            // Update offsets
-            setOffset(typedRef?.offsetWidth ?? 0);
-            setFreeRightSpace(
-              (containerRef?.offsetWidth ?? 0) -
-                (textRef?.offsetWidth ?? 0) +
-                (typedRef?.offsetWidth ?? 0),
-            );
+            // Throttle offset updates using requestAnimationFrame
+            requestAnimationFrame(() => {
+              setOffset(typedRef?.offsetWidth ?? 0);
+              setFreeRightSpace(
+                (containerRef?.offsetWidth ?? 0) -
+                  (textRef?.offsetWidth ?? 0) +
+                  (typedRef?.offsetWidth ?? 0),
+              );
+            });
           }}
         />
       </label>

@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
-import { mutation, query } from "./_generated/server";
-import { getUserFromToken, requireAuth } from "./auth";
+import { query } from "./_generated/server";
+import { getUserFromToken } from "./auth";
 
 export const getPlayerTypedWords = query({
   args: {
@@ -30,30 +30,5 @@ export const getPlayerTypedWords = query({
     }
 
     return await query.collect();
-  },
-});
-
-export const addTypedWord = mutation({
-  args: {
-    raceId: v.id("races"),
-    word: v.string(),
-    duration: v.number(),
-    hadError: v.boolean(),
-    token: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    const userID = await getUserFromToken(args.token);
-    requireAuth(userID);
-
-    const typedWordId = await ctx.db.insert("typedWords", {
-      playerID: userID as Id<"players">,
-      raceID: args.raceId,
-      word: args.word,
-      duration: args.duration,
-      hadError: args.hadError,
-      timestamp: Date.now(),
-    });
-
-    return typedWordId;
   },
 });

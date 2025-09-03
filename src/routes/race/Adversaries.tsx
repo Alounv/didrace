@@ -16,33 +16,38 @@ export function Adversaries(props: {
         const typed = props.done(race.progress);
         let typedRef: HTMLDivElement | undefined;
 
+        // Throttle DOM measurements using requestAnimationFrame
+        let rafId: number | undefined;
         createEffect(() => {
           if (typed && typedRef) {
-            const offset = typedRef.offsetWidth;
-            const dist = offset - props.currentPlayerOffset;
-            const halfscreen = window.innerWidth / 2 - 40;
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(() => {
+              const offset = typedRef.offsetWidth;
+              const dist = offset - props.currentPlayerOffset;
+              const halfscreen = window.innerWidth / 2 - 40;
 
-            if (dist > halfscreen) {
-              props.positionsSignal[1]((p) => ({
-                ...p,
-                [race.playerID]: "right",
-              }));
-            } else if (dist < -halfscreen) {
-              props.positionsSignal[1]((p) => ({
-                ...p,
-                [race.playerID]: "left",
-              }));
-            } else {
-              props.positionsSignal[1]((p) => {
-                delete p[race.playerID];
-                return p;
-              });
-            }
+              if (dist > halfscreen) {
+                props.positionsSignal[1]((p) => ({
+                  ...p,
+                  [race.playerID]: "right",
+                }));
+              } else if (dist < -halfscreen) {
+                props.positionsSignal[1]((p) => ({
+                  ...p,
+                  [race.playerID]: "left",
+                }));
+              } else {
+                props.positionsSignal[1]((p) => {
+                  delete p[race.playerID];
+                  return p;
+                });
+              }
 
-            props.offsetsSignal[1]((p) => ({
-              ...p,
-              [race.playerID]: offset,
-            }));
+              props.offsetsSignal[1]((p) => ({
+                ...p,
+                [race.playerID]: offset,
+              }));
+            });
           }
         });
         return (

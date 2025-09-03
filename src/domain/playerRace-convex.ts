@@ -59,6 +59,7 @@ export function onTyped({
   adversaries,
   endRace,
   playerRace,
+  word,
 }: {
   raceID: Id<"races">;
   typed: string;
@@ -68,6 +69,11 @@ export function onTyped({
   adversaries: { progress: number; end?: number }[];
   endRace: () => void;
   playerRace: PlayerRace;
+  word: {
+    hadError: boolean;
+    text: string;
+    duration: number;
+  };
 }): { hasError: boolean; isComplete: boolean } {
   const { token } = getCurrentUser();
   const progress = Math.min(charIndex + typed.length, text.length);
@@ -109,6 +115,7 @@ export function onTyped({
       ...(shouldHaveItem ? { item: getItem() } : {}),
       ...(!isLast ? { item: "none" } : {}),
       ...(token ? { token } : {}),
+      word,
     });
 
     return { hasError: false, isComplete: true };
